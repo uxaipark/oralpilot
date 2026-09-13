@@ -2681,3 +2681,20 @@ h1 {
   margin-top: 9px;
   overflow-wrap: anywhere;
 }
+
+.tooth-selection-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 10px 0;
+  font-size: 0.875rem;
+  color: #a8bbca;
+}
+.tooth-selection-actions > span {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.tooth-selection-actions > button {
+  flex-shrink: 0;
+}

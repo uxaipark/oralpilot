@@ -1,3 +1,4 @@
+import './viewer-interaction.test';
 import './perio-display.test';
 import './face.test';
 import './sequence.test';

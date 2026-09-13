@@ -22,6 +22,7 @@ import {
   type SequencePlan,
 } from '@/lib/treatment-sequence';
 import { buildReferenceSoftTissues } from '@/lib/soft-tissue';
+import { buildExtractionSite, pickDentalSite } from '@/lib/tooth-picking';
 import type { Chart } from '@/lib/voice-perio/domain/types';
 import {
   examTooth,
@@ -203,15 +204,8 @@ export default function Scene(props: SceneProps) {
         (-(e.clientY - rect.top) / rect.height) * 2 + 1,
       );
       ray.setFromCamera(pointer, camera);
-      const hit = ray
-        .intersectObjects(anatomy.children)
-        .find(
-          (h) =>
-            h.object.visible &&
-            h.object.userData.fdi &&
-            h.object.userData.group === 'tooth',
-        );
-      if (hit) latest.current.onSelect(hit.object.userData.fdi);
+      const fdi = pickDentalSite(ray, [anatomy, annotations]);
+      if (fdi) latest.current.onSelect(fdi);
     };
     renderer.domElement.addEventListener('pointerdown', onDown);
     renderer.domElement.addEventListener('pointerup', onUp);
@@ -302,7 +296,7 @@ export default function Scene(props: SceneProps) {
       mesh.userData = part;
       r.anatomy.add(mesh);
     }
-    r.anatomy.add(...buildReferenceSoftTissues(props.parts));
+    r.anatomy.add(...buildReferenceSoftTissues(props.parts, props.buffer));
     if (faceResources)
       r.anatomy.add(
         ...buildScannedFace(faceResources, props.parts, r.environment),
@@ -599,7 +593,25 @@ export default function Scene(props: SceneProps) {
       props.view === 'face'
     )
       return;
-    const objects = buildPerioMarkers(props.parts, props.perioChart);
+    const objects: THREE.Object3D[] = buildPerioMarkers(
+      props.parts,
+      props.perioChart,
+    );
+    for (const tooth of r.anatomy.children) {
+      const part = tooth.userData as Part;
+      if (
+        part.group !== 'tooth' ||
+        !part.fdi ||
+        examTooth(props.perioChart, part.fdi)?.status !== 'missing'
+      )
+        continue;
+      const ghost = buildExtractionSite(
+        (tooth as THREE.Mesh).geometry,
+        part,
+        props.highlightedTeeth.includes(part.fdi),
+      );
+      if (ghost) objects.push(ghost);
+    }
     if (
       props.mode === 'planning' &&
       props.highlightedTeeth.includes(props.selectedTooth)
@@ -620,7 +632,9 @@ export default function Scene(props: SceneProps) {
         });
       }
       o.visible =
-        (o.userData.kind !== 'perio' || props.layers.tooth) &&
+        ((o.userData.kind !== 'perio' &&
+          o.userData.group !== 'extraction-site') ||
+          props.layers.tooth) &&
         (jaw !== 'maxilla' ||
           props.layers.upper ||
           ['unfolded', 'upper-occlusal', 'front'].includes(props.view)) &&
@@ -643,6 +657,9 @@ export default function Scene(props: SceneProps) {
     props.selectedTooth,
     props.highlightedTeeth,
     props.implants,
+    props.smoothTeeth,
+    props.neurovascularPaths,
+    faceResources,
   ]);
   useEffect(() => {
     const r = runtime.current;

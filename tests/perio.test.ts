@@ -137,7 +137,12 @@ void test('display refinement adds four triangles per original face without movi
 void test('soft-tissue references are finite, separate from measured anatomy and retain source coordinates', async () => {
   const m = JSON.parse(await readFile('public/anatomy/manifest.json', 'utf8'));
   const before = JSON.stringify(m);
-  const meshes = buildReferenceSoftTissues(m.parts);
+  const source = await readFile('public/anatomy/toothfairy.bin');
+  const buffer = source.buffer.slice(
+    source.byteOffset,
+    source.byteOffset + source.byteLength,
+  );
+  const meshes = buildReferenceSoftTissues(m.parts, buffer);
   assert.equal(meshes.length, 2);
   assert.deepEqual(
     meshes.map((m) => m.userData.group),

@@ -75,6 +75,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import Scene from './scene';
+import {
+  implantSelection,
+  toggleImplantSelection,
+} from '@/lib/implant-selection';
 import anatomyManifest from '@/public/anatomy/manifest.json';
 import {
   chartFromAnatomy,
@@ -430,7 +434,12 @@ export default function Studio() {
         },
       });
   };
-  const addImplant = () => {
+  const implantTargets = highlightedTeeth.length ? highlightedTeeth : [tooth];
+  const implantAction = implantSelection(implants, implantTargets);
+  const implantActionLabel = implantAction.remove
+    ? `${implantTargets.length === 1 ? `#${implantTargets[0]}` : `선택 ${implantTargets.length}개`} 임플란트 제거`
+    : `${implantTargets.length === 1 ? `#${implantTargets[0]}에` : `선택 중 ${implantAction.missing.length}개`} 임플란트 추가`;
+  const toggleImplants = () => {
     if (external) {
       notify(
         '가져온 모델은 정합·치아 라벨이 없어 식립계획과 연결되지 않습니다. 해부학 예제로 돌아가세요.',
@@ -439,32 +448,42 @@ export default function Studio() {
     }
     if (
       !buffer ||
-      !parts.some((p) => p.group === 'tooth' && p.fdi === tooth && p.axes)
+      implantTargets.some(
+        (n) => !parts.some((p) => p.group === 'tooth' && p.fdi === n && p.axes),
+      )
     ) {
-      notify('해부학 모델을 불러온 뒤 추가할 수 있습니다.');
+      notify('선택한 치아의 해부학 모델을 불러온 뒤 계획할 수 있습니다.');
       return;
     }
+    const result = toggleImplantSelection(
+      implants,
+      implantTargets,
+      serial.current,
+    );
+    serial.current = result.serial;
+    setImplants(result.plans);
+    const focus = implantTargets.includes(tooth) ? tooth : implantTargets[0];
+    setTooth(focus);
+    setSelected(result.plans.find((p) => p.tooth === focus)?.id || '');
     setStep('planning');
     setPlaying(false);
-    setView('focus');
+    if (implantTargets.length === 1) setView('focus');
+    else if (
+      ['focus', 'axis', 'face', 'upper-occlusal', 'lower-occlusal'].includes(
+        view,
+      )
+    )
+      setView('perspective');
     setReset((n) => n + 1);
     setLayers((l) => ({
       ...l,
       tooth: true,
-      upper: tooth < 30 ? true : l.upper,
+      upper: implantTargets.some((n) => n < 30) || l.upper,
     }));
-    setHighlightedTeeth((list) =>
-      list.includes(tooth) ? list : [...list, tooth],
+    setHighlightedTeeth(implantTargets);
+    notify(
+      `${result.changed.map((n) => `#${n}`).join(', ')} 식립계획 ${result.removed ? '제거' : '추가'} 완료`,
     );
-    if (implants.some((p) => p.tooth === tooth)) {
-      setSelected(implants.find((p) => p.tooth === tooth)!.id);
-      notify(`#${tooth}의 기존 계획을 선택했습니다.`);
-      return;
-    }
-    const id = `IP-${String(serial.current++).padStart(2, '0')}`;
-    setImplants((a) => [...a, { ...initialImplant, id, tooth }]);
-    setSelected(id);
-    notify(`#${tooth} 가상 발치 후 식립계획을 추가했습니다.`);
   };
   const remove = () => {
     if (!current) return;
@@ -906,6 +925,15 @@ export default function Studio() {
                         <i style={{ background: '#fab557' }} />
                         하치조관
                       </span>
+                      {['anatomy', 'planning'].includes(step) &&
+                        layers.tooth &&
+                        Object.values(perioState.chart).some(
+                          (t) => t.status === 'missing',
+                        ) && (
+                          <span className="soft-reference-chip">
+                            흐린 뿌리 클릭 → 발치 위치 선택 · 잔존 치근 아님
+                          </span>
+                        )}
                       {(layers.gingiva || layers.lips || layers.face) && (
                         <span className="soft-reference-chip">
                           {layers.face || layers.lips
@@ -942,13 +970,20 @@ export default function Studio() {
                         <div className="planning-guide-readout">
                           <strong>
                             #{tooth}{' '}
-                            {focusedPlan
-                              ? '식립축 검토'
-                              : '추가 전 위치 가이드'}
+                            {examTooth(perioState.chart, tooth)?.status ===
+                            'missing'
+                              ? '발치 위치 · 식립축 검토'
+                              : focusedPlan
+                                ? '식립축 검토'
+                                : '추가 전 위치 가이드'}
                           </strong>
                           <span>
                             <i className="axis-blue" />
-                            치아 기준축 <i className="axis-amber" />
+                            {examTooth(perioState.chart, tooth)?.status ===
+                            'missing'
+                              ? '발치 전 치아 기준축'
+                              : '치아 기준축'}{' '}
+                            <i className="axis-amber" />
                             식립축
                           </span>
                           <span>
@@ -1010,7 +1045,11 @@ export default function Studio() {
                   <select
                     id="implant-target-tooth"
                     value={tooth}
-                    onChange={(e) => chooseTooth(Number(e.target.value))}
+                    onChange={(e) => {
+                      const n = Number(e.target.value);
+                      chooseTooth(n);
+                      setHighlightedTeeth([n]);
+                    }}
                   >
                     {[
                       ['상악', upperTeeth],
@@ -1030,16 +1069,20 @@ export default function Studio() {
                   </select>
                   <button
                     className="primary-button"
-                    onClick={addImplant}
+                    onClick={toggleImplants}
+                    aria-pressed={implantAction.remove}
                     disabled={!buffer || !parts.length}
                   >
-                    <Plus size={16} />
-                    {implants.some((p) => p.tooth === tooth)
-                      ? `#${tooth} 임플란트 편집`
-                      : `#${tooth}에 임플란트 추가`}
+                    {implantAction.remove ? (
+                      <Trash2 size={16} />
+                    ) : (
+                      <Plus size={16} />
+                    )}
+                    {implantActionLabel}
                   </button>
                   <small>
-                    치아를 클릭하거나 번호 선택 · 추가 후 위치·각도·크기 조정
+                    여러 치아 선택 후 일괄 추가 · 모두 계획된 선택은 다시 누르면
+                    제거
                   </small>
                 </div>
               )}
@@ -1092,6 +1135,21 @@ export default function Studio() {
                         >
                           치주 차트 열기 <ArrowRight size={14} />
                         </button>
+                      </div>
+                      <div className="tooth-selection-actions">
+                        <span>
+                          {highlightedTeeth.length
+                            ? `${highlightedTeeth.length}개 선택 · ${highlightedTeeth.map((n) => `#${n}`).join(', ')}`
+                            : '치아를 클릭해 여러 위치를 선택하세요.'}
+                        </span>
+                        {highlightedTeeth.length > 0 && (
+                          <button
+                            className="text-button"
+                            onClick={() => setHighlightedTeeth([])}
+                          >
+                            선택 해제
+                          </button>
+                        )}
                       </div>
                       <div className="tooth-row">
                         <span className="arch-label">상악</span>
@@ -1483,9 +1541,15 @@ export default function Studio() {
                         className="text-button"
                         disabled={!!external}
                         hidden={step !== 'planning'}
-                        onClick={addImplant}
+                        onClick={toggleImplants}
+                        aria-pressed={implantAction.remove}
                       >
-                        <Plus size={14} />#{tooth}에 추가
+                        {implantAction.remove ? (
+                          <Trash2 size={14} />
+                        ) : (
+                          <Plus size={14} />
+                        )}
+                        {implantActionLabel}
                       </button>
                     </div>
                     <div className="implant-list">
@@ -1496,6 +1560,7 @@ export default function Studio() {
                           onClick={() => {
                             setSelected(p.id);
                             setTooth(p.tooth);
+                            setHighlightedTeeth([p.tooth]);
                           }}
                         >
                           <Crosshair size={16} />
@@ -1521,10 +1586,11 @@ export default function Studio() {
                       차트 선택 <strong>#{tooth}</strong>
                       <button
                         className="text-button"
-                        onClick={addImplant}
+                        onClick={toggleImplants}
+                        aria-pressed={implantAction.remove}
                         disabled={!!external}
                       >
-                        이 위치에 계획
+                        {implantActionLabel}
                       </button>
                     </div>
                   </div>
