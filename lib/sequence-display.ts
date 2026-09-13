@@ -1,3 +1,5 @@
+import { renderGuideStage } from './guide-sequence-display';
+import { GUIDE_SLEEVE_HEIGHT, type GuideSettings } from './anatomical-guide';
 import * as THREE from 'three';
 import { buildAbutment, buildReferenceCrown } from './prosthetic-display';
 import {
@@ -18,10 +20,22 @@ export function renderTreatmentPhase(
   implants: Implant[],
   parts: Part[],
   anatomy: THREE.Group,
-  options: { crownOpacity?: number } = {},
+  options: {
+    crownOpacity?: number;
+    guideTemplate?: THREE.Group;
+    guide?: GuideSettings;
+  } = {},
 ) {
   const group = new THREE.Group(),
     frame = phaseAt(plan, progress)!;
+  if (options.guideTemplate) {
+    const guides = renderGuideStage(
+      options.guideTemplate,
+      frame.phase,
+      frame.local,
+    );
+    for (const child of [...guides.children]) group.add(child);
+  }
   const poseFor = (tooth: number) =>
     implantPose(
       implants.find((p) => p.tooth === tooth) || { ...initialImplant, tooth },
@@ -109,29 +123,67 @@ export function renderTreatmentPhase(
       }
     }
     if (kind === 'drilling' || kind === 'endo') {
-      const instrument = new THREE.Group(),
-        length = kind === 'endo' ? 18 : 26,
-        radius = kind === 'endo' ? 0.25 : 0.9;
+      const guided = kind === 'drilling' && !!frame.phase.guideTeeth;
+      const settings = options.guide ?? { bore: 2.2, thickness: 2, offset: 3 };
+      const depth = implants.find((p) => p.tooth === tooth)?.length || 10;
+      const sleeveTop = settings.offset + GUIDE_SLEEVE_HEIGHT;
+      const start = guided ? sleeveTop + 7 : 0;
+      const tipY =
+        kind === 'endo'
+          ? -(3 + Math.sin(frame.local * Math.PI * 5) * 3)
+          : start - Math.sin(frame.local * Math.PI) * (start + depth);
+      const length =
+        kind === 'endo' ? 18 : Math.max(26, sleeveTop + depth + 10);
+      const radius =
+        kind === 'endo'
+          ? 0.25
+          : guided
+            ? Math.min(1, settings.bore / 2 - 0.15)
+            : 0.9;
+      const instrument = new THREE.Group();
+      instrument.userData = {
+        component: guided ? 'guided-drill' : 'treatment-instrument',
+        tipY,
+        drillDiameter: radius * 2,
+        sleeveTop,
+        plannedDepth: depth,
+      };
       const mesh = new THREE.Mesh(
-        new THREE.CylinderGeometry(radius, radius * 0.65, length, 16),
+        new THREE.CylinderGeometry(radius, radius * 0.65, length, 24),
         new THREE.MeshStandardMaterial({
           color: kind === 'endo' ? '#e6bd58' : '#c5d9e6',
           roughness: 0.25,
           metalness: 0.8,
         }),
       );
-      mesh.position.y =
-        length / 2 -
-        (kind === 'endo'
-          ? 3 + Math.sin(frame.local * Math.PI * 5) * 3
-          : Math.sin(frame.local * Math.PI) *
-            (implants.find((p) => p.tooth === tooth)?.length || 10));
+      mesh.position.y = length / 2 + tipY;
       instrument.add(mesh);
+      if (guided) {
+        for (const offset of [0, Math.PI]) {
+          const points = Array.from({ length: 81 }, (_, i) => {
+            const y = (i / 80) * length,
+              angle =
+                (i / 80) * Math.PI * 12 + offset + frame.local * Math.PI * 24;
+            return new THREE.Vector3(
+              Math.cos(angle) * radius,
+              y + tipY,
+              Math.sin(angle) * radius,
+            );
+          });
+          instrument.add(
+            new THREE.Line(
+              new THREE.BufferGeometry().setFromPoints(points),
+              new THREE.LineBasicMaterial({ color: '#536a75' }),
+            ),
+          );
+        }
+      }
       instrument.position.copy(pose.point);
       instrument.quaternion.copy(pose.quaternion);
       group.add(tag(instrument, tooth));
     }
   }
+
   const sites = [
     ...new Set(
       plan.phases

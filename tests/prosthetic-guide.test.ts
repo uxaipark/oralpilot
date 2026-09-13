@@ -9,7 +9,11 @@ import {
   type Part,
 } from '../lib/planning';
 import { chartFromAnatomy } from '../lib/perio-display';
-import { buildSequencePlans, toothPhaseState } from '../lib/treatment-sequence';
+import {
+  buildSequencePlans,
+  toothPhaseState,
+  sequenceSignature,
+} from '../lib/treatment-sequence';
 import { renderTreatmentPhase } from '../lib/sequence-display';
 import { buildAnatomicalGuides, guideDepth } from '../lib/anatomical-guide';
 import { referenceCrownGeometry } from '../lib/prosthetic-display';
@@ -45,7 +49,7 @@ async function fixture() {
 function dispose(g: THREE.Object3D) {
   g.traverse((o) => {
     if (o instanceof THREE.Mesh || o instanceof THREE.Line) {
-      o.geometry.dispose();
+      if (!o.userData.sharedGuideGeometry) o.geometry.dispose();
       (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) =>
         m.dispose(),
       );
@@ -220,4 +224,181 @@ void test('partial arch guides retain adjacent tooth supports, separate jaws and
   assert.deepEqual(new Uint8Array(buffer), before);
   dispose(guides);
   dispose(anatomy);
+});
+
+void test('guides are fabricated and seated before axial drilling, removed before placement, and leave crowns after recovery', async () => {
+  const { parts, buffer, anatomy, chart } = await fixture();
+  const implants = [16, 25, 46].map((tooth, i) => ({
+    ...initialImplant,
+    id: `IP-0${i + 1}`,
+    tooth,
+    angle: 9,
+    tilt: -4,
+  }));
+  const settings = { scope: 'partial' as const, batchSize: 2, needs: {} };
+  const guide = { bore: 2.2, thickness: 2, offset: 4 };
+  const plans = buildSequencePlans(implants, settings, chart, parts, buffer);
+  const template = buildAnatomicalGuides(
+    implants,
+    parts,
+    buffer,
+    chart,
+    guide,
+    false,
+  );
+  const sourceSleeves: THREE.Mesh[] = [];
+  template.traverse((o) => {
+    if (o.userData.component === 'metal-sleeve')
+      sourceSleeves.push(o as THREE.Mesh);
+  });
+  let disposed = 0;
+  sourceSleeves.forEach((m) =>
+    m.geometry.addEventListener('dispose', () => {
+      disposed++;
+    }),
+  );
+  const make = (plan: (typeof plans)[number], index: number, local: number) =>
+    renderTreatmentPhase(
+      plan,
+      (index + local) / plan.phases.length,
+      implants,
+      parts,
+      anatomy,
+      { guide, guideTemplate: template },
+    );
+  for (const plan of plans) {
+    for (const p of implants) {
+      const drillIndex = plan.phases.findIndex(
+        (f) => f.kind === 'drilling' && f.implantId === p.id,
+      );
+      const before = plan.phases.slice(0, drillIndex);
+      const seatIndex = before.findLastIndex(
+        (f) => f.kind === 'guide-seating' && f.guideTeeth?.includes(p.tooth),
+      );
+      const makeIndex = before.findLastIndex(
+        (f) =>
+          f.kind === 'guide-fabrication' && f.guideTeeth?.includes(p.tooth),
+      );
+      const checkIndex = before.findLastIndex(
+        (f) => f.kind === 'guide-check' && f.guideTeeth?.includes(p.tooth),
+      );
+      const removeIndex = plan.phases.findIndex(
+        (f, i) =>
+          i > drillIndex &&
+          f.kind === 'guide-removal' &&
+          f.guideTeeth?.includes(p.tooth),
+      );
+      const placeIndex = plan.phases.findIndex(
+        (f) => f.kind === 'placement' && f.implantId === p.id,
+      );
+      const crownIndex = plan.phases.findIndex(
+        (f) => f.kind === 'crown-placement' && f.implantId === p.id,
+      );
+      assert.ok(
+        makeIndex < seatIndex &&
+          seatIndex < checkIndex &&
+          checkIndex < drillIndex &&
+          drillIndex < removeIndex &&
+          removeIndex < placeIndex &&
+          placeIndex < crownIndex,
+      );
+      assert.ok(
+        plan.phases[drillIndex].guideTeeth!.every(
+          (n) => n < 30 === p.tooth < 30,
+        ),
+      );
+      const start = make(plan, seatIndex, 0.0001),
+        end = make(plan, seatIndex, 0.9999);
+      const guideObject = (g: THREE.Group) =>
+        g.children.find((o) => o.userData.component === 'simulation-guide')!;
+      assert.ok(
+        guideObject(start).position.distanceTo(guideObject(end).position) >
+          23.99,
+      );
+      assert.ok(guideObject(end).position.length() < 1e-5);
+      const drilling = make(plan, drillIndex, 0.5),
+        drill = drilling.children.find(
+          (o) => o.userData.component === 'guided-drill',
+        )!;
+      const pose = implantPose(p, parts);
+      assert.ok(drill.quaternion.angleTo(pose.quaternion) < 1e-6);
+      assert.ok(drill.position.distanceTo(pose.point) < 1e-6);
+      assert.ok(Math.abs(drill.userData.tipY + p.length) < 1e-6);
+      assert.ok(drill.userData.drillDiameter < guide.bore);
+      let sleeve: THREE.Mesh | undefined;
+      drilling.traverse((o) => {
+        if (
+          o.userData.component === 'metal-sleeve' &&
+          o.userData.fdi === p.tooth
+        )
+          sleeve = o as THREE.Mesh;
+      });
+      drilling.updateMatrixWorld(true);
+      const world = sleeve!.matrixWorld.clone();
+      assert.ok(
+        new THREE.Vector3()
+          .setFromMatrixPosition(world)
+          .distanceTo(pose.point) < 1e-6,
+      );
+      assert.equal(
+        sleeve!.geometry,
+        sourceSleeves.find((o) => o.userData.fdi === p.tooth)!.geometry,
+      );
+      assert.notEqual(
+        sleeve!.material,
+        sourceSleeves.find((o) => o.userData.fdi === p.tooth)!.material,
+      );
+      const placement = make(plan, placeIndex, 0.5);
+      assert.equal(
+        placement.children.some(
+          (o) => o.userData.component === 'simulation-guide',
+        ),
+        false,
+      );
+      [start, end, drilling, placement].forEach(dispose);
+    }
+    const fabrication = plan.phases.findIndex(
+      (p) => p.kind === 'guide-fabrication',
+    );
+    const early = make(plan, fabrication, 0.4),
+      late = make(plan, fabrication, 0.95);
+    const metalVisibility = (g: THREE.Group) => {
+      const flags: boolean[] = [];
+      g.traverse((o) => {
+        if (o.userData.component === 'metal-sleeve') flags.push(o.visible);
+      });
+      return flags;
+    };
+    assert.ok(metalVisibility(early).every((v) => !v));
+    assert.ok(metalVisibility(late).every(Boolean));
+    const final = renderTreatmentPhase(plan, 1, implants, parts, anatomy, {
+      guide,
+      guideTemplate: template,
+    });
+    assert.equal(
+      final.children.filter((o) => o.userData.component === 'crown').length,
+      implants.length,
+    );
+    assert.equal(
+      final.children.some((o) => o.userData.component === 'simulation-guide'),
+      false,
+    );
+    const rewind = renderTreatmentPhase(plan, 0, implants, parts, anatomy, {
+      guide,
+      guideTemplate: template,
+    });
+    assert.equal(
+      rewind.children.some((o) => o.userData.component === 'simulation-guide'),
+      false,
+    );
+    [early, late, final, rewind].forEach(dispose);
+  }
+  assert.equal(disposed, 0, 'frame cleanup retains the cached source geometry');
+  assert.notEqual(
+    sequenceSignature(implants, settings, chart, guide),
+    sequenceSignature(implants, settings, chart, { ...guide, offset: 6 }),
+  );
+  dispose(template);
+  dispose(anatomy);
+  assert.ok(disposed > 0);
 });

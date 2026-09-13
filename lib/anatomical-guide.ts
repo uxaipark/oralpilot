@@ -111,6 +111,7 @@ export function buildAnatomicalGuides(
   chart: Chart,
   guide: GuideSettings,
   depthMarkers = true,
+  excludedSupports: number[] = [],
 ) {
   const result = new THREE.Group();
   const plans = new Map(implants.map((p) => [p.tooth, p]));
@@ -132,6 +133,9 @@ export function buildAnatomicalGuides(
       group.userData = {
         jaw: arch === upperTeeth ? 'maxilla' : 'mandible',
         component: 'anatomical-guide',
+        implantTeeth: arch
+          .slice(start, end + 1)
+          .filter((tooth) => plans.has(tooth)),
         displayOnly: true,
         supportTeeth: [] as number[],
       };
@@ -251,7 +255,10 @@ export function buildAnatomicalGuides(
             mount.add(marker);
           }
           group.add(mount);
-        } else if (examTooth(chart, fdi)?.status === 'present') {
+        } else if (
+          examTooth(chart, fdi)?.status === 'present' &&
+          !excludedSupports.includes(fdi)
+        ) {
           const source = sourceTooth(part, buffer),
             crown = referenceCrownGeometry(source, part);
           crown.computeBoundingBox();

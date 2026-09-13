@@ -298,8 +298,9 @@ export default function Studio() {
     setLayers((l) => ({ ...l, tooth: true, upper: fdi < 30 ? true : l.upper }));
   }, [perioState.cursor.n, step]);
   const currentSignature = useMemo(
-    () => sequenceSignature(implants, sequenceSettings, perioState.chart),
-    [implants, sequenceSettings, perioState.chart],
+    () =>
+      sequenceSignature(implants, sequenceSettings, perioState.chart, guide),
+    [implants, sequenceSettings, perioState.chart, guide],
   );
   const sequenceStale =
     !!generatedSignature && generatedSignature !== currentSignature;

@@ -41,14 +41,14 @@ export function SimulationTimeline({
   return (
     <div className="simulation-panel">
       <div className="section-title">
-        <span>식립·회복·인공 치아 시퀀스</span>
+        <span>가이드·식립·크라운 시퀀스</span>
         <small>
           {plan ? '상대 단계 · 실제 시간 아님' : '오른쪽에서 시뮬레이션 생성'}
         </small>
       </div>
       {!plan ? (
         <p className="helper">
-          식립 계획과 선행 처치를 지정하면 회복 후 지대주·인공 치아 연결까지
+          식립 계획으로 가이드 제작·장착부터 회복 후 지대주·크라운 연결까지
           회차별 비교안이 준비됩니다.
         </p>
       ) : (
@@ -82,7 +82,13 @@ export function SimulationTimeline({
             />
             <button
               className="outline-button"
-              onClick={() => setSpeed(speed === 1 ? 2 : speed === 2 ? 0.5 : 1)}
+              aria-label={`재생 속도 ${speed}배 · 누르면 다음 속도`}
+              title="0.5× → 1× → 2× → 4×"
+              onClick={() =>
+                setSpeed(
+                  speed === 0.5 ? 1 : speed === 1 ? 2 : speed === 2 ? 4 : 0.5,
+                )
+              }
             >
               {speed}×
             </button>

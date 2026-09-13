@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -73,6 +73,42 @@ export default function Scene(props: SceneProps) {
   const [faceLoading, setFaceLoading] = useState(false),
     [faceError, setFaceError] = useState(''),
     [faceAttempt, setFaceAttempt] = useState(0);
+  const sequenceGuide = useMemo(() => {
+    if (
+      props.mode !== 'simulation' ||
+      !props.sequencePlan ||
+      !props.buffer ||
+      !props.parts.length ||
+      props.external
+    )
+      return null;
+    return buildAnatomicalGuides(
+      props.implants,
+      props.parts,
+      props.buffer,
+      props.perioChart,
+      props.guide,
+      false,
+      props.sequencePlan.phases
+        .filter((p) => p.kind === 'extraction')
+        .flatMap((p) => p.teeth),
+    );
+  }, [
+    props.mode,
+    props.sequencePlan,
+    props.implants,
+    props.parts,
+    props.buffer,
+    props.perioChart,
+    props.guide,
+    props.external,
+  ]);
+  useEffect(
+    () => () => {
+      if (sequenceGuide) clear(sequenceGuide);
+    },
+    [sequenceGuide],
+  );
   const needsFace = !props.external && (props.layers.face || props.layers.lips);
   useEffect(() => {
     if (!needsFace || faceResources) return;
@@ -480,7 +516,11 @@ export default function Scene(props: SceneProps) {
         props.implants,
         props.parts,
         r.anatomy,
-        { crownOpacity: props.crownOpacity / 100 },
+        {
+          crownOpacity: props.crownOpacity / 100,
+          guide: props.guide,
+          guideTemplate: sequenceGuide ?? undefined,
+        },
       );
       for (const o of [...frameGroup.children]) {
         if (props.view === 'unfolded') unfoldObject(o, props.parts);
@@ -562,6 +602,7 @@ export default function Scene(props: SceneProps) {
       if (props.view === 'unfolded') unfoldObject(o, props.parts);
     }
   }, [
+    sequenceGuide,
     props.implants,
     props.parts,
     props.mode,
@@ -769,7 +810,7 @@ function clear(group: THREE.Group) {
   for (const o of [...group.children]) {
     o.traverse((c) => {
       if (c instanceof THREE.Mesh || c instanceof THREE.Line) {
-        c.geometry.dispose();
+        if (!c.userData.sharedGuideGeometry) c.geometry.dispose();
         (Array.isArray(c.material) ? c.material : [c.material]).forEach((m) =>
           m.dispose(),
         );

@@ -1,3 +1,4 @@
+import type { GuideSettings } from './anatomical-guide';
 import {
   allTeeth,
   implantPose,
@@ -14,6 +15,10 @@ export interface SequenceSettings {
   needs: Record<number, TreatmentNeed>;
 }
 export type PhaseKind =
+  | 'guide-fabrication'
+  | 'guide-seating'
+  | 'guide-check'
+  | 'guide-removal'
   | 'assessment'
   | 'periodontal'
   | 'endo'
@@ -33,6 +38,7 @@ export interface TreatmentPhase {
   label: string;
   teeth: number[];
   implantId?: string;
+  guideTeeth?: number[];
   visit: string;
   tip: string;
 }
@@ -50,6 +56,10 @@ export interface SequencePlan {
   researchOnly: true;
 }
 export const SEQUENCE_SOURCES = [
+  {
+    title: 'Straumann · 가이드 슬리브와 드릴 깊이 제어',
+    url: 'https://www.straumann.com/en/dental-professionals/dental-implants/guided-surgery/guided-instruments.html',
+  },
   {
     title: 'ADI · 회복 후 지대주와 보철 연결',
     url: 'https://www.adi.org.uk/_userfiles/pages/files/ADI%20Oral%20B%20Maintaining%20Implants%20guide.pdf',
@@ -72,8 +82,9 @@ export function sequenceSignature(
   implants: Implant[],
   settings: SequenceSettings,
   chart: Chart,
+  guide?: GuideSettings,
 ) {
-  return JSON.stringify({ implants, settings, chart });
+  return JSON.stringify({ implants, settings, chart, guide });
 }
 /** Shortens travel within a proposed group; never establishes the clinical order of surgery. */
 function nearestOrder(group: Implant[], parts: Part[]) {
@@ -332,23 +343,73 @@ export function buildSequencePlans(
       }
       c.groups.forEach((group, index) => {
         const visit = `식립 회차 ${index + 1} · 날짜 미정`;
-        for (const p of group) {
-          add(
-            'drilling',
-            `#${p.tooth} 식립부 준비`,
-            [p.tooth],
-            visit,
-            '계획 축을 따라 드릴 진입을 보여줍니다. 드릴 규격·회전수·관주·토크의 임상 프로토콜은 별도 결정합니다.',
-            p.id,
+        // A guide is seated on one jaw at a time, including in a same-visit comparison.
+        for (const jawGroup of [
+          group.filter((p) => p.tooth < 30),
+          group.filter((p) => p.tooth >= 30),
+        ]) {
+          if (!jawGroup.length) continue;
+          const guideTeeth = jawGroup.map((p) => p.tooth);
+          const jaw = guideTeeth[0] < 30 ? '상악' : '하악';
+          const guideStage = (
+            kind: PhaseKind,
+            label: string,
+            tip: string,
+            implant?: Implant,
+          ) => {
+            add(
+              kind,
+              label,
+              implant ? [implant.tooth] : guideTeeth,
+              visit,
+              tip,
+              implant?.id,
+            );
+            phases.at(-1)!.guideTeeth = guideTeeth;
+          };
+          guideStage(
+            'guide-fabrication',
+            `${jaw} 가이드 형상 제작·슬리브 조립`,
+            '현재 가이드 검토 형상의 지지 쉘이 형성되고 금속 슬리브가 조립되는 개념 과정입니다. 실제 출력·후경화·멸균은 재료와 제조사 지침에 따라 별도로 수행하고 검증해야 합니다.',
+          );
+          guideStage(
+            'guide-seating',
+            `${jaw} 가이드 장착`,
+            '계획된 가이드가 해당 악궁의 지지 위치로 내려와 안착합니다. 이동은 설명용이며 실제 삽입 경로·언더컷·조직 적합을 검증한 결과가 아닙니다.',
+          );
+          guideStage(
+            'guide-check',
+            `${jaw} 가이드 적합·고정 확인`,
+            '지지 치아와 점막, 흔들림, 드릴 통과공과 관주 접근을 확인할 단계입니다. 화면의 안착은 실제 적합 판정이 아니며 임상 확인이 필요합니다.',
+          );
+          for (const p of jawGroup)
+            guideStage(
+              'drilling',
+              `#${p.tooth} 슬리브 유도 드릴링`,
+              '금속 슬리브 중심을 따라 드릴이 회전·진입·후퇴합니다. 내경 안으로 통과하는 참고 드릴을 표시하며 회전수·드릴 단계·관주·실제 깊이 스톱은 제조사별로 확인해야 합니다.',
+              p,
+            );
+          guideStage(
+            'guide-removal',
+            `${jaw} 드릴 가이드 제거`,
+            '현재 모델은 드릴 유도용 슬리브이므로 식립체를 좁은 통과공에 억지로 통과시키지 않고 가이드를 제거합니다. 가이드 유지 식립은 호환되는 전용 슬리브·운반체 설계가 필요합니다.',
           );
           add(
-            'placement',
-            `#${p.tooth} 임플란트 식립`,
-            [p.tooth],
+            'review',
+            `${jaw} 최종 식립부 준비·규격 확인`,
+            guideTeeth,
             visit,
-            '다른 부위는 해당 순서가 올 때까지 대기합니다. 실제 초기 고정과 인접 구조를 수술 중 확인해야 합니다.',
-            p.id,
+            '가이드 제거 후 제조사별 최종 드릴 프로토콜과 형성 깊이·골벽을 확인하는 단계입니다. 화면은 실제 최종 드릴 규격이나 형성 완료를 확정하지 않습니다.',
           );
+          for (const p of jawGroup)
+            add(
+              'placement',
+              `#${p.tooth} 임플란트 식립`,
+              [p.tooth],
+              visit,
+              '준비된 계획 축을 따라 임플란트가 삽입됩니다. 해당 부위의 위치·각도·규격은 임플란트 계획을 그대로 사용하며 실제 초기 고정과 인접 구조는 수술 중 확인해야 합니다.',
+              p.id,
+            );
         }
         const teeth = group.map((p) => p.tooth);
         add(
