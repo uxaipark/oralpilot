@@ -1,3 +1,5 @@
+import './prosthetic-guide.test';
+import './dataset-numbering.test';
 import './viewer-interaction.test';
 import './perio-display.test';
 import './face.test';

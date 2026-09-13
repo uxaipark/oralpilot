@@ -32,6 +32,7 @@ void test('FDI conversion retains six-site order and negative gingival margins w
 });
 void test('Korean and English shorthand target the selected numbering system, record triplets and undo exactly', () => {
   let s = createPerioState(demoPerio());
+  s = reducer(s, { type: 'setMeta', patch: { numbering: 'fdi' } });
   const original = s.chart;
   for (const phrase of [
     '46번, 출혈, 5 4 6',

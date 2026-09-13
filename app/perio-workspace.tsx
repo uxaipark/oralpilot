@@ -8,6 +8,8 @@ import { fitDensity, archWidth } from '@/lib/voice-perio/domain/density';
 import { OPTIONAL_ROWS, ROWS } from '@/lib/voice-perio/domain/bands';
 import { useVoice } from '@/lib/voice-perio/state/useVoice';
 import { fullChartCSV, SIX_SITES } from '@/lib/voice-perio/bridge';
+import { numberingName } from '@/lib/tooth-numbering';
+import type { Numbering } from '@/lib/voice-perio/domain/types';
 import { toothLabel } from '@/lib/voice-perio/domain/numbering';
 import type { Chart } from '@/lib/voice-perio/domain/types';
 import { download } from '@/lib/planning';
@@ -269,18 +271,22 @@ export function PerioInspector({ state, dispatch }: Props) {
             onKeyDown={(e) => {
               if (e.key === 'Enter') submit();
             }}
-            placeholder="46번, 출혈, 5 4 6"
+            placeholder={`${toothLabel(30, state.meta.numbering)}번, 출혈, 5 4 6`}
           />
           <button onClick={submit}>입력</button>
         </div>
         <details className="perio-help">
           <summary>입력 예시와 표식</summary>
           <p>
-            FDI 기준: “46번, 5 4 6” · “하악 설측” · “퇴축 1 0 1” · “출혈” ·
-            “출혈 없음” · “다음”. 세 숫자는 차트의 왼쪽→오른쪽 순서이며 PD 입력
-            후 다음 치아로 이동합니다.
+            {numberingName(state.meta.numbering)} 기준: “
+            {toothLabel(30, state.meta.numbering)}번, 5 4 6” · “하악 설측” ·
+            “퇴축 1 0 1” · “출혈” · “출혈 없음” · “다음”. 세 숫자는 차트의
+            왼쪽→오른쪽 순서이며 PD 입력 후 다음 치아로 이동합니다.
           </p>
-          <p>English: tooth 46, five four six. 선택한 번호 체계를 따릅니다.</p>
+          <p>
+            English: tooth {toothLabel(30, state.meta.numbering)}, five four
+            six. 선택한 번호 체계를 따릅니다.
+          </p>
         </details>
         <div className="uttlist">
           {state.utterances.slice(0, 5).map((u) => (
@@ -364,7 +370,13 @@ export function PerioInspector({ state, dispatch }: Props) {
     </div>
   );
 }
-export function PerioReport({ chart }: { chart: Chart }) {
+export function PerioReport({
+  chart,
+  numbering,
+}: {
+  chart: Chart;
+  numbering: Numbering;
+}) {
   return (
     <table>
       <thead>
@@ -397,7 +409,7 @@ export function PerioReport({ chart }: { chart: Chart }) {
               gm = d.gm[p];
             return (
               <tr key={`${t.n}${s}${p}`}>
-                <td>{toothLabel(t.n, 'fdi')}</td>
+                <td>{toothLabel(t.n, numbering)}</td>
                 <td>{p === 'C' ? s : p + s}</td>
                 <td>{pd ?? '—'}</td>
                 <td>{gm ?? '—'}</td>

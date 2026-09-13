@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { buildAbutment, buildReferenceCrown } from './prosthetic-display';
 import {
   implantPose,
   buildImplant,
@@ -17,6 +18,7 @@ export function renderTreatmentPhase(
   implants: Implant[],
   parts: Part[],
   anatomy: THREE.Group,
+  options: { crownOpacity?: number } = {},
 ) {
   const group = new THREE.Group(),
     frame = phaseAt(plan, progress)!;
@@ -26,7 +28,11 @@ export function renderTreatmentPhase(
       parts,
     );
   const tag = (o: THREE.Object3D, tooth: number) => {
-    o.userData = { jaw: tooth < 30 ? 'maxilla' : 'mandible', fdi: tooth };
+    o.userData = {
+      ...o.userData,
+      jaw: tooth < 30 ? 'maxilla' : 'mandible',
+      fdi: tooth,
+    };
     return o;
   };
   for (const p of implants) {
@@ -38,9 +44,46 @@ export function renderTreatmentPhase(
       fixture = buildImplant(p);
     fixture.position.copy(pose.point);
     fixture.quaternion.copy(pose.quaternion);
+    fixture.userData.component = 'fixture';
+    fixture.children.forEach((child) => {
+      if (child instanceof THREE.Line) child.visible = false;
+    });
     if (active && frame.phase.kind === 'placement')
-      fixture.position.addScaledVector(pose.up, (1 - frame.local) * 15);
+      fixture.position.addScaledVector(pose.direction, -(1 - frame.local) * 15);
     group.add(tag(fixture, p.tooth));
+    const ease = THREE.MathUtils.smoothstep(frame.local, 0, 1);
+    const attaching = active && frame.phase.kind === 'abutment';
+    if (state.abutment || attaching) {
+      const abutment = buildAbutment(p.diameter);
+      abutment.position.copy(pose.point);
+      abutment.quaternion.copy(pose.quaternion);
+      if (attaching)
+        abutment.position.addScaledVector(pose.direction, -(1 - ease) * 10);
+      group.add(tag(abutment, p.tooth));
+    }
+    const seating = active && frame.phase.kind === 'crown-placement';
+    if (state.crowned || seating) {
+      const source = anatomy.children.find(
+        (o) => o.userData.group === 'tooth' && o.userData.fdi === p.tooth,
+      ) as THREE.Mesh | undefined;
+      const part = parts.find(
+        (part) => part.group === 'tooth' && part.fdi === p.tooth,
+      );
+      if (source && part?.axes) {
+        const crown = buildReferenceCrown(
+          source.geometry,
+          part,
+          options.crownOpacity ?? 1,
+          frame.phase.kind === 'occlusion',
+          frame.local,
+        );
+        crown.position.copy(pose.point);
+        crown.quaternion.copy(pose.quaternion);
+        if (seating)
+          crown.position.addScaledVector(pose.direction, -(1 - ease) * 12);
+        group.add(tag(crown, p.tooth));
+      }
+    }
   }
   for (const tooth of frame.phase.teeth) {
     if (!parts.some((p) => p.group === 'tooth' && p.fdi === tooth)) continue;

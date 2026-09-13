@@ -1,4 +1,5 @@
 'use client';
+import DatasetBrowser from './dataset-browser';
 import { useEffect, useRef, useState } from 'react';
 import type * as THREE from 'three';
 import {
@@ -50,9 +51,9 @@ export default function DataPanel({
     },
     [],
   );
-  async function handleFiles(list: FileList | File[]) {
+  async function handleFiles(list: FileList | File[]): Promise<boolean> {
     const files = Array.from(list);
-    if (!files.length) return;
+    if (!files.length) return false;
     setError('');
     setBusy('파일 형식과 데이터 확인 중…');
     try {
@@ -79,6 +80,7 @@ export default function DataPanel({
       } else if (/\.(stl|obj|ply)$/.test(name)) {
         setBusy('3D 표면 읽는 중…');
         const g = await readMesh(f);
+        setKind('none');
         onGeometry(g, f.name);
         setMeshName(f.name);
         notify(
@@ -95,8 +97,10 @@ export default function DataPanel({
         throw Error(
           '지원 형식: .dcm, .nii, .nii.gz, .stl, .obj, .ply, .jpg, .png, .webp',
         );
+      return true;
     } catch (e) {
       setError((e as Error).message);
+      return false;
     } finally {
       setBusy('');
     }
@@ -184,6 +188,7 @@ export default function DataPanel({
         180 MB. 비압축 단일 프레임 DICOM / mm 단위 3D NIfTI 지원. 자동
         분할·CT–구강스캔 정합은 미구현입니다.
       </p>
+      <DatasetBrowser onLoad={handleFiles} disabled={!!busy} />
       <div className="data-section-title">
         공개 데이터로 시작하기<span>각 예제는 서로 다른 대상입니다</span>
       </div>

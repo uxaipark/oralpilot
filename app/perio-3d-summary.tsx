@@ -1,14 +1,17 @@
 import { examTooth, examSummary } from '@/lib/perio-display';
 import { SIX_SITES } from '@/lib/voice-perio/bridge';
-import type { Chart } from '@/lib/voice-perio/domain/types';
+import { displayToothNumber } from '@/lib/tooth-numbering';
+import type { Chart, Numbering } from '@/lib/voice-perio/domain/types';
 import { siteNames } from '@/lib/planning';
 export function Perio3DSummary({
   chart,
   tooth,
+  numbering,
   onOpen,
 }: {
   chart: Chart;
   tooth: number;
+  numbering: Numbering;
   onOpen: () => void;
 }) {
   const t = examTooth(chart, tooth),
@@ -19,7 +22,9 @@ export function Perio3DSummary({
   return (
     <div className="live-perio-summary">
       <div className="section-title">
-        <span>#{tooth} 검사 상태 · 실시간 연동</span>
+        <span>
+          #{displayToothNumber(tooth, numbering)} 검사 상태 · 실시간 연동
+        </span>
         <button className="text-button" onClick={onOpen}>
           치주차트에서 수정
         </button>

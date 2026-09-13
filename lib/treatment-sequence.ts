@@ -23,6 +23,9 @@ export type PhaseKind =
   | 'closure'
   | 'healing'
   | 'review'
+  | 'abutment'
+  | 'crown-placement'
+  | 'occlusion'
   | 'restoration';
 export interface TreatmentPhase {
   id: string;
@@ -47,6 +50,10 @@ export interface SequencePlan {
   researchOnly: true;
 }
 export const SEQUENCE_SOURCES = [
+  {
+    title: 'ADI · 회복 후 지대주와 보철 연결',
+    url: 'https://www.adi.org.uk/_userfiles/pages/files/ADI%20Oral%20B%20Maintaining%20Implants%20guide.pdf',
+  },
   {
     title: 'ITI · 전악 보철의 부하 방식',
     url: 'https://academy.iti.org/academy/consensus-database/consensus-statement/-/consensus/loading-protocols-for-fixed-prostheses-in-edentulous-jaws/1313',
@@ -109,6 +116,12 @@ export function buildSequencePlans(
     '전신 상태·출혈 위험·수술 내성 평가 후 실제 회차 확정',
     'CT 정합·골 외벽·인접 치근·신경관 관계의 임상 확인',
     '임시 보철·교합·초기 고정·부하 방식 확인 후 다음 단계 진행',
+    '인공 치아는 원본 치관 형태를 이용한 설명용 표시이며 맞춤 보철 CAD·교합 분석 결과가 아님',
+    ...(settings.scope === 'full-arch'
+      ? [
+          'Full arch의 연결형 보철·프레임·폰틱·수동 적합은 별도 설계 필요; 화면은 식립 위치별 치관 연결 개념',
+        ]
+      : []),
   ];
   const warnings: string[] = [];
   if (
@@ -360,12 +373,62 @@ export function buildSequencePlans(
           '증상, 상처, 감염 소견, 보철 지지와 환자 회복 상태에 따라 다음 회차 진행 여부를 결정합니다.',
         );
       });
+      const prostheticTeeth = implants.map((p) => p.tooth);
+      add(
+        'review',
+        '골유착·보철 진행 조건 확인',
+        prostheticTeeth,
+        '보철 전 평가 · 시기 미정',
+        '식립 부위의 치유·안정성과 연조직 상태를 평가한 뒤 보철 단계로 진행하는 조건부 예제입니다. 골유착을 화면에서 자동 판정하지 않습니다.',
+      );
+      for (const group of c.groups) {
+        for (const p of group)
+          add(
+            'abutment',
+            `#${p.tooth} 지대주 연결`,
+            [p.tooth],
+            '보철 회차 · 지대주',
+            '임플란트와 인공 치아 사이를 연결하는 지대주가 계획 축을 따라 결합됩니다. 높이·연결 방식·체결 토크는 제품과 임상 조건에 맞춰 별도 결정합니다.',
+            p.id,
+          );
+        const teeth = group.map((p) => p.tooth);
+        add(
+          'healing',
+          '지대주 주변 연조직 안정화 관찰',
+          teeth,
+          '보철 준비 · 기간 미정',
+          '지대주 주변 연조직의 상태와 회복을 확인하는 단계를 구분해 표시합니다. 실제 필요 회차와 대기 기간은 치료 방식에 따라 달라집니다.',
+        );
+        add(
+          'review',
+          '인상·구강스캔 및 보철 적합 검토',
+          teeth,
+          '보철 제작·시적 준비',
+          '인상 또는 구강스캔과 교합 기록을 바탕으로 보철을 제작하고 적합을 검토하는 단계입니다. 표시할 치관은 원본 치아 형태를 활용한 참고 형상이며 제작용 보철이 아닙니다.',
+        );
+        for (const p of group)
+          add(
+            'crown-placement',
+            `#${p.tooth} 인공 치아 장착`,
+            [p.tooth],
+            '보철 회차 · 치관 장착',
+            '인공 치아가 지대주 위로 이동해 최종 위치에 안착합니다. 장착된 치관은 다음 단계에도 유지됩니다. 고정 방식·접촉점·변연 적합은 별도 임상 확인이 필요합니다.',
+            p.id,
+          );
+      }
+      add(
+        'occlusion',
+        '인공 치아 교합·접촉·적합 검토',
+        prostheticTeeth,
+        '보철 장착 후 확인',
+        '장착된 인공 치아를 강조해 대합치와의 교합, 인접 접촉, 보철 적합을 검토할 위치를 표시합니다. 강조색은 실제 교합 접촉이나 합격 판정을 의미하지 않습니다.',
+      );
       add(
         'restoration',
-        '보철·교합 및 유지관리 검토',
-        implants.map((p) => p.tooth),
+        '인공 치아 장착 상태·유지관리',
+        prostheticTeeth,
         '보철·유지관리 회차',
-        '골유착·초기 고정·부하 조건을 확인한 후 보철과 유지관리를 계획합니다. 즉시 부하는 별도 적응증 평가가 필요합니다.',
+        '모든 계획 위치에 임플란트·지대주·인공 치아가 연결된 참고 상태입니다. 위생관리와 정기 검진, 보철 및 주변 조직의 상태 관찰을 이어갑니다.',
       );
       return {
         id: c.id,
@@ -405,6 +468,12 @@ export function toothPhaseState(
     ),
     placed: completed.some(
       (p) => p.kind === 'placement' && p.teeth.includes(tooth),
+    ),
+    abutment: completed.some(
+      (p) => p.kind === 'abutment' && p.teeth.includes(tooth),
+    ),
+    crowned: completed.some(
+      (p) => p.kind === 'crown-placement' && p.teeth.includes(tooth),
     ),
     treated: completed.some(
       (p) =>

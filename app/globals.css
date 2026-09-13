@@ -2698,3 +2698,126 @@ h1 {
 .tooth-selection-actions > button {
   flex-shrink: 0;
 }
+
+.dataset-browser {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  background: var(--card);
+}
+.dataset-browser h3 {
+  margin: 0 0 6px;
+}
+.dataset-browser .data-section-title {
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.dataset-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 16px 0;
+  font-size: 14px;
+}
+.dataset-filters input,
+.dataset-filters select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: var(--foreground);
+  background: var(--background);
+  font: inherit;
+}
+.dataset-filters input {
+  flex: 1;
+  min-width: 180px;
+}
+.dataset-list {
+  display: grid;
+  gap: 6px;
+}
+.dataset-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: 7px;
+  background: var(--background);
+  font-size: 14px;
+}
+.dataset-row:hover,
+.dataset-row.selected {
+  border-color: #70c9b3;
+  background: #243a38;
+}
+.dataset-row:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.dataset-type {
+  width: 108px;
+  flex-shrink: 0;
+  color: #90cdbf;
+}
+.dataset-path {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dataset-row small {
+  display: block;
+  color: var(--muted-foreground);
+  margin-top: 3px;
+  font-size: 12px;
+}
+.dataset-size {
+  white-space: nowrap;
+  color: var(--muted-foreground);
+}
+.dataset-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0;
+}
+@media (max-width: 700px) {
+  .dataset-row {
+    flex-wrap: wrap;
+  }
+  .dataset-type {
+    width: 100%;
+  }
+  .dataset-path {
+    flex-basis: 65%;
+  }
+}
+
+.guide-depth-list {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+  font-size: 14px;
+}
+.guide-depth-list > button {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 10px;
+  background: var(--background);
+}
+.guide-depth-list > button small {
+  grid-column: 2;
+  color: var(--muted-foreground);
+}
+.guide-depth-list > button.selected {
+  border-color: #8adbc7;
+  background: #233937;
+}

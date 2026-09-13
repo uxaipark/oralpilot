@@ -64,7 +64,7 @@ export function createPerioState(perio: Perio): AppState {
       ...s.meta,
       provider: '',
       date: new Date().toISOString().slice(0, 10),
-      numbering: 'fdi' as const,
+      numbering: 'uni' as const,
     },
     cursor: { n: 30, surf: 'B' as const, p: 'D' as const, row: 'pd' as const },
     voice: {

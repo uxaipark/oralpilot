@@ -3,7 +3,7 @@ import {
   type SequenceSettings,
 } from './treatment-sequence';
 import { validateFullChart } from './voice-perio/bridge';
-import type { Chart } from './voice-perio/domain/types';
+import type { Chart, Numbering } from './voice-perio/domain/types';
 import { allTeeth, type Implant, type Perio } from './planning';
 function number(v: unknown, min: number, max: number) {
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max)
@@ -15,6 +15,7 @@ export function validatePlan(v: any): {
   guide: { bore: number; thickness: number; offset: number };
   perio: Perio;
   perioChart?: Chart;
+  displayNumbering?: Numbering;
   sequenceSettings?: SequenceSettings;
 } {
   if (v?.schema === 'oralpilot-plan-v1')
@@ -28,6 +29,13 @@ export function validatePlan(v: any): {
     v.researchOnly !== true
   )
     throw Error('지원하는 OralPilot 연구용 계획 파일이 아닙니다.');
+  if (v.toothNumbering !== undefined && v.toothNumbering !== 'fdi')
+    throw Error('계획 데이터의 치아 식별자는 FDI여야 합니다.');
+  if (
+    v.displayNumbering !== undefined &&
+    !['uni', 'fdi', 'palmer'].includes(v.displayNumbering)
+  )
+    throw Error('치아 표시 번호 체계 오류.');
   if (!Array.isArray(v.implants) || v.implants.length > 32)
     throw Error('식립계획 배열이 잘못되었습니다.');
   const ids = new Set<string>(),
@@ -90,6 +98,9 @@ export function validatePlan(v: any): {
     };
   }
   return {
+    ...(v.displayNumbering === undefined
+      ? {}
+      : { displayNumbering: v.displayNumbering }),
     implants,
     guide,
     perio,

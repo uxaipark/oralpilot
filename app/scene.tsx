@@ -4,7 +4,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import {
-  buildGuide,
   buildImplant,
   implantPose,
   initialImplant,
@@ -21,6 +20,7 @@ import {
   toothPhaseState,
   type SequencePlan,
 } from '@/lib/treatment-sequence';
+import { buildAnatomicalGuides } from '@/lib/anatomical-guide';
 import { buildReferenceSoftTissues } from '@/lib/soft-tissue';
 import { buildExtractionSite, pickDentalSite } from '@/lib/tooth-picking';
 import type { Chart } from '@/lib/voice-perio/domain/types';
@@ -480,6 +480,7 @@ export default function Scene(props: SceneProps) {
         props.implants,
         props.parts,
         r.anatomy,
+        { crownOpacity: props.crownOpacity / 100 },
       );
       for (const o of [...frameGroup.children]) {
         if (props.view === 'unfolded') unfoldObject(o, props.parts);
@@ -503,14 +504,6 @@ export default function Scene(props: SceneProps) {
       group.rotation.copy(pose.rotation);
       const implant = buildImplant(p);
       group.add(implant);
-      if (props.mode === 'guide')
-        group.add(
-          buildGuide(
-            props.guide.bore,
-            props.guide.thickness,
-            props.guide.offset,
-          ),
-        );
       group.userData = { jaw: p.tooth < 30 ? 'maxilla' : 'mandible' };
       r.hardware.add(group);
       if (
@@ -545,6 +538,16 @@ export default function Scene(props: SceneProps) {
           r.hardware.add(crown);
         }
       }
+    }
+    if (props.mode === 'guide') {
+      const guides = buildAnatomicalGuides(
+        props.implants,
+        props.parts,
+        props.buffer,
+        props.perioChart,
+        props.guide,
+      );
+      r.hardware.add(...[...guides.children]);
     }
     for (const o of r.hardware.children) {
       o.visible =

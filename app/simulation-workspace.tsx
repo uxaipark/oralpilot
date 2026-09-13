@@ -1,4 +1,10 @@
 'use client';
+import {
+  displayToothNumber,
+  displayToothText,
+  numberingName,
+} from '@/lib/tooth-numbering';
+import type { Numbering } from '@/lib/voice-perio/domain/types';
 import { useState } from 'react';
 import { Play, Pause, RotateCcw, Loader2, Download } from 'lucide-react';
 import { allTeeth, download, type Implant } from '@/lib/planning';
@@ -9,6 +15,7 @@ import {
   type SequenceSettings,
 } from '@/lib/treatment-sequence';
 type Controls = {
+  numbering: Numbering;
   plan: SequencePlan | null;
   progress: number;
   setProgress: (n: number) => void;
@@ -18,6 +25,7 @@ type Controls = {
   setSpeed: (n: number) => void;
 };
 export function SimulationTimeline({
+  numbering,
   plan,
   progress,
   setProgress,
@@ -26,25 +34,29 @@ export function SimulationTimeline({
   speed,
   setSpeed,
 }: Controls) {
+  const displayText = (text: string) => displayToothText(text, numbering);
   const frame = phaseAt(plan, progress);
+  const completed = plan && frame ? plan.phases.slice(0, frame.index) : [];
+  const total = plan?.phases.filter((p) => p.kind === 'placement').length ?? 0;
   return (
     <div className="simulation-panel">
       <div className="section-title">
-        <span>치료·회복 시퀀스</span>
+        <span>식립·회복·인공 치아 시퀀스</span>
         <small>
           {plan ? '상대 단계 · 실제 시간 아님' : '오른쪽에서 시뮬레이션 생성'}
         </small>
       </div>
       {!plan ? (
         <p className="helper">
-          식립 계획과 선행 처치를 지정하면 회차별 비교안이 준비됩니다.
+          식립 계획과 선행 처치를 지정하면 회복 후 지대주·인공 치아 연결까지
+          회차별 비교안이 준비됩니다.
         </p>
       ) : (
         <>
           <div className="sequence-tip" role="status">
             <span>{frame!.phase.visit}</span>
-            <strong>{frame!.phase.label}</strong>
-            <p>{frame!.phase.tip}</p>
+            <strong>{displayText(frame!.phase.label)}</strong>
+            <p>{displayText(frame!.phase.tip)}</p>
           </div>
           <div className="timeline">
             <button
@@ -85,6 +97,21 @@ export function SimulationTimeline({
               <RotateCcw size={17} />
             </button>
           </div>
+          <div className="sequence-color-key" aria-label="보철 진행 현황">
+            <span>
+              식립 {completed.filter((p) => p.kind === 'placement').length}/
+              {total}
+            </span>
+            <span>
+              지대주 {completed.filter((p) => p.kind === 'abutment').length}/
+              {total}
+            </span>
+            <span>
+              인공 치아{' '}
+              {completed.filter((p) => p.kind === 'crown-placement').length}/
+              {total}
+            </span>
+          </div>
           <div className="sequence-color-key">
             <span style={{ color: '#e4737f' }}>● 처치·상처 관찰</span>
             <span style={{ color: '#dfb45f' }}>● 회복 관찰 중</span>
@@ -103,7 +130,7 @@ export function SimulationTimeline({
                 <small>
                   {i + 1} · {p.visit}
                 </small>
-                {p.label}
+                {displayText(p.label)}
               </button>
             ))}
           </div>
@@ -135,6 +162,7 @@ export function SimulationTimeline({
   );
 }
 export function SimulationInspector({
+  numbering,
   settings,
   setSettings,
   implants,
@@ -147,6 +175,7 @@ export function SimulationInspector({
   error,
   onDemo,
 }: {
+  numbering: Numbering;
   settings: SequenceSettings;
   setSettings: (s: SequenceSettings) => void;
   implants: Implant[];
@@ -159,6 +188,8 @@ export function SimulationInspector({
   error: string;
   onDemo: () => void;
 }) {
+  const displayTooth = (fdi: number) => displayToothNumber(fdi, numbering);
+  const displayText = (text: string) => displayToothText(text, numbering);
   const [tooth, setTooth] = useState(46);
   const active = plans.find((p) => p.id === selectedPlan);
   return (
@@ -202,14 +233,14 @@ export function SimulationInspector({
         <div className="section-title">선행 처치 · 사용자 지정</div>
         <div className="two-inputs">
           <label>
-            치아
+            치아 · {numberingName(numbering)}
             <select
               value={tooth}
               onChange={(e) => setTooth(Number(e.target.value))}
             >
               {allTeeth.map((t) => (
                 <option key={t} value={t}>
-                  #{t}
+                  #{displayTooth(t)}
                 </option>
               ))}
             </select>
@@ -246,7 +277,7 @@ export function SimulationInspector({
                 setSettings({ ...settings, needs });
               }}
             >
-              #{n} {t === 'endo' ? '근관치료' : '발치'} ×
+              #{displayTooth(Number(n))} {t === 'endo' ? '근관치료' : '발치'} ×
             </button>
           ))}
         </div>
@@ -264,7 +295,7 @@ export function SimulationInspector({
         </button>
         {error && (
           <p className="amber-note" role="alert">
-            {error}
+            {displayText(error)}
           </p>
         )}
         {stale && (
@@ -313,7 +344,7 @@ export function SimulationInspector({
                 <summary>미확정·검토 항목 {active.warnings.length}개</summary>
                 <ul>
                   {active.warnings.map((w) => (
-                    <li key={w}>{w}</li>
+                    <li key={w}>{displayText(w)}</li>
                   ))}
                 </ul>
               </details>
@@ -326,7 +357,13 @@ export function SimulationInspector({
             onClick={() =>
               download(
                 JSON.stringify(
-                  { researchOnly: true, settings, plans },
+                  {
+                    researchOnly: true,
+                    toothNumbering: 'fdi',
+                    displayNumbering: numbering,
+                    settings,
+                    plans,
+                  },
                   null,
                   2,
                 ),

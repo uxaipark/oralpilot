@@ -75,6 +75,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import Scene from './scene';
+import { buildAnatomicalGuides, guideDepth } from '@/lib/anatomical-guide';
 import {
   implantSelection,
   toggleImplantSelection,
@@ -111,10 +112,14 @@ import {
   toLegacy,
 } from '@/lib/voice-perio/bridge';
 import { reducer as perioReducer } from '@/lib/voice-perio/state/chartReducer';
-import type { Chart } from '@/lib/voice-perio/domain/types';
+import type { Chart, Numbering } from '@/lib/voice-perio/domain/types';
+import {
+  displayToothNumber,
+  displayToothText,
+  numberingName,
+} from '@/lib/tooth-numbering';
 import {
   allTeeth,
-  buildGuide,
   download,
   implantPose,
   initialImplant,
@@ -195,6 +200,9 @@ export default function Studio() {
       chart: chartFromAnatomy(anatomyManifest.parts),
     }),
   );
+  const numbering = perioState.meta.numbering;
+  const displayTooth = (fdi: number) => displayToothNumber(fdi, numbering);
+  const displayText = (text: string) => displayToothText(text, numbering);
   const perio = useMemo(() => toLegacy(perioState.chart), [perioState.chart]);
   const setPerio = (data: Perio) =>
     perioDispatch({ type: 'replaceChart', chart: fromLegacy(data) });
@@ -224,8 +232,43 @@ export default function Studio() {
       upper: true,
     }),
     [opacity, setOpacity] = useState(32),
-    [view, setView] = useState('perspective'),
+    [view, setViewState] = useState('perspective'),
     [reset, setReset] = useState(0);
+  const faceViewSnapshot = useRef<{
+    face: boolean;
+    upper: boolean;
+    tooth: boolean;
+    softTissueOpacity: number;
+    neuroXray: boolean;
+  } | null>(null);
+  const setView = (next: string) => {
+    if (next === 'face' && !faceViewSnapshot.current) {
+      faceViewSnapshot.current = {
+        face: layers.face,
+        upper: layers.upper,
+        tooth: layers.tooth,
+        softTissueOpacity,
+        neuroXray,
+      };
+      setLayers((l) => ({ ...l, face: true, upper: true, tooth: true }));
+      setSoftTissueOpacity(100);
+      setNeuroXray(false);
+    } else if (next !== 'face' && faceViewSnapshot.current) {
+      const saved = faceViewSnapshot.current;
+      faceViewSnapshot.current = null;
+      setLayers((l) => ({
+        ...l,
+        face: saved.face,
+        upper: saved.upper,
+        tooth: saved.tooth,
+      }));
+      setSoftTissueOpacity(saved.softTissueOpacity);
+      setNeuroXray(saved.neuroXray);
+    }
+    if (next === 'front' || next === 'perspective')
+      setLayers((l) => ({ ...l, upper: true, tooth: true }));
+    setViewState(next);
+  };
   const [guide, setGuide] = useState({ bore: 2.2, thickness: 2, offset: 3 }),
     [playing, setPlaying] = useState(false),
     [progress, setProgress] = useState(0),
@@ -239,14 +282,13 @@ export default function Studio() {
     [external, setExternal] = useState<THREE.BufferGeometry | null>(null),
     [externalName, setExternalName] = useState('');
   useEffect(() => {
-    if (step !== 'perio' || !perioState.historyIndex) return;
-    const edited = perioState.history[perioState.historyIndex - 1];
-    const fdi = Number(toothLabel(edited.n, 'fdi'));
+    if (step !== 'perio') return;
+    const fdi = Number(toothLabel(perioState.cursor.n, 'fdi'));
     setTooth(fdi);
     setHighlightedTeeth([fdi]);
     setSelected(implants.find((p) => p.tooth === fdi)?.id || '');
     setLayers((l) => ({ ...l, tooth: true, upper: fdi < 30 ? true : l.upper }));
-  }, [perioState.chart, perioState.historyIndex, step]);
+  }, [perioState.cursor.n, step]);
   const currentSignature = useMemo(
     () => sequenceSignature(implants, sequenceSettings, perioState.chart),
     [implants, sequenceSettings, perioState.chart],
@@ -405,9 +447,6 @@ export default function Studio() {
   };
   const showFace = () => {
     setView('face');
-    setLayers((l) => ({ ...l, face: true, upper: true, tooth: true }));
-    setSoftTissueOpacity(100);
-    setNeuroXray(false);
     setReset((n) => n + 1);
   };
   const chooseTooth = (n: number) => {
@@ -432,8 +471,8 @@ export default function Studio() {
   const implantTargets = highlightedTeeth.length ? highlightedTeeth : [tooth];
   const implantAction = implantSelection(implants, implantTargets);
   const implantActionLabel = implantAction.remove
-    ? `${implantTargets.length === 1 ? `#${implantTargets[0]}` : `선택 ${implantTargets.length}개`} 임플란트 제거`
-    : `${implantTargets.length === 1 ? `#${implantTargets[0]}에` : `선택 중 ${implantAction.missing.length}개`} 임플란트 추가`;
+    ? `${implantTargets.length === 1 ? `#${displayTooth(implantTargets[0])}` : `선택 ${implantTargets.length}개`} 임플란트 제거`
+    : `${implantTargets.length === 1 ? `#${displayTooth(implantTargets[0])}에` : `선택 중 ${implantAction.missing.length}개`} 임플란트 추가`;
   const toggleImplants = () => {
     if (external) {
       notify(
@@ -467,7 +506,11 @@ export default function Studio() {
       tooth: true,
       upper: implantTargets.some((n) => n < 30) || l.upper,
     }));
-    setHighlightedTeeth(implantTargets);
+    setHighlightedTeeth(
+      result.removed
+        ? highlightedTeeth.filter((n) => !result.changed.includes(n))
+        : implantTargets,
+    );
     notify(
       `${result.changed.map((n) => `#${n}`).join(', ')} 식립계획 ${result.removed ? '제거' : '추가'} 완료`,
     );
@@ -476,8 +519,8 @@ export default function Studio() {
     if (!current) return;
     const next = implants.filter((p) => p.id !== current.id);
     setImplants(next);
-    setSelected(next[0]?.id || '');
-    setTooth(next[0]?.tooth || tooth);
+    setSelected('');
+    setHighlightedTeeth((list) => list.filter((n) => n !== current.tooth));
     notify('식립계획을 삭제하고 원래 치아를 표시했습니다.');
   };
   const savePlan = () => {
@@ -491,6 +534,8 @@ export default function Studio() {
           guide,
           perio,
           perioChart: perioState.chart,
+          toothNumbering: 'fdi',
+          displayNumbering: numbering,
           sequenceSettings,
           perioOrigin,
           createdAt: new Date().toISOString(),
@@ -505,13 +550,17 @@ export default function Studio() {
     );
   };
   async function exportGuide() {
-    if (!current || !parts.length || external) return;
+    if (!current || !parts.length || !buffer || external) return;
     const { STLExporter } =
       await import('three/addons/exporters/STLExporter.js');
-    const g = buildGuide(guide.bore, guide.thickness, guide.offset),
-      pose = implantPose(current, parts);
-    g.position.copy(pose.point);
-    g.rotation.copy(pose.rotation);
+    const g = buildAnatomicalGuides(
+      implants,
+      parts,
+      buffer,
+      perioState.chart,
+      guide,
+      false,
+    );
     g.updateMatrixWorld(true);
     const stl = new STLExporter().parse(g);
     download(
@@ -519,7 +568,7 @@ export default function Studio() {
         'solid exported',
         'solid ORALPILOT_CONCEPT_NOT_FOR_CLINICAL_USE',
       ),
-      `CONCEPT-ONLY-guide-${current.tooth}.stl`,
+      `CONCEPT-ONLY-partial-arch-guides.stl`,
       'model/stl',
     );
     g.traverse((o) => {
@@ -682,18 +731,7 @@ export default function Studio() {
                   <div className="viewer-top">
                     <Tabs
                       value={view}
-                      onValueChange={(v) => {
-                        setView(String(v));
-                        if (v === 'face') showFace();
-                        if (v === 'front' || v === 'perspective')
-                          setLayers((l) => ({
-                            ...l,
-                            upper: true,
-                            tooth: true,
-                            face: false,
-                            lips: false,
-                          }));
-                      }}
+                      onValueChange={(v) => setView(String(v))}
                     >
                       <TabsList className="view-tabs">
                         {(
@@ -857,8 +895,6 @@ export default function Studio() {
                             ...l,
                             upper: true,
                             tooth: true,
-                            face: false,
-                            lips: false,
                           }));
                           setReset((x) => x + 1);
                         }}
@@ -940,7 +976,8 @@ export default function Studio() {
                       !['simulation', 'anatomy'].includes(step) && (
                         <div className="implant-overlay">
                           <span className="mint-text">
-                            ◉ &nbsp; {current.id} · #{current.tooth}
+                            ◉ &nbsp; {current.id} · #
+                            {displayTooth(current.tooth)}
                           </span>
                           <strong>
                             Ø {current.diameter.toFixed(1)} ×{' '}
@@ -958,7 +995,7 @@ export default function Studio() {
                       !external && (
                         <div className="planning-guide-readout">
                           <strong>
-                            #{tooth}{' '}
+                            #{displayTooth(tooth)}{' '}
                             {examTooth(perioState.chart, tooth)?.status ===
                             'missing'
                               ? '발치 위치 · 식립축 검토'
@@ -985,7 +1022,9 @@ export default function Studio() {
                     {step === 'simulation' && sequenceFrame && (
                       <div className="simulation-overlay">
                         <span>{sequenceFrame.phase.visit}</span>
-                        <strong>{sequenceFrame.phase.label}</strong>
+                        <strong>
+                          {displayText(sequenceFrame.phase.label)}
+                        </strong>
                       </div>
                     )}
                     <div
@@ -1030,7 +1069,9 @@ export default function Studio() {
               )}
               {!external && step !== 'perio' && (
                 <div className="implant-add-bar">
-                  <label htmlFor="implant-target-tooth">식립 위치</label>
+                  <label htmlFor="implant-target-tooth">
+                    식립 위치 · {numberingName(numbering)}
+                  </label>
                   <select
                     id="implant-target-tooth"
                     value={tooth}
@@ -1047,7 +1088,7 @@ export default function Studio() {
                       <optgroup key={String(label)} label={String(label)}>
                         {(teeth as number[]).map((n) => (
                           <option value={n} key={n}>
-                            #{n}
+                            #{displayTooth(n)}
                             {implants.some((p) => p.tooth === n)
                               ? ' · 계획 있음'
                               : ''}
@@ -1103,6 +1144,7 @@ export default function Studio() {
                     </div>
                   ) : step === 'simulation' ? (
                     <SimulationTimeline
+                      numbering={numbering}
                       plan={activeSequence}
                       progress={progress}
                       setProgress={setProgress}
@@ -1128,7 +1170,7 @@ export default function Studio() {
                       <div className="tooth-selection-actions">
                         <span>
                           {highlightedTeeth.length
-                            ? `${highlightedTeeth.length}개 선택 · ${highlightedTeeth.map((n) => `#${n}`).join(', ')}`
+                            ? `${highlightedTeeth.length}개 선택 · ${highlightedTeeth.map((n) => `#${displayTooth(n)}`).join(', ')}`
                             : '치아를 클릭해 여러 위치를 선택하세요.'}
                         </span>
                         {highlightedTeeth.length > 0 && (
@@ -1148,7 +1190,7 @@ export default function Studio() {
                             onClick={() => chooseTooth(t)}
                             className={`tooth-cell ${highlightedTeeth.includes(t) ? 'selected' : ''} ${implants.some((p) => p.tooth === t) ? 'planned' : ''}`}
                             aria-pressed={highlightedTeeth.includes(t)}
-                            aria-label={`치아 ${t} 선택 전환`}
+                            aria-label={`치아 ${displayTooth(t)} 선택 전환`}
                           >
                             <span className="tooth-glyph">
                               {examTooth(perioState.chart, t)?.status ===
@@ -1159,7 +1201,7 @@ export default function Studio() {
                                   ? '▥'
                                   : '🦷'}
                             </span>
-                            <b>{t}</b>
+                            <b>{displayTooth(t)}</b>
                             <i
                               style={{
                                 background: examColor(
@@ -1184,7 +1226,7 @@ export default function Studio() {
                             onClick={() => chooseTooth(t)}
                             className={`tooth-cell ${highlightedTeeth.includes(t) ? 'selected' : ''} ${implants.some((p) => p.tooth === t) ? 'planned' : ''}`}
                             aria-pressed={highlightedTeeth.includes(t)}
-                            aria-label={`치아 ${t} 선택 전환`}
+                            aria-label={`치아 ${displayTooth(t)} 선택 전환`}
                           >
                             <span className="tooth-glyph">
                               {examTooth(perioState.chart, t)?.status ===
@@ -1195,7 +1237,7 @@ export default function Studio() {
                                   ? '▥'
                                   : '🦷'}
                             </span>
-                            <b>{t}</b>
+                            <b>{displayTooth(t)}</b>
                             <i
                               style={{
                                 background: examColor(
@@ -1215,6 +1257,7 @@ export default function Studio() {
                       <Perio3DSummary
                         chart={perioState.chart}
                         tooth={tooth}
+                        numbering={numbering}
                         onOpen={() => setStep('perio')}
                       />
                       <div className="chart-legend">
@@ -1419,14 +1462,9 @@ export default function Studio() {
                           <Switch
                             aria-label={label}
                             checked={layers[key]}
-                            onCheckedChange={(v) => {
-                              if (key === 'face' && v) showFace();
-                              else {
-                                setLayers((l) => ({ ...l, [key]: v }));
-                                if (key === 'face' && view === 'face')
-                                  setView('front');
-                              }
-                            }}
+                            onCheckedChange={(v) =>
+                              setLayers((l) => ({ ...l, [key]: v }))
+                            }
                           />
                         </div>
                       ))}
@@ -1488,6 +1526,7 @@ export default function Studio() {
                 </>
               ) : step === 'simulation' ? (
                 <SimulationInspector
+                  numbering={numbering}
                   settings={sequenceSettings}
                   setSettings={setSequenceSettings}
                   implants={implants}
@@ -1554,7 +1593,7 @@ export default function Studio() {
                         >
                           <Crosshair size={16} />
                           <span>
-                            {p.id} <strong>#{p.tooth}</strong>
+                            {p.id} <strong>#{displayTooth(p.tooth)}</strong>
                           </span>
                           <small>Ø{p.diameter}</small>
                           <ChevronRight size={13} />
@@ -1572,7 +1611,7 @@ export default function Studio() {
                         display: step === 'planning' ? undefined : 'none',
                       }}
                     >
-                      차트 선택 <strong>#{tooth}</strong>
+                      차트 선택 <strong>#{displayTooth(tooth)}</strong>
                       <button
                         className="text-button"
                         onClick={toggleImplants}
@@ -1600,7 +1639,7 @@ export default function Studio() {
                             }
                           />
                           <Range
-                            label="지지판 두께"
+                            label="지지 쉘 두께"
                             value={guide.thickness}
                             min={1}
                             max={5}
@@ -1621,17 +1660,63 @@ export default function Studio() {
                               setGuide((g) => ({ ...g, offset: v }))
                             }
                           />
+                          <div className="guide-depth-list">
+                            <strong>임플란트별 드릴 깊이 · 계획 기준</strong>
+                            {implants.map((p) => (
+                              <button
+                                key={p.id}
+                                className={p.id === selected ? 'selected' : ''}
+                                onClick={() => {
+                                  setSelected(p.id);
+                                  setTooth(p.tooth);
+                                }}
+                              >
+                                <b>#{displayTooth(p.tooth)}</b>
+                                <span>Depth max* {p.length.toFixed(1)} mm</span>
+                                <small>
+                                  슬리브 상단부터{' '}
+                                  {guideDepth(
+                                    p,
+                                    guide,
+                                  ).travelFromSleeveTop.toFixed(1)}{' '}
+                                  mm
+                                </small>
+                              </button>
+                            ))}
+                            <p className="helper">
+                              * 계획 플랫폼에서 임플란트 첨단까지. 빨간 링은
+                              계획 깊이 끝점입니다. 실제 드릴 최대 깊이는 드릴
+                              팁·핸들·스톱과 제조사 규격 확인 전 미확정입니다.
+                            </p>
+                            <a
+                              className="sequence-source"
+                              href="https://www.straumann.com/en/dental-professionals/dental-implants/guided-surgery/guided-instruments.html"
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              슬리브·깊이 제어 참고 ↗
+                            </a>
+                          </div>
                           <dl className="simple-dl">
                             <dt>슬리브 높이</dt>
                             <dd>5.0 mm</dd>
                             <dt>슬리브 벽 두께</dt>
                             <dd>1.2 mm</dd>
-                            <dt>식립축과 동축</dt>
-                            <dd>{current.angle}°</dd>
+                            <dt>현재 부위 계획 깊이</dt>
+                            <dd>{current.length.toFixed(1)} mm</dd>
+                            <dt>슬리브 상단 → 계획 첨단</dt>
+                            <dd>
+                              {guideDepth(
+                                current,
+                                guide,
+                              ).travelFromSleeveTop.toFixed(1)}{' '}
+                              mm
+                            </dd>
                           </dl>
                           <div className="amber-note">
-                            개념 검토용 모델입니다. 치아 적합면·지지
-                            안정성·프린터 공차는 계산하지 않습니다.
+                            인접 치아를 덮는 지지 쉘·잇몸 쪽 플랜지·금속
+                            슬리브를 표시합니다. 잇몸 접촉은 참고 위치이며 삽입
+                            경로·지지 안정성·프린터 공차는 미검증입니다.
                           </div>
                           <button
                             className="primary-button full"
@@ -1639,7 +1724,7 @@ export default function Studio() {
                             disabled={!!external}
                           >
                             <Download size={16} />
-                            검토용 STL 내보내기
+                            전체 가이드 참고 STL 내보내기
                           </button>
                         </div>
                       ) : (
@@ -1667,7 +1752,8 @@ export default function Studio() {
                                   setLayers((l) => ({ ...l, upper: fdi < 30 }));
                                 }}
                               >
-                                #{fdi} {fdi < 30 ? '상악' : '하악'}
+                                #{displayTooth(fdi)}{' '}
+                                {fdi < 30 ? '상악' : '하악'}
                               </button>
                             ))}
                           </div>
@@ -1925,7 +2011,7 @@ export default function Studio() {
       {notice && (
         <output className="toast" aria-live="polite">
           <Check size={17} />
-          {notice}
+          {displayText(notice)}
           <button aria-label="알림 닫기" onClick={() => setNotice('')}>
             <X size={16} />
           </button>
@@ -1963,6 +2049,11 @@ export default function Studio() {
           try {
             const { validatePlan } = await import('@/lib/validation');
             const d = validatePlan(JSON.parse(await f.text()));
+            if (d.displayNumbering)
+              perioDispatch({
+                type: 'setMeta',
+                patch: { numbering: d.displayNumbering },
+              });
             setImplants(d.implants);
             setSelected(d.implants[0]?.id || '');
             setTooth(d.implants[0]?.tooth || 46);
@@ -2075,6 +2166,7 @@ export default function Studio() {
             {new Date().toLocaleDateString('ko-KR')} · 임상 적용 불가
           </DialogDescription>
           <Report
+            numbering={numbering}
             implants={implants}
             guide={guide}
             perio={perio}
@@ -2159,6 +2251,7 @@ function Range({
   );
 }
 function Report({
+  numbering,
   sequencePlan,
   perioChart,
   implants,
@@ -2168,6 +2261,7 @@ function Report({
   buffer,
   perioOrigin,
 }: {
+  numbering: Numbering;
   sequencePlan: SequencePlan | null;
   perioChart: Chart;
   implants: Implant[];
@@ -2177,6 +2271,8 @@ function Report({
   buffer: ArrayBuffer | null;
   perioOrigin: string;
 }) {
+  const displayTooth = (fdi: number) => displayToothNumber(fdi, numbering);
+  const displayText = (text: string) => displayToothText(text, numbering);
   return (
     <div id="plan-report" className="report-content">
       <div className="report-brand">
@@ -2189,7 +2285,7 @@ function Report({
         없습니다. 식립 부위 치아는 시뮬레이션을 위해 가상 제거되었으며, 발치
         적응증을 판단한 것이 아닙니다.
       </div>
-      <h3>01 · 식립계획</h3>
+      <h3>01 · 식립계획 · {numberingName(numbering)}</h3>
       <Table>
         <TableHeader>
           <TableRow>
@@ -2208,7 +2304,7 @@ function Report({
         <TableBody>
           {implants.map((p) => (
             <TableRow key={p.id}>
-              <TableCell>#{p.tooth}</TableCell>
+              <TableCell>#{displayTooth(p.tooth)}</TableCell>
               <TableCell>
                 {p.diameter} × {p.length} mm
               </TableCell>
@@ -2245,10 +2341,10 @@ function Report({
       </p>
       <h3>02 · 치주 검사 연동</h3>
       <p>{perioOrigin}</p>
-      <PerioReport chart={perioChart} />
+      <PerioReport chart={perioChart} numbering={numbering} />
       <h3>03 · 가이드 개념 치수</h3>
       <p>
-        통과공 Ø {guide.bore} mm · 지지판 {guide.thickness} mm · 오프셋{' '}
+        통과공 Ø {guide.bore} mm · 지지 쉘 {guide.thickness} mm · 오프셋{' '}
         {guide.offset} mm · 슬리브 높이 5.0 mm · 슬리브 벽 1.2 mm
       </p>
       <p>
@@ -2268,11 +2364,11 @@ function Report({
           <ol>
             {sequencePlan.phases.map((p) => (
               <li key={p.id}>
-                {p.visit} · {p.label} — {p.tip}
+                {p.visit} · {displayText(p.label)} — {displayText(p.tip)}
               </li>
             ))}
           </ol>
-          <p>{sequencePlan.warnings.join(' / ')}</p>
+          <p>{displayText(sequencePlan.warnings.join(' / '))}</p>
           <p>{sequencePlan.conditions.join(' / ')}</p>
         </>
       ) : (
