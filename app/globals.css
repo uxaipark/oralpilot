@@ -2845,3 +2845,20 @@ h1 {
   color: #a6bac4;
   font-size: 10px;
 }
+
+.topbar {
+  height: auto;
+  min-height: 68px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  flex-wrap: wrap;
+}
+.top-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 0;
+}
+.top-actions .outline-button.browser-save,
+.top-actions .outline-button.file-save {
+  display: inline-flex;
+}

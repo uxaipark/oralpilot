@@ -1,3 +1,4 @@
+import './browser-plan.test';
 import './prosthetic-guide.test';
 import './dataset-numbering.test';
 import './viewer-interaction.test';

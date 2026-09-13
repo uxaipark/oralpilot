@@ -32,6 +32,7 @@ import {
   Plus,
   RotateCcw,
   ScanLine,
+  Save,
   Settings2,
   ShieldCheck,
   SlidersHorizontal,
@@ -179,6 +180,13 @@ const titles: Record<string, string> = {
   simulation: '수술 과정을 미리 살펴보세요',
 };
 import type { NeurovascularPath } from '@/lib/surface';
+import { validatePlan } from '@/lib/validation';
+import {
+  BROWSER_PLAN_KEY,
+  readBrowserPlan,
+  writeBrowserPlan,
+  clearBrowserPlan,
+} from '@/lib/browser-plan';
 export default function Studio() {
   const [highlightedTeeth, setHighlightedTeeth] = useState<number[]>([]);
   const [sequenceSettings, setSequenceSettings] = useState<SequenceSettings>(
@@ -494,30 +502,156 @@ export default function Studio() {
     setHighlightedTeeth((list) => list.filter((n) => n !== current.tooth));
     notify('식립계획을 삭제하고 원래 치아를 표시했습니다.');
   };
+  const planDocument = useMemo(
+    () => ({
+      schema: 'oralpilot-plan-v2',
+      researchOnly: true,
+      anatomy: 'ToothFairy3F_026',
+      implants,
+      guide,
+      perio,
+      perioChart: perioState.chart,
+      perioMeta: perioState.meta,
+      toothNumbering: 'fdi',
+      displayNumbering: numbering,
+      sequenceSettings,
+      perioOrigin,
+      createdAt: new Date().toISOString(),
+    }),
+    [
+      implants,
+      guide,
+      perio,
+      perioState.chart,
+      perioState.meta,
+      numbering,
+      sequenceSettings,
+      perioOrigin,
+    ],
+  );
+  const [localSaved, setLocalSaved] = useState(false),
+    [localReady, setLocalReady] = useState(false),
+    [localError, setLocalError] = useState('');
+  const localAutosave = useRef(false),
+    localHydrated = useRef(false);
+  const applyPlan = (d: ReturnType<typeof validatePlan>, origin: string) => {
+    if (d.perioMeta) perioDispatch({ type: 'setMeta', patch: d.perioMeta });
+    if (d.displayNumbering)
+      perioDispatch({
+        type: 'setMeta',
+        patch: { numbering: d.displayNumbering },
+      });
+    setImplants(d.implants);
+    setSelected(d.implants[0]?.id || '');
+    setTooth(d.implants[0]?.tooth || 46);
+    setHighlightedTeeth(d.implants.length ? [d.implants[0].tooth] : []);
+    setGuide(d.guide);
+    setSequenceSettings(d.sequenceSettings || defaultSequenceSettings);
+    if (d.perioChart)
+      perioDispatch({ type: 'replaceChart', chart: d.perioChart });
+    else setPerio(d.perio);
+    setPerioOrigin(origin);
+    serial.current =
+      Math.max(
+        1,
+        ...d.implants.map((p) => Number(p.id.replace('IP-', '')) || 0),
+      ) + 1;
+    setExternal(null);
+    setExternalName('');
+    setPlaying(false);
+    setProgress(0);
+    setSequencePlans([]);
+    setSequenceId('');
+    setGeneratedSignature('');
+    setView('perspective');
+    setReset((r) => r + 1);
+  };
+  useEffect(() => {
+    if (localHydrated.current) return;
+    localHydrated.current = true;
+    try {
+      const exists = window.localStorage.getItem(BROWSER_PLAN_KEY) !== null;
+      setLocalSaved(exists);
+      const saved = readBrowserPlan(window.localStorage);
+      if (saved) {
+        applyPlan(saved, '브라우저에 저장된 검사값');
+        localAutosave.current = true;
+        notify('브라우저에 저장된 임플란트 계획과 치주 검사를 복원했습니다.');
+      }
+    } catch {
+      setLocalError(
+        '브라우저 저장 내용을 복원하지 못했습니다. 저장 지우기 또는 계획서 파일 열기를 사용하세요.',
+      );
+      notify(
+        '브라우저 저장 내용을 읽지 못했습니다. 기존 저장 내용은 덮어쓰지 않았습니다.',
+      );
+    } finally {
+      setLocalReady(true);
+    }
+  }, []);
+  useEffect(() => {
+    if (!localReady || !localSaved || !localAutosave.current) return;
+    try {
+      writeBrowserPlan(window.localStorage, planDocument);
+      setLocalError('');
+    } catch {
+      localAutosave.current = false;
+      setLocalError(
+        '브라우저 저장 공간 또는 접근 권한을 확인하세요. 최근 변경은 저장되지 않았습니다.',
+      );
+      notify(
+        '브라우저 자동 저장에 실패했습니다. 계획서 파일저장으로 현재 계획을 보관하세요.',
+      );
+    }
+  }, [planDocument, localReady, localSaved]);
+  useEffect(() => {
+    const changed = (event: StorageEvent) => {
+      if (
+        event.storageArea !== window.localStorage ||
+        (event.key !== BROWSER_PLAN_KEY && event.key !== null)
+      )
+        return;
+      localAutosave.current = false;
+      setLocalSaved(event.newValue !== null);
+      setLocalError(
+        event.newValue === null
+          ? ''
+          : '다른 탭에서 저장 내용이 바뀌었습니다. 새로고침하면 해당 계획을 복원합니다.',
+      );
+    };
+    window.addEventListener('storage', changed);
+    return () => window.removeEventListener('storage', changed);
+  }, []);
+  const toggleBrowserSave = () => {
+    try {
+      if (localSaved) {
+        clearBrowserPlan(window.localStorage);
+        localAutosave.current = false;
+        setLocalSaved(false);
+        setLocalError('');
+        notify(
+          '브라우저의 저장 내용을 지웠습니다. 현재 화면의 계획은 유지됩니다.',
+        );
+      } else {
+        writeBrowserPlan(window.localStorage, planDocument);
+        localAutosave.current = true;
+        setLocalSaved(true);
+        setLocalError('');
+        notify(
+          '이 브라우저에 계획과 치주 검사를 저장했습니다. 이후 변경도 자동 저장합니다. 영상 원본은 포함하지 않습니다.',
+        );
+      }
+    } catch {
+      setLocalError('브라우저 저장 공간 또는 접근 권한을 확인하세요.');
+      notify(
+        '브라우저 저장 작업에 실패했습니다. 계획서 파일저장을 사용할 수 있습니다.',
+      );
+    }
+  };
   const savePlan = () => {
-    download(
-      JSON.stringify(
-        {
-          schema: 'oralpilot-plan-v2',
-          researchOnly: true,
-          anatomy: 'ToothFairy3F_026',
-          implants,
-          guide,
-          perio,
-          perioChart: perioState.chart,
-          toothNumbering: 'fdi',
-          displayNumbering: numbering,
-          sequenceSettings,
-          perioOrigin,
-          createdAt: new Date().toISOString(),
-        },
-        null,
-        2,
-      ),
-      'OralPilot-DEMO-plan.json',
-    );
+    download(JSON.stringify(planDocument, null, 2), 'OralPilot-DEMO-plan.json');
     notify(
-      '계획 파일을 다운로드했습니다. 다음 세션에서 다시 불러올 수 있습니다.',
+      '계획서 파일을 다운로드했습니다. 다음 세션에서 다시 불러올 수 있습니다.',
     );
   };
   async function exportGuide() {
@@ -648,9 +782,23 @@ export default function Studio() {
               <Upload size={15} />
               계획 열기
             </button>
-            <button className="outline-button" onClick={savePlan}>
+            <button
+              className="outline-button browser-save"
+              onClick={toggleBrowserSave}
+              disabled={!localReady}
+              title={
+                localError ||
+                (localSaved
+                  ? '현재 계획은 유지하고 이 브라우저의 저장 내용만 삭제합니다.'
+                  : '계획과 치주 검사를 이 브라우저에 저장하고 이후 변경을 자동 저장합니다. 영상 원본은 제외합니다.')
+              }
+            >
+              {localSaved ? <Trash2 size={15} /> : <Save size={15} />}
+              {localSaved ? '로컬 저장 지우기' : '브라우저 저장'}
+            </button>
+            <button className="outline-button file-save" onClick={savePlan}>
               <ArrowDownToLine size={15} />
-              계획 저장
+              계획서 파일저장
             </button>
             <button className="primary-button" onClick={() => setReport(true)}>
               <FileText size={16} />
@@ -674,7 +822,14 @@ export default function Studio() {
                 : external
                   ? '가져온 모델 · 정합 전'
                   : '공개 CBCT 분할 모델'}
-              <span>•</span>세션 내 편집
+              <span>•</span>
+              <span title={localError || undefined}>
+                {localError
+                  ? '브라우저 저장 확인 필요'
+                  : localSaved
+                    ? '브라우저 저장 사용 중'
+                    : '세션 내 편집'}
+              </span>
             </p>
           </div>
           <button className="outline-button" onClick={() => setStep('data')}>
@@ -2049,28 +2204,8 @@ export default function Studio() {
           const f = e.target.files?.[0];
           if (!f) return;
           try {
-            const { validatePlan } = await import('@/lib/validation');
             const d = validatePlan(JSON.parse(await f.text()));
-            if (d.displayNumbering)
-              perioDispatch({
-                type: 'setMeta',
-                patch: { numbering: d.displayNumbering },
-              });
-            setImplants(d.implants);
-            setSelected(d.implants[0]?.id || '');
-            setTooth(d.implants[0]?.tooth || 46);
-            setGuide(d.guide);
-            setSequenceSettings(d.sequenceSettings || defaultSequenceSettings);
-            if (d.perioChart)
-              perioDispatch({ type: 'replaceChart', chart: d.perioChart });
-            else setPerio(d.perio);
-            setPerioOrigin('계획 파일의 검사값');
-            serial.current =
-              Math.max(
-                1,
-                ...d.implants.map((p) => Number(p.id.replace('IP-', '')) || 0),
-              ) + 1;
-            restoreDemo();
+            applyPlan(d, '계획 파일의 검사값');
             notify('계획과 치주 차트를 복원했습니다.');
           } catch (err) {
             notify('계획 파일 오류: ' + (err as Error).message);
@@ -2181,7 +2316,7 @@ export default function Studio() {
           <div className="dialog-actions">
             <button className="outline-button" onClick={savePlan}>
               <Download size={15} />
-              계획 JSON
+              계획서 파일저장
             </button>
             <button
               className="primary-button"

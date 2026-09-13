@@ -3,7 +3,7 @@ import {
   type SequenceSettings,
 } from './treatment-sequence';
 import { validateFullChart } from './voice-perio/bridge';
-import type { Chart, Numbering } from './voice-perio/domain/types';
+import type { Chart, Numbering, ExamMeta } from './voice-perio/domain/types';
 import { allTeeth, type Implant, type Perio } from './planning';
 function number(v: unknown, min: number, max: number) {
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max)
@@ -16,6 +16,7 @@ export function validatePlan(v: any): {
   perio: Perio;
   perioChart?: Chart;
   displayNumbering?: Numbering;
+  perioMeta?: ExamMeta;
   sequenceSettings?: SequenceSettings;
 } {
   if (v?.schema === 'oralpilot-plan-v1')
@@ -97,7 +98,31 @@ export function validatePlan(v: any): {
       furcation: number(r.furcation, 0, 3),
     };
   }
+  let perioMeta: ExamMeta | undefined;
+  if (v.perioMeta !== undefined) {
+    const m = v.perioMeta;
+    if (
+      !m ||
+      typeof m !== 'object' ||
+      !['date', 'provider', 'probe'].every(
+        (key) => typeof m[key] === 'string' && m[key].length <= 500,
+      ) ||
+      !['serpentine', 'screen'].includes(m.sequence) ||
+      !['uni', 'fdi', 'palmer'].includes(m.numbering) ||
+      !['pass', 'pd', 'all', 'pair'].includes(m.entry)
+    )
+      throw Error('치주 검사 설정 오류.');
+    perioMeta = {
+      date: m.date,
+      provider: m.provider,
+      probe: m.probe,
+      sequence: m.sequence,
+      numbering: m.numbering,
+      entry: m.entry,
+    };
+  }
   return {
+    ...(perioMeta ? { perioMeta } : {}),
     ...(v.displayNumbering === undefined
       ? {}
       : { displayNumbering: v.displayNumbering }),
