@@ -245,7 +245,9 @@ export function renderTreatmentPhase(
 export function unfoldObject(object: THREE.Object3D, parts: Part[]) {
   const jaw = object.userData.jaw;
   if (!jaw) return;
-  const teeth = parts.filter((p) => p.group === 'tooth' && p.jaw === jaw);
+  const teeth = parts.filter(
+    (p) => p.group === 'tooth' && p.jaw === jaw && p.axes,
+  );
   if (!teeth.length) return;
   const centers = teeth.map(
       (p) => implantPose({ ...initialImplant, tooth: p.fdi! }, parts).anchor,

@@ -4,6 +4,7 @@ export interface Part {
   name: string;
   group: string;
   fdi?: number;
+  label?: number;
   jaw?: string;
   positions: number;
   normals: number;
@@ -27,6 +28,8 @@ export interface Implant {
   torque: number | null;
 }
 export type Layers = {
+  restoration?: boolean;
+  pdl?: boolean;
   bone: boolean;
   tooth: boolean;
   canal: boolean;

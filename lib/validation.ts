@@ -1,4 +1,9 @@
 import {
+  REFERENCE_ANATOMY,
+  CASE_ADAPTER_VERSION,
+  type CaseSource,
+} from './case-planning';
+import {
   validateSequenceDecision,
   type SequenceDecision,
 } from './sequence-decision';
@@ -15,6 +20,8 @@ function number(v: unknown, min: number, max: number) {
   return v;
 }
 export function validatePlan(v: any): {
+  anatomy: string;
+  caseSource?: CaseSource;
   implants: Implant[];
   guide: { bore: number; thickness: number; offset: number };
   perio: Perio;
@@ -31,10 +38,19 @@ export function validatePlan(v: any): {
   if (
     !v ||
     v.schema !== 'oralpilot-plan-v2' ||
-    v.anatomy !== 'ToothFairy3F_026' ||
+    (v.anatomy !== REFERENCE_ANATOMY &&
+      !/^tf[23]-[AFPS]_?\d{1,5}$/.test(v.anatomy || '')) ||
     v.researchOnly !== true
   )
     throw Error('지원하는 OralPilot 연구용 계획 파일이 아닙니다.');
+  if (
+    v.anatomy !== REFERENCE_ANATOMY &&
+    (!v.caseSource ||
+      v.caseSource.id !== v.anatomy ||
+      !/^[a-f0-9]{64}$/.test(v.caseSource.sha256 || '') ||
+      v.caseSource.adapterVersion !== CASE_ADAPTER_VERSION)
+  )
+    throw Error('케이스 식별자·원본 검증값·계획 좌표 버전을 확인하세요.');
   if (v.toothNumbering !== undefined && v.toothNumbering !== 'fdi')
     throw Error('계획 데이터의 치아 식별자는 FDI여야 합니다.');
   if (
@@ -127,6 +143,16 @@ export function validatePlan(v: any): {
     };
   }
   return {
+    anatomy: v.anatomy,
+    ...(v.anatomy === REFERENCE_ANATOMY
+      ? {}
+      : {
+          caseSource: {
+            id: v.caseSource.id,
+            sha256: v.caseSource.sha256,
+            adapterVersion: v.caseSource.adapterVersion,
+          },
+        }),
     ...(v.sequenceDecision == null
       ? {}
       : { sequenceDecision: validateSequenceDecision(v.sequenceDecision) }),

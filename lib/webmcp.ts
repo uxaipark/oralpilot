@@ -53,6 +53,8 @@ export function usePlanningTools(
             implants: s.implants,
             guide: s.guide,
             externalModel: s.externalName || null,
+            anatomy: s.anatomy,
+            allowedSteps: s.allowedSteps,
           };
         },
       },
@@ -106,7 +108,8 @@ export function usePlanningTools(
           );
           const valid = validatePlan({
             schema: 'oralpilot-plan-v2',
-            anatomy: 'ToothFairy3F_026',
+            anatomy: s.anatomy,
+            ...(s.caseSource ? { caseSource: s.caseSource } : {}),
             researchOnly: true,
             implants: next,
             guide: s.guide,
@@ -158,6 +161,8 @@ export function usePlanningTools(
             ].includes(p.step || '')
           )
             throw Error('Unknown workflow step');
+          if (!ref.current.state.allowedSteps.includes(p.step))
+            throw Error('Insufficient data for this workflow');
           flushSync(() => ref.current.actions.setStep(p.step!));
           return { step: p.step };
         },

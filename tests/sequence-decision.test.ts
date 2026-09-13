@@ -133,14 +133,14 @@ void test('saved joint selection survives validated browser round trip only afte
     true,
     true,
   );
-  let raw: string | null = null;
+  const saved = new Map<string, string>();
   const storage = {
-    getItem: () => raw,
-    setItem: (_k: string, v: string) => {
-      raw = v;
+    getItem: (k: string) => saved.get(k) ?? null,
+    setItem: (k: string, v: string) => {
+      saved.set(k, v);
     },
-    removeItem: () => {
-      raw = null;
+    removeItem: (k: string) => {
+      saved.delete(k);
     },
   };
   writeBrowserPlan(storage, {

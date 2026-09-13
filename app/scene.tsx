@@ -121,7 +121,13 @@ export default function Scene(props: SceneProps) {
     },
     [sequenceGuide],
   );
-  const needsFace = !props.external && (props.layers.face || props.layers.lips);
+  const faceAvailable = [11, 21, 31, 41].every((n) =>
+    props.parts.some((p) => p.group === 'tooth' && p.fdi === n && p.axes),
+  );
+  const needsFace =
+    faceAvailable &&
+    !props.external &&
+    (props.layers.face || props.layers.lips);
   useEffect(() => {
     if (!needsFace || faceResources) return;
     let cancelled = false;
@@ -344,7 +350,7 @@ export default function Scene(props: SceneProps) {
       r.anatomy.add(mesh);
     }
     r.anatomy.add(...buildReferenceSoftTissues(props.parts, props.buffer));
-    if (faceResources)
+    if (faceResources && faceAvailable)
       r.anatomy.add(
         ...buildScannedFace(faceResources, props.parts, r.environment),
       );
@@ -672,7 +678,10 @@ export default function Scene(props: SceneProps) {
     }
     if (
       props.mode === 'planning' &&
-      props.highlightedTeeth.includes(props.selectedTooth)
+      props.highlightedTeeth.includes(props.selectedTooth) &&
+      props.parts.some(
+        (p) => p.group === 'tooth' && p.fdi === props.selectedTooth && p.axes,
+      )
     ) {
       const plan = props.implants.find(
         (p) => p.tooth === props.selectedTooth,
@@ -759,7 +768,7 @@ export default function Scene(props: SceneProps) {
       r.camera.position
         .copy(r.controls.target)
         .addScaledVector(direction, Math.max(20, distance));
-    } else if (props.view === 'face' && faceResources && props.parts.length) {
+    } else if (props.view === 'face' && faceResources && faceAvailable) {
       const box = faceResources.geometry
         .boundingBox!.clone()
         .applyMatrix4(faceDisplayMatrix(props.parts, faceResources.metadata));
@@ -776,7 +785,12 @@ export default function Scene(props: SceneProps) {
             .normalize()
             .multiplyScalar(distance),
         );
-    } else if (['focus', 'axis'].includes(props.view) && props.parts.length) {
+    } else if (
+      ['focus', 'axis'].includes(props.view) &&
+      props.parts.some(
+        (p) => p.group === 'tooth' && p.fdi === selectedTooth && p.axes,
+      )
+    ) {
       const p = latest.current.implants.find(
         (p) => p.tooth === selectedTooth,
       ) || { ...initialImplant, tooth: selectedTooth };

@@ -158,14 +158,24 @@ export function buildAnatomicalGuides(
           pose = implantPose(plan || { ...initialImplant, tooth: fdi }, parts);
         const up = pose.direction.clone().negate();
         const index = arch.indexOf(fdi);
+        const supported = arch.filter((n) =>
+          parts.some((p) => p.group === 'tooth' && p.fdi === n && p.axes),
+        );
+        const at = supported.indexOf(fdi);
         const anchorAt = (i: number) =>
           implantPose(
-            { ...initialImplant, tooth: arch[Math.max(0, Math.min(15, i))] },
+            {
+              ...initialImplant,
+              tooth: supported[Math.max(0, Math.min(supported.length - 1, i))],
+            },
             parts,
           ).anchor;
-        const tangent = anchorAt(index + 1)
-          .sub(anchorAt(index - 1))
-          .normalize();
+        const tangent =
+          supported.length > 1
+            ? anchorAt(at + 1)
+                .sub(anchorAt(at - 1))
+                .normalize()
+            : pose.side.clone();
         const out = new THREE.Vector3().crossVectors(tangent, up).normalize();
         let width: number, center: THREE.Vector3;
         if (plan) {

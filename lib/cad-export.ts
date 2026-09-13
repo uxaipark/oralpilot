@@ -172,6 +172,9 @@ export function buildCADItems(
   }
 }
 export function createCADPackage(options: {
+  anatomy?: string;
+  sourceTranslation?: [number, number, number];
+  caseSource?: { id: string; sha256: string; adapterVersion: number };
   implants: Implant[];
   parts: Part[];
   buffer: ArrayBuffer;
@@ -230,17 +233,23 @@ export function createCADPackage(options: {
         toWorld([0, 0, 1]).sub(sourceOrigin),
       )
       .setPosition(sourceOrigin);
+    if (options.sourceTranslation)
+      sourceToExport.multiply(
+        new THREE.Matrix4().makeTranslation(...options.sourceTranslation),
+      );
     const manifest = {
       schema: 'oralpilot-cad-reference-v1',
-      anatomy: 'ToothFairy3F_026',
+      anatomy: options.anatomy || 'ToothFairy3F_026',
+      caseSource: options.caseSource,
       researchOnly: true,
       manufacturingValidated: false,
       intendedUse: '연구용',
       units: 'mm',
       coordinateSystem:
         'OralPilot world in mm; same shared origin as the viewer before unfolding; no per-component centering',
-      sourceCoordinateSpace:
-        'Retained ToothFairy3F_026 mesh coordinates in toothfairy.bin',
+      sourceCoordinateSpace: options.caseSource
+        ? 'Original case surface.bin coordinates in mm; sourceToExportMatrix includes the shared case translation and viewer rotation'
+        : 'Retained ToothFairy3F_026 mesh coordinates in toothfairy.bin',
       sourceToExportMatrixColumnMajor: sourceToExport.toArray(),
       format: options.format,
       scope: options.scope,
@@ -266,7 +275,9 @@ export function createCADPackage(options: {
         'Crowns use clipped source anatomy; margins may be open. No preparation margin, cement gap, emergence profile, screw channel, occlusal or contact design.',
         'Fixture and abutment are generic references, not manufacturer connection libraries.',
       ],
-      source: 'https://toothfairy3.grand-challenge.org/dataset/',
+      source: options.anatomy?.startsWith('tf2-')
+        ? 'https://ditto.ing.unimore.it/toothfairy2/'
+        : 'https://toothfairy3.grand-challenge.org/dataset/',
       license: 'CC BY-NC-SA; source anatomy restrictions apply to derivatives',
     };
     files['manifest.json'] = strToU8(JSON.stringify(manifest, null, 2));
@@ -276,7 +287,7 @@ export function createCADPackage(options: {
     return {
       data: zipSync(files, { level: 6 }),
       manifest,
-      filename: `OralPilot-CAD-REFERENCE-${options.scope}-${options.format}.zip`,
+      filename: `OralPilot-CAD-${options.anatomy || 'REFERENCE'}-${options.scope}-${options.format}.zip`,
     };
   } finally {
     items.forEach((item) => disposeCADObject(item.object));

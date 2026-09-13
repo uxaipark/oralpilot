@@ -93,10 +93,11 @@ export function sequenceSignature(
   settings: SequenceSettings,
   chart: Chart,
   guide?: GuideSettings,
+  anatomy = 'ToothFairy3F_026',
 ) {
   return stableSequenceJSON({
     revision: 2,
-    anatomy: 'ToothFairy3F_026',
+    anatomy,
     implants,
     settings,
     chart,
@@ -144,7 +145,10 @@ export function buildSequencePlans(
   for (const [tooth, need] of Object.entries(settings.needs)) {
     if (
       !allTeeth.includes(Number(tooth)) ||
-      !['extraction', 'endo'].includes(need)
+      !['extraction', 'endo'].includes(need) ||
+      !parts.some(
+        (p) => p.group === 'tooth' && p.fdi === Number(tooth) && p.axes,
+      )
     )
       throw Error('처치 부위 오류');
     if (need === 'endo' && implants.some((p) => p.tooth === Number(tooth)))
@@ -196,7 +200,10 @@ export function buildSequencePlans(
             Object.keys(s.bop).length > 0,
         ),
     )
-    .map((t) => Number(toothLabel(t.n, 'fdi')));
+    .map((t) => Number(toothLabel(t.n, 'fdi')))
+    .filter((n) =>
+      parts.some((p) => p.group === 'tooth' && p.fdi === n && p.axes),
+    );
   const byQuadrant = new Map<number, Implant[]>(),
     byArch = new Map<number, Implant[]>();
   for (const p of implants) {

@@ -195,6 +195,8 @@ export function SimulationInspector({
   onWithdraw,
   onSelect,
   onGenerate,
+  unavailableReason = '',
+  availableTeeth = allTeeth,
   analyzing,
   stale,
   error,
@@ -212,6 +214,8 @@ export function SimulationInspector({
   onWithdraw: () => void;
   onSelect: (id: string) => void;
   onGenerate: () => void;
+  unavailableReason?: string;
+  availableTeeth?: number[];
   analyzing: boolean;
   stale: boolean;
   error: string;
@@ -292,7 +296,11 @@ export function SimulationInspector({
               onValueChange={(value) => setTooth(Number(value))}
             >
               {allTeeth.map((t) => (
-                <DropdownOption key={t} value={t}>
+                <DropdownOption
+                  key={t}
+                  value={t}
+                  disabled={!availableTeeth.includes(t)}
+                >
                   #{displayTooth(t)}
                 </DropdownOption>
               ))}
@@ -301,6 +309,7 @@ export function SimulationInspector({
           <label>
             처치
             <Dropdown
+              disabled={!availableTeeth.includes(tooth)}
               value={settings.needs[tooth] || 'none'}
               onValueChange={(value) => {
                 const needs = { ...settings.needs };
@@ -337,7 +346,8 @@ export function SimulationInspector({
         <button
           className="primary-button full"
           onClick={onGenerate}
-          disabled={analyzing || !implants.length}
+          disabled={analyzing || !implants.length || !!unavailableReason}
+          title={unavailableReason}
         >
           {analyzing ? (
             <Loader2 className="spin" size={16} />

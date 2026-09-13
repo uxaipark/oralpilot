@@ -83,7 +83,12 @@ export function CaseBrowser({
         geometry.dispose();
         return;
       }
-      onGeometry(geometry, entry.name);
+      try {
+        onGeometry(geometry, entry.name);
+      } catch (error) {
+        geometry.dispose();
+        throw error;
+      }
       onOpenChange(false);
     } catch (e) {
       if (!controller.signal.aborted) setError((e as Error).message);

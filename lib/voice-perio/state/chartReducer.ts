@@ -316,7 +316,10 @@ export function reducer(state: AppState, action: Action): AppState {
         chart: action.chart,
         history: [],
         historyIndex: 0,
+        historySeq: 0,
         utterances: [],
+        utteranceSeq: 0,
+        log: [],
       };
     case 'setCursor': {
       const b = band(bandOf(action.at.n, action.at.surf));

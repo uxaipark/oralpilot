@@ -1,4 +1,17 @@
 'use client';
+import {
+  REFERENCE_ANATOMY,
+  planningAnatomyFromGeometry,
+  caseCapabilities,
+  guideCapability,
+  type PlanningAnatomy,
+} from '@/lib/case-planning';
+import {
+  loadToothFairyCase,
+  type ToothFairyCatalog,
+} from '@/lib/toothfairy-cases';
+import { browserPlanKey, BROWSER_ACTIVE_CASE_KEY } from '@/lib/browser-plan';
+
 import { useLocalize } from '@/lib/i18n/provider';
 
 import {
@@ -198,7 +211,6 @@ const titles: Record<string, string> = {
 import type { NeurovascularPath } from '@/lib/surface';
 import { validatePlan } from '@/lib/validation';
 import {
-  BROWSER_PLAN_KEY,
   readBrowserPlan,
   writeBrowserPlan,
   clearBrowserPlan,
@@ -262,6 +274,8 @@ export default function Studio() {
     [selected, setSelected] = useState('IP-01'),
     [tooth, setTooth] = useState(46),
     [layers, setLayers] = useState<Layers>({
+      restoration: true,
+      pdl: false,
       bone: true,
       tooth: true,
       canal: true,
@@ -336,7 +350,60 @@ export default function Studio() {
     [notice, setNotice] = useState(''),
     [external, setExternal] = useState<THREE.BufferGeometry | null>(null),
     [externalName, setExternalName] = useState('');
-  const loadedCase = caseFromGeometry(external);
+  const [clinicalCase, setClinicalCase] = useState<PlanningAnatomy | null>(
+    null,
+  );
+  const [caseLoading, setCaseLoading] = useState(false);
+  const activeAnatomy = useRef<PlanningAnatomy | null>(null);
+  const referenceData = useRef<{
+    parts: Part[];
+    buffer: ArrayBuffer;
+    paths: NeurovascularPath[];
+  } | null>(null);
+  const caseCache = useRef(new Map<string, PlanningAnatomy>());
+  const caseRevision = useRef(0);
+  const casePlans = useRef(new Map<string, ReturnType<typeof validatePlan>>());
+  const loadedCase = caseFromGeometry(external) || clinicalCase?.record || null;
+  const anatomyId = clinicalCase?.record.id || REFERENCE_ANATOMY;
+  const anatomyName = clinicalCase?.record.name || 'ToothFairy3 · F_026';
+  const capability = useMemo(
+    () => caseCapabilities(external ? [] : parts),
+    [parts, external],
+  );
+  const guideAccess = useMemo(
+    () => guideCapability(implants, parts, perioState.chart),
+    [implants, parts, perioState.chart],
+  );
+  const simulationAccess =
+    !external &&
+    capability.planning.enabled &&
+    guideAccess.enabled &&
+    implants.every((p) => capability.sites[p.tooth]?.enabled);
+  const stepAllowed = (id: string) =>
+    !caseLoading &&
+    (['data', 'anatomy'].includes(id) ||
+      (!external &&
+        (id === 'perio'
+          ? capability.perio.enabled
+          : id === 'planning'
+            ? capability.planning.enabled
+            : simulationAccess)));
+  const stepReason = (id: string) =>
+    caseLoading
+      ? '케이스 불러오는 중…'
+      : id === 'perio'
+        ? capability.perio.reason
+        : id === 'planning'
+          ? capability.planning.reason
+          : !capability.planning.enabled
+            ? capability.planning.reason
+            : guideAccess.reason;
+  const faceAvailable = [11, 21, 31, 41].every((n) =>
+    parts.some((p) => p.group === 'tooth' && p.fdi === n && p.axes),
+  );
+  const hasToothAxis = (n: number) =>
+    parts.some((p) => p.group === 'tooth' && p.fdi === n && p.axes);
+
   useEffect(() => {
     if (panelFocus.current === 'left')
       (leftOpen ? leftCollapse : leftToggle).current?.focus();
@@ -359,8 +426,14 @@ export default function Studio() {
   }, [perioState.cursor.n, step]);
   const currentSignature = useMemo(
     () =>
-      sequenceSignature(implants, sequenceSettings, perioState.chart, guide),
-    [implants, sequenceSettings, perioState.chart, guide],
+      sequenceSignature(
+        implants,
+        sequenceSettings,
+        perioState.chart,
+        guide,
+        anatomyId,
+      ),
+    [implants, sequenceSettings, perioState.chart, guide, anatomyId],
   );
   const sequenceStale =
     !!generatedSignature &&
@@ -393,9 +466,11 @@ export default function Studio() {
     setPlaying(false);
     setSequenceError('');
     setAnalyzing(true);
+    const revision = caseRevision.current;
     setTimeout(() => {
+      if (revision !== caseRevision.current) return;
       try {
-        if (!buffer || external)
+        if (!buffer || external || !simulationAccess)
           throw Error('등록된 해부학 예제를 불러오세요.');
         const candidates = buildSequencePlans(
           implants,
@@ -449,8 +524,22 @@ export default function Studio() {
     [external],
   );
   usePlanningTools(
-    { step, implants, guide, perio, externalName },
-    { setImplants, setStep },
+    {
+      step,
+      implants,
+      guide,
+      perio,
+      externalName,
+      anatomy: anatomyId,
+      caseSource: clinicalCase?.source,
+      allowedSteps: steps.filter((s) => stepAllowed(s.id)).map((s) => s.id),
+    },
+    {
+      setImplants,
+      setStep: (s) => {
+        if (stepAllowed(s)) setStep(s);
+      },
+    },
   );
   const current = implants.find((p) => p.id === selected);
   const clearance = useMemo(
@@ -461,7 +550,7 @@ export default function Studio() {
     [current, buffer, parts, external],
   );
   const focusedPlan = implants.find((p) => p.tooth === tooth);
-  const guideAngle = parts.length
+  const guideAngle = hasToothAxis(tooth)
     ? implantGuideAngle(focusedPlan || { ...initialImplant, tooth }, parts)
     : 0;
   const notify = useCallback((s: string) => setNotice(s), []);
@@ -488,11 +577,18 @@ export default function Studio() {
     ])
       .then(([m, paths, b]) => {
         if (!dead) {
-          setParts((m as { parts: Part[] }).parts);
-          setBuffer(b);
-          setNeurovascularPaths(
-            (paths as { paths: NeurovascularPath[] }).paths,
-          );
+          referenceData.current = {
+            parts: (m as { parts: Part[] }).parts,
+            buffer: b,
+            paths: (paths as { paths: NeurovascularPath[] }).paths,
+          };
+          if (!activeAnatomy.current) {
+            setParts((m as { parts: Part[] }).parts);
+            setBuffer(b);
+            setNeurovascularPaths(
+              (paths as { paths: NeurovascularPath[] }).paths,
+            );
+          }
         }
       })
       .catch(() =>
@@ -525,10 +621,13 @@ export default function Studio() {
     );
   };
   const showFace = () => {
+    if (!faceAvailable) return;
     setView('face');
     setReset((n) => n + 1);
   };
   const chooseTooth = (n: number) => {
+    if (external || !parts.some((p) => p.group === 'tooth' && p.fdi === n))
+      return;
     setTooth(n);
     setLayers((l) => ({
       ...l,
@@ -554,13 +653,23 @@ export default function Studio() {
   };
   const implantTargets = highlightedTeeth.length ? highlightedTeeth : [tooth];
   const implantAction = implantSelection(implants, implantTargets);
+  const implantUnavailable =
+    !!external ||
+    caseLoading ||
+    (!implantAction.remove &&
+      implantTargets.some((n) => !capability.sites[n]?.enabled));
+  const implantReason = implantTargets
+    .map((n) => capability.sites[n]?.reason)
+    .filter(Boolean)
+    .join(' ');
   const implantActionLabel = implantAction.remove
     ? `${implantTargets.length === 1 ? `#${displayTooth(implantTargets[0])}` : `선택 ${implantTargets.length}개`} 임플란트 제거`
     : `${implantTargets.length === 1 ? `#${displayTooth(implantTargets[0])}에` : `선택 중 ${implantAction.missing.length}개`} 임플란트 추가`;
   const toggleImplants = () => {
-    if (external) {
+    if (implantUnavailable) {
       notify(
-        '가져온 모델은 정합·치아 라벨이 없어 식립계획과 연결되지 않습니다. 해부학 예제로 돌아가세요.',
+        implantReason ||
+          '가져온 모델은 정합·치아 라벨이 없어 식립계획과 연결되지 않습니다. 해부학 예제로 돌아가세요.',
       );
       return;
     }
@@ -612,7 +721,8 @@ export default function Studio() {
     () => ({
       schema: 'oralpilot-plan-v2',
       researchOnly: true,
-      anatomy: 'ToothFairy3F_026',
+      anatomy: anatomyId,
+      ...(clinicalCase ? { caseSource: clinicalCase.source } : {}),
       implants,
       guide,
       perio,
@@ -629,6 +739,8 @@ export default function Studio() {
       createdAt: new Date().toISOString(),
     }),
     [
+      anatomyId,
+      clinicalCase,
       implants,
       guide,
       perio,
@@ -655,7 +767,16 @@ export default function Studio() {
       });
     setImplants(d.implants);
     setSelected(d.implants[0]?.id || '');
-    setTooth(d.implants[0]?.tooth || 46);
+    const firstTooth =
+      d.implants[0]?.tooth ||
+      activeAnatomy.current?.parts.find((p) => p.group === 'tooth' && p.axes)
+        ?.fdi ||
+      activeAnatomy.current?.parts.find((p) => p.group === 'tooth')?.fdi ||
+      46;
+    setTooth(firstTooth);
+    const n = parseToothLabel(firstTooth, 'fdi');
+    if (n !== null)
+      perioDispatch({ type: 'setCursor', at: { n, surf: 'B', p: 'C' } });
     setHighlightedTeeth(d.implants.length ? [d.implants[0].tooth] : []);
     setGuide(d.guide);
     setSequenceSettings(d.sequenceSettings || defaultSequenceSettings);
@@ -673,37 +794,153 @@ export default function Studio() {
     setPlaying(false);
     setProgress(0);
     setSequenceDecision(d.sequenceDecision || null);
+    setSequenceError('');
     setSequencePlans([]);
     setSequenceId('');
     setGeneratedSignature('');
     setView('perspective');
     setReset((r) => r + 1);
   };
+  const rememberPlan = () => {
+    caseRevision.current += 1;
+    setAnalyzing(false);
+    setSequenceError('');
+    if (!external) casePlans.current.set(anatomyId, validatePlan(planDocument));
+    localAutosave.current = false;
+    faceViewSnapshot.current = null;
+  };
+  const installAnatomy = (model: PlanningAnatomy | null) => {
+    activeAnatomy.current = model;
+    setClinicalCase(model);
+    setLoadError('');
+    const data = model || referenceData.current;
+    if (data) {
+      setParts(data.parts);
+      setBuffer(data.buffer);
+    }
+    setNeurovascularPaths(model ? [] : referenceData.current?.paths || []);
+    setExternal(null);
+    setExternalName('');
+    setGuideOnly(false);
+    setLayers((l) => ({
+      ...l,
+      upper: model ? model.record.upper : true,
+      lower: model ? model.record.lower : true,
+      face: false,
+      lips: false,
+      corridor: !model,
+    }));
+  };
+  const casePlanFor = (model: PlanningAnatomy) => {
+    const restored =
+      (!external && anatomyId === model.record.id
+        ? validatePlan(planDocument)
+        : null) ||
+      casePlans.current.get(model.record.id) ||
+      readBrowserPlan(window.localStorage, model.record.id);
+    if (restored) {
+      if (restored.caseSource?.sha256 !== model.source.sha256)
+        throw Error('계획 파일과 케이스 원본이 일치하지 않습니다.');
+      return restored;
+    }
+    return validatePlan({
+      ...planDocument,
+      anatomy: model.record.id,
+      caseSource: model.source,
+      implants: [],
+      perio: {},
+      perioMeta: { ...createPerioState({}).meta, numbering },
+      perioChart: chartFromAnatomy(model.parts),
+      sequenceSettings: defaultSequenceSettings,
+      sequenceDecision: null,
+    });
+  };
+  const cacheCase = (model: PlanningAnatomy) => {
+    caseCache.current.delete(model.record.id);
+    caseCache.current.set(model.record.id, model);
+    while (caseCache.current.size > 4)
+      caseCache.current.delete(caseCache.current.keys().next().value!);
+  };
+  const loadPlanDocument = async (
+    document: ReturnType<typeof validatePlan>,
+    origin: string,
+  ) => {
+    setCaseLoading(true);
+    const revision = caseRevision.current;
+    try {
+      let model: PlanningAnatomy | null = null;
+      if (document.anatomy !== REFERENCE_ANATOMY) {
+        model = caseCache.current.get(document.anatomy) || null;
+        if (!model) {
+          let response = await fetch(
+            process.env.NODE_ENV === 'development'
+              ? '/__oralpilot/toothfairy/catalog'
+              : '/cases/toothfairy/catalog.json',
+          );
+          if (!response.ok)
+            response = await fetch('/cases/toothfairy/catalog.json');
+          const catalog: ToothFairyCatalog = await response.json();
+          const entry = catalog.cases.find((c) => c.id === document.anatomy);
+          if (!entry) throw Error('계획에 연결된 케이스가 없습니다.');
+          const geometry = await loadToothFairyCase(entry);
+          try {
+            model = planningAnatomyFromGeometry(geometry);
+          } finally {
+            geometry.dispose();
+          }
+        }
+        if (!model || model.source.sha256 !== document.caseSource?.sha256)
+          throw Error('계획 파일과 케이스 원본이 일치하지 않습니다.');
+        const access = caseCapabilities(model.parts);
+        if (document.implants.some((p) => !access.sites[p.tooth]?.enabled))
+          throw Error(
+            '이 케이스에서 계산할 수 없는 식립 위치가 계획에 포함되어 있습니다.',
+          );
+        cacheCase(model);
+      }
+      if (revision !== caseRevision.current)
+        throw Error('다른 케이스가 선택되어 계획 불러오기를 취소했습니다.');
+      rememberPlan();
+      installAnatomy(model);
+      applyPlan(document, origin);
+      setStep(document.implants.length ? 'planning' : 'anatomy');
+    } finally {
+      setCaseLoading(false);
+    }
+  };
   useEffect(() => {
     if (localHydrated.current) return;
     localHydrated.current = true;
-    try {
-      const exists = window.localStorage.getItem(BROWSER_PLAN_KEY) !== null;
-      setLocalSaved(exists);
-      const saved = readBrowserPlan(window.localStorage);
-      if (saved) {
-        applyPlan(saved, '브라우저에 저장된 검사값');
-        localAutosave.current = true;
-        notify('브라우저에 저장된 임플란트 계획과 치주 검사를 복원했습니다.');
+    void (async () => {
+      try {
+        const id =
+          window.localStorage.getItem(BROWSER_ACTIVE_CASE_KEY) ||
+          REFERENCE_ANATOMY;
+        const saved = readBrowserPlan(window.localStorage, id);
+        if (saved) {
+          await loadPlanDocument(saved, '브라우저에 저장된 검사값');
+          setLocalSaved(true);
+          localAutosave.current = true;
+          notify('브라우저에 저장된 임플란트 계획과 치주 검사를 복원했습니다.');
+        }
+      } catch {
+        setLocalError(
+          '계획서 임시공간을 복원하지 못했습니다. 원본 케이스를 확인하세요.',
+        );
+      } finally {
+        setLocalReady(true);
       }
-    } catch {
-      setLocalError(
-        '계획서 임시공간을 복원하지 못했습니다. 임시공간 삭제 또는 계획서 파일 열기를 사용하세요.',
-      );
-      notify(
-        '계획서 임시공간을 읽지 못했습니다. 기존 저장 내용은 덮어쓰지 않았습니다.',
-      );
-    } finally {
-      setLocalReady(true);
-    }
+    })();
   }, []);
   useEffect(() => {
-    if (!localReady || !localSaved || !localAutosave.current) return;
+    if (
+      !localReady ||
+      !localSaved ||
+      !localAutosave.current ||
+      external ||
+      caseLoading
+    )
+      return;
     try {
       writeBrowserPlan(window.localStorage, planDocument);
       setLocalError('');
@@ -721,7 +958,7 @@ export default function Studio() {
     const changed = (event: StorageEvent) => {
       if (
         event.storageArea !== window.localStorage ||
-        (event.key !== BROWSER_PLAN_KEY && event.key !== null)
+        (event.key !== browserPlanKey(anatomyId) && event.key !== null)
       )
         return;
       localAutosave.current = false;
@@ -734,11 +971,18 @@ export default function Studio() {
     };
     window.addEventListener('storage', changed);
     return () => window.removeEventListener('storage', changed);
-  }, []);
+  }, [anatomyId]);
+  useEffect(() => {
+    if (!localReady || caseLoading) return;
+    const exists =
+      window.localStorage.getItem(browserPlanKey(anatomyId)) !== null;
+    setLocalSaved(exists);
+    localAutosave.current = exists && !external;
+  }, [anatomyId, external, localReady, caseLoading]);
   const toggleBrowserSave = () => {
     try {
       if (localSaved) {
-        clearBrowserPlan(window.localStorage);
+        clearBrowserPlan(window.localStorage, anatomyId);
         localAutosave.current = false;
         setLocalSaved(false);
         setLocalError('');
@@ -764,7 +1008,10 @@ export default function Studio() {
     }
   };
   const savePlan = () => {
-    download(JSON.stringify(planDocument, null, 2), 'OralPilot-DEMO-plan.json');
+    download(
+      JSON.stringify(planDocument, null, 2),
+      `OralPilot-${anatomyId}-plan.json`,
+    );
     notify(
       '계획서 파일을 다운로드했습니다. 다음 세션에서 다시 불러올 수 있습니다.',
     );
@@ -775,6 +1022,7 @@ export default function Studio() {
       !parts.length ||
       !buffer ||
       external ||
+      !simulationAccess ||
       cadExporting
     )
       return;
@@ -783,6 +1031,9 @@ export default function Studio() {
     try {
       const { createCADPackage } = await import('@/lib/cad-export');
       const result = createCADPackage({
+        anatomy: anatomyId,
+        caseSource: clinicalCase?.source,
+        sourceTranslation: clinicalCase?.sourceTranslation,
         implants,
         parts,
         buffer,
@@ -808,23 +1059,53 @@ export default function Studio() {
     }
   }
   const restoreDemo = () => {
-    setExternal(null);
-    setExternalName('');
-    setReset((r) => r + 1);
+    const saved =
+      (!external && anatomyId === REFERENCE_ANATOMY
+        ? validatePlan(planDocument)
+        : null) ||
+      casePlans.current.get(REFERENCE_ANATOMY) ||
+      readBrowserPlan(window.localStorage, REFERENCE_ANATOMY);
+    rememberPlan();
+    installAnatomy(null);
+    if (saved) applyPlan(saved, '레퍼런스에 저장된 검사값');
+    else
+      applyPlan(
+        validatePlan({
+          ...planDocument,
+          anatomy: REFERENCE_ANATOMY,
+          implants: [{ ...initialImplant }],
+          perio: {},
+          perioChart: chartFromAnatomy(anatomyManifest.parts),
+          sequenceSettings: defaultSequenceSettings,
+          sequenceDecision: null,
+        }),
+        '모델 기반 치아 상태 · 검사값 직접 입력',
+      );
     notify('공개 해부학 모델과 데모 계획으로 돌아왔습니다.');
   };
   const acceptGeometry = (g: THREE.BufferGeometry, name: string) => {
-    setExternal(g);
-    setExternalName(name);
+    const model = planningAnatomyFromGeometry(g);
+    const nextPlan = model ? casePlanFor(model) : null;
+    rememberPlan();
+    if (model && nextPlan) {
+      cacheCase(model);
+      installAnatomy(model);
+      applyPlan(nextPlan, '모델 기반 치아 상태 · 검사값 직접 입력');
+      g.dispose();
+    } else {
+      setExternal(g);
+      setExternalName(name);
+      setPlaying(false);
+    }
     setView('perspective');
     setReset((r) => r + 1);
     setCaseVisibility({ ...defaultCaseVisibility });
     setStep('anatomy');
-    setPlaying(false);
   };
   const proceed = () => {
     const idx = steps.findIndex((s) => s.id === step);
-    setStep(steps[Math.min(idx + 1, 5)].id);
+    const next = steps[Math.min(idx + 1, 5)].id;
+    if (stepAllowed(next)) setStep(next);
   };
   useEffect(() => {
     perioDispatch({ type: 'setVoice', patch: { locale: localeTags[locale] } });
@@ -867,7 +1148,11 @@ export default function Studio() {
               <span className="eyebrow">WORKSPACE</span>
               <strong>임플란트 수술계획</strong>
               <span className="muted">
-                {loadedCase ? '공개 환자 케이스 · 3D 열람' : '데모 케이스'}
+                {external
+                  ? '공개 환자 케이스 · 3D 열람'
+                  : clinicalCase
+                    ? '공개 환자 케이스 · 계획 작업 공간'
+                    : '데모 케이스'}
               </span>
               <span className="case-dot">{loadedCase?.id || 'DEMO-001'}</span>
             </div>
@@ -877,7 +1162,8 @@ export default function Studio() {
             {steps.map((s, i) => (
               <SidebarMenuItem key={s.id}>
                 <SidebarMenuButton
-                  disabled={!!loadedCase && !['data', 'anatomy'].includes(s.id)}
+                  disabled={!stepAllowed(s.id)}
+                  title={!stepAllowed(s.id) ? stepReason(s.id) : undefined}
                   onClick={() => setStep(s.id)}
                   isActive={step === s.id}
                   className="workflow-item"
@@ -921,12 +1207,14 @@ export default function Studio() {
             <LanguageSelector />
             <button
               className="outline-button case-open"
+              disabled={caseLoading}
               onClick={() => setCaseBrowserOpen(true)}
             >
               <FolderInput size={16} /> 케이스 불러오기
             </button>
             <button
               className="quiet-button"
+              disabled={caseLoading}
               onClick={() => planInput.current?.click()}
             >
               <Upload size={15} />
@@ -935,7 +1223,7 @@ export default function Studio() {
             <button
               className="outline-button browser-save"
               onClick={toggleBrowserSave}
-              disabled={!localReady || !!loadedCase}
+              disabled={!localReady || !!external || caseLoading}
               title={
                 localError ||
                 (localSaved
@@ -949,7 +1237,7 @@ export default function Studio() {
             <button
               className="outline-button file-save"
               onClick={savePlan}
-              disabled={!!loadedCase}
+              disabled={!!external || caseLoading}
             >
               <ArrowDownToLine size={15} />
               계획서 파일저장
@@ -957,26 +1245,23 @@ export default function Studio() {
             <button
               className="primary-button"
               onClick={() => setReport(true)}
-              disabled={!!loadedCase}
+              disabled={!!external || caseLoading}
             >
               <FileText size={16} />
               계획서 보기
             </button>
           </div>
         </header>
-        <div className="page-heading compact-heading">
+        <div className="page-heading compact-heading" aria-busy={caseLoading}>
           <h1>{steps.find((s) => s.id === step)?.name || titles[step]}</h1>
-          <p
-            title={
-              external && step !== 'perio'
-                ? externalName
-                : 'ToothFairy3 · F_026'
-            }
-          >
-            {external && step !== 'perio'
-              ? externalName
-              : 'ToothFairy3 · F_026'}
+          <p title={external && step !== 'perio' ? externalName : anatomyName}>
+            {external && step !== 'perio' ? externalName : anatomyName}
           </p>
+          {clinicalCase && !capability.planning.enabled && (
+            <span className="compact-save-error" role="status">
+              {capability.planning.reason}
+            </span>
+          )}
           {localError && (
             <span
               className="compact-save-error"
@@ -1126,7 +1411,10 @@ export default function Studio() {
                                   'right',
                                   'left',
                                 ].includes(id)) ||
-                              (id === 'axis' && !focusedPlan)
+                              (['focus', 'axis'].includes(id) &&
+                                !hasToothAxis(tooth)) ||
+                              (id === 'axis' && !focusedPlan) ||
+                              (id === 'face' && !faceAvailable)
                             }
                           >
                             {label}
@@ -1344,6 +1632,7 @@ export default function Studio() {
                         </div>
                       )}
                     {step === 'planning' &&
+                      hasToothAxis(tooth) &&
                       highlightedTeeth.includes(tooth) &&
                       view !== 'face' &&
                       !external && (
@@ -1448,7 +1737,11 @@ export default function Studio() {
                     ].map(([label, teeth]) => (
                       <DropdownGroup key={String(label)} label={String(label)}>
                         {(teeth as number[]).map((n) => (
-                          <DropdownOption value={n} key={n}>
+                          <DropdownOption
+                            value={n}
+                            key={n}
+                            disabled={!capability.sites[n]?.enabled}
+                          >
                             #{displayTooth(n)}
                             {implants.some((p) => p.tooth === n)
                               ? ' · 계획 있음'
@@ -1462,7 +1755,8 @@ export default function Studio() {
                     className="primary-button"
                     onClick={toggleImplants}
                     aria-pressed={implantAction.remove}
-                    disabled={!buffer || !parts.length}
+                    disabled={implantUnavailable || !buffer}
+                    title={implantUnavailable ? implantReason : undefined}
                   >
                     {implantAction.remove ? (
                       <Trash2 size={16} />
@@ -1472,8 +1766,9 @@ export default function Studio() {
                     {implantActionLabel}
                   </button>
                   <small>
-                    여러 치아 선택 후 일괄 추가 · 모두 계획된 선택은 다시 누르면
-                    제거
+                    {implantUnavailable
+                      ? implantReason
+                      : '여러 치아 선택 후 일괄 추가 · 모두 계획된 선택은 다시 누르면 제거'}
                   </small>
                 </div>
               )}
@@ -1553,6 +1848,11 @@ export default function Studio() {
                         {upperTeeth.map((t) => (
                           <button
                             key={t}
+                            disabled={
+                              !parts.some(
+                                (p) => p.group === 'tooth' && p.fdi === t,
+                              )
+                            }
                             onClick={() => chooseTooth(t)}
                             className={`tooth-cell ${highlightedTeeth.includes(t) ? 'selected' : ''} ${implants.some((p) => p.tooth === t) ? 'planned' : ''}`}
                             aria-pressed={highlightedTeeth.includes(t)}
@@ -1587,6 +1887,11 @@ export default function Studio() {
                         {lowerTeeth.map((t) => (
                           <button
                             key={t}
+                            disabled={
+                              !parts.some(
+                                (p) => p.group === 'tooth' && p.fdi === t,
+                              )
+                            }
                             onClick={() => chooseTooth(t)}
                             className={`tooth-cell ${highlightedTeeth.includes(t) ? 'selected' : ''} ${implants.some((p) => p.tooth === t) ? 'planned' : ''}`}
                             aria-pressed={highlightedTeeth.includes(t)}
@@ -1821,7 +2126,14 @@ export default function Studio() {
                           <Switch
                             aria-label={key === 'upper' ? '상악' : '하악'}
                             checked={!excluded && layers[key]}
-                            disabled={excluded}
+                            disabled={
+                              excluded ||
+                              !parts.some(
+                                (p) =>
+                                  p.jaw ===
+                                  (key === 'upper' ? 'maxilla' : 'mandible'),
+                              )
+                            }
                             onCheckedChange={(v) =>
                               setLayers((l) => ({ ...l, [key]: v }))
                             }
@@ -1835,14 +2147,21 @@ export default function Studio() {
                     {(
                       [
                         ['bone', '턱뼈', '상악골 · 하악골', '#d5ccb9'],
-                        ['tooth', '치아', '치관과 치근 · 32개', '#efebdd'],
                         [
-                          'canal',
-                          '하치조관',
-                          '좌우 2개 · 관 표면 분할',
-                          '#f5b657',
+                          'tooth',
+                          '치아',
+                          `치관과 치근 · ${parts.filter((p) => p.group === 'tooth').length}개`,
+                          '#efebdd',
                         ],
+                        ['canal', '하치조관', '관 표면 분할', '#f5b657'],
                         ['pulp', '치수강', '치아 내부 공간', '#e98687'],
+                        [
+                          'restoration',
+                          '수복물',
+                          '분할된 수복물 표면',
+                          '#b5c8d1',
+                        ],
+                        ['pdl', '치주인대', '분할된 치주인대 표면', '#cbaab8'],
                         [
                           'sinus',
                           '상악동 저부',
@@ -1855,7 +2174,10 @@ export default function Studio() {
                         <i style={{ background: color }} />
                         <div title={sub}>{label}</div>
                         <Switch
-                          checked={layers[key]}
+                          checked={
+                            !!layers[key] && parts.some((p) => p.group === key)
+                          }
+                          disabled={!parts.some((p) => p.group === key)}
                           onCheckedChange={(v) =>
                             setLayers((l) => ({ ...l, [key]: v }))
                           }
@@ -1874,7 +2196,8 @@ export default function Studio() {
                       <Switch
                         aria-label="하치조관 중심선"
                         aria-description="좌우 관 내부의 참고선 · 별도 신경 아님"
-                        checked={layers.corridor}
+                        checked={layers.corridor && !!neurovascularPaths.length}
+                        disabled={!neurovascularPaths.length}
                         onCheckedChange={(v) =>
                           setLayers((l) => ({ ...l, corridor: v }))
                         }
@@ -1955,6 +2278,13 @@ export default function Studio() {
                           <Switch
                             aria-label={label}
                             checked={layers[key]}
+                            disabled={
+                              key === 'gingiva'
+                                ? parts.filter(
+                                    (p) => p.group === 'tooth' && p.axes,
+                                  ).length < 3
+                                : !faceAvailable
+                            }
                             onCheckedChange={(v) =>
                               setLayers((l) => ({ ...l, [key]: v }))
                             }
@@ -1964,6 +2294,7 @@ export default function Studio() {
                       <button
                         className="secondary-button full"
                         onClick={showFace}
+                        disabled={!faceAvailable}
                       >
                         <Maximize2 size={15} /> 실사 안면 전체 보기
                       </button>
@@ -2005,13 +2336,22 @@ export default function Studio() {
                     </div>
                   </div>
                   <div className="inspector-section">
-                    <a
+                    <button
                       className="secondary-button full"
-                      href="/anatomy/neurovascular-paths.json"
-                      download="OralPilot-canal-derived-corridors.json"
+                      disabled={!neurovascularPaths.length}
+                      onClick={() =>
+                        download(
+                          JSON.stringify(
+                            { anatomy: anatomyId, paths: neurovascularPaths },
+                            null,
+                            2,
+                          ),
+                          `OralPilot-${anatomyId}-corridors.json`,
+                        )
+                      }
                     >
                       관 기반 통로 좌표 다운로드
-                    </a>
+                    </button>
                     <p className="helper">
                       하치조관 중심선은 신경·혈관이 지나는 공통 통로의
                       추정입니다. 표시 굵기는 보기용이며 실제 신경·혈관 직경이
@@ -2056,6 +2396,14 @@ export default function Studio() {
                     setView('perspective');
                   }}
                   onGenerate={generateSequence}
+                  availableTeeth={parts
+                    .filter((p) => p.group === 'tooth' && p.axes && p.fdi)
+                    .map((p) => p.fdi!)}
+                  unavailableReason={
+                    !simulationAccess
+                      ? guideAccess.reason || capability.planning.reason
+                      : ''
+                  }
                   analyzing={analyzing}
                   stale={sequenceStale}
                   error={sequenceError}
@@ -2083,7 +2431,7 @@ export default function Studio() {
                       <span>식립 계획</span>
                       <button
                         className="text-button"
-                        disabled={!!external}
+                        disabled={implantUnavailable}
                         hidden={step !== 'planning'}
                         onClick={toggleImplants}
                         aria-pressed={implantAction.remove}
@@ -2132,7 +2480,7 @@ export default function Studio() {
                         className="text-button"
                         onClick={toggleImplants}
                         aria-pressed={implantAction.remove}
-                        disabled={!!external}
+                        disabled={implantUnavailable}
                       >
                         {implantActionLabel}
                       </button>
@@ -2153,9 +2501,7 @@ export default function Studio() {
                       </p>
                       <button
                         className="primary-button full"
-                        disabled={
-                          analyzing || !implants.length || !buffer || !!external
-                        }
+                        disabled={analyzing || !buffer || !simulationAccess}
                         onClick={() => {
                           setStep('simulation');
                           generateSequence();
@@ -2182,7 +2528,7 @@ export default function Studio() {
                         aria-pressed={guideOnly}
                         onClick={() => setGuideOnly((v) => !v)}
                         disabled={
-                          !!external || (!implants.length && !guideOnly)
+                          !!external || (!simulationAccess && !guideOnly)
                         }
                       >
                         <Eye size={16} />{' '}
@@ -2250,6 +2596,7 @@ export default function Studio() {
                           cadExporting ||
                           !implants.length ||
                           !buffer ||
+                          !simulationAccess ||
                           !!external
                         }
                       >
@@ -2383,6 +2730,8 @@ export default function Studio() {
                             {[46, 36, 24].map((fdi) => (
                               <button
                                 key={fdi}
+                                disabled={!capability.sites[fdi]?.enabled}
+                                title={capability.sites[fdi]?.reason}
                                 className={
                                   current.tooth === fdi ? 'active' : ''
                                 }
@@ -2620,9 +2969,39 @@ export default function Studio() {
                   )}
                 </>
               )}
+              {!external && !simulationAccess && implants.length > 0 && (
+                <p className="helper" role="status">
+                  {guideAccess.reason || capability.planning.reason}
+                </p>
+              )}
               <div className="inspector-footer">
                 <button
                   className="primary-button full"
+                  disabled={
+                    !external &&
+                    !stepAllowed(
+                      step === 'simulation'
+                        ? 'simulation'
+                        : steps[
+                            Math.min(
+                              steps.findIndex((s) => s.id === step) + 1,
+                              5,
+                            )
+                          ].id,
+                    )
+                  }
+                  title={
+                    !external
+                      ? stepReason(
+                          steps[
+                            Math.min(
+                              steps.findIndex((s) => s.id === step) + 1,
+                              5,
+                            )
+                          ].id,
+                        )
+                      : undefined
+                  }
                   onClick={
                     external
                       ? restoreDemo
@@ -2700,7 +3079,7 @@ export default function Studio() {
           if (!f) return;
           try {
             const d = validatePlan(JSON.parse(await f.text()));
-            applyPlan(d, '계획 파일의 검사값');
+            await loadPlanDocument(d, '계획 파일의 검사값');
             notify('계획과 치주 차트를 복원했습니다.');
           } catch (err) {
             notify('계획 파일 오류: ' + (err as Error).message);
@@ -2794,10 +3173,10 @@ export default function Studio() {
         <DialogContent className="report-dialog">
           <DialogTitle>수술계획서</DialogTitle>
           <DialogDescription>
-            DEMO-001 · ToothFairy3 F_026 ·{' '}
-            {new Date().toLocaleDateString(localeTags[locale])}
+            {anatomyName} · {new Date().toLocaleDateString(localeTags[locale])}
           </DialogDescription>
           <Report
+            anatomyName={anatomyName}
             numbering={numbering}
             implants={implants}
             guide={guide}
@@ -2885,6 +3264,7 @@ function Range({
   );
 }
 function Report({
+  anatomyName,
   numbering,
   sequenceDecision,
   sequencePlan,
@@ -2896,6 +3276,7 @@ function Report({
   buffer,
   perioOrigin,
 }: {
+  anatomyName: string;
   numbering: Numbering;
   sequencePlan: SequencePlan | null;
   sequenceDecision: SequenceDecision | null;
@@ -2916,8 +3297,7 @@ function Report({
       <div className="report-brand">OralPilot</div>
       <h2>임플란트 수술계획서</h2>
       <p>
-        DEMO-001 · ToothFairy3 F_026 ·{' '}
-        {new Date().toLocaleString(localeTags[locale])}
+        {anatomyName} · {new Date().toLocaleString(localeTags[locale])}
       </p>
       <div className="amber-note">
         식립 부위 치아는 시뮬레이션을 위해 가상 제거되었으며, 발치 적응증을
