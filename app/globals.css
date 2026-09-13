@@ -2924,3 +2924,82 @@ h1 {
   margin-top: 14px;
   padding-top: 14px;
 }
+
+.top-actions .outline-button.case-open {
+  display: inline-flex;
+}
+.case-dialog {
+  width: min(760px, calc(100vw - 32px));
+  max-width: 760px;
+  max-height: calc(100dvh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #202a33;
+  color: #e2e9ee;
+  padding: 24px;
+}
+.case-dialog [data-slot='dialog-description'] {
+  color: #b1c2ce;
+}
+.case-list {
+  min-height: 100px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  display: grid;
+  gap: 8px;
+  padding-right: 4px;
+}
+.case-list-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-align: left;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #42515e;
+  border-radius: 8px;
+  background: #27343e;
+}
+.case-list-item:hover,
+.case-list-item.selected {
+  border-color: #92d9c5;
+  background: #28443e;
+}
+.case-list-item > span:first-of-type {
+  display: grid;
+  gap: 5px;
+  flex: 1;
+}
+.case-list-item small {
+  font-size: 12px;
+  color: #b1c2ce;
+}
+.case-load-label {
+  font-size: 12px;
+  color: #a4e4ce;
+  white-space: nowrap;
+}
+.case-layer-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 14px 0;
+}
+@media (max-width: 600px) {
+  .case-dialog {
+    padding: 18px;
+  }
+  .case-list-item {
+    gap: 8px;
+    padding: 10px;
+  }
+  .case-list-item > svg {
+    display: none;
+  }
+  .case-load-label {
+    white-space: normal;
+    max-width: 62px;
+  }
+}

@@ -111,6 +111,8 @@ import {
   decisionMatches,
   type SequenceDecision,
 } from '@/lib/sequence-decision';
+import { CaseBrowser } from './case-browser';
+import { caseFromGeometry, defaultCaseVisibility } from '@/lib/jaw-cases';
 import { PerioCanvas, PerioInspector, PerioReport } from './perio-workspace';
 import {
   createPerioState,
@@ -193,6 +195,8 @@ import {
   clearBrowserPlan,
 } from '@/lib/browser-plan';
 export default function Studio() {
+  const [caseBrowserOpen, setCaseBrowserOpen] = useState(false);
+  const [caseVisibility, setCaseVisibility] = useState(defaultCaseVisibility);
   const [sequenceDecision, setSequenceDecision] =
     useState<SequenceDecision | null>(null);
   const [highlightedTeeth, setHighlightedTeeth] = useState<number[]>([]);
@@ -296,6 +300,7 @@ export default function Studio() {
     [notice, setNotice] = useState(''),
     [external, setExternal] = useState<THREE.BufferGeometry | null>(null),
     [externalName, setExternalName] = useState('');
+  const loadedCase = caseFromGeometry(external);
   useEffect(() => {
     if (step !== 'perio') return;
     const fdi = Number(toothLabel(perioState.cursor.n, 'fdi'));
@@ -379,7 +384,7 @@ export default function Studio() {
     setPlaying(false);
     setProgress(0);
     setSequenceDecision((d) =>
-      d?.inputSignature === currentSignature && !external ? d : null,
+      d?.inputSignature === currentSignature ? d : null,
     );
   }, [currentSignature, external]);
   const csvInput = useRef<HTMLInputElement>(null),
@@ -558,7 +563,10 @@ export default function Studio() {
       toothNumbering: 'fdi',
       displayNumbering: numbering,
       sequenceSettings,
-      sequenceDecision: storedDecision,
+      sequenceDecision:
+        sequenceDecision?.inputSignature === currentSignature
+          ? sequenceDecision
+          : null,
       perioOrigin,
       createdAt: new Date().toISOString(),
     }),
@@ -570,7 +578,8 @@ export default function Studio() {
       perioState.meta,
       numbering,
       sequenceSettings,
-      storedDecision,
+      sequenceDecision,
+      currentSignature,
       perioOrigin,
     ],
   );
@@ -741,6 +750,9 @@ export default function Studio() {
   const acceptGeometry = (g: THREE.BufferGeometry, name: string) => {
     setExternal(g);
     setExternalName(name);
+    setView('perspective');
+    setReset((r) => r + 1);
+    setCaseVisibility({ ...defaultCaseVisibility });
     setStep('anatomy');
     setPlaying(false);
   };
@@ -765,14 +777,17 @@ export default function Studio() {
           <div className="case-card">
             <span className="eyebrow">WORKSPACE</span>
             <strong>임플란트 수술계획</strong>
-            <span className="muted">연구용 데모 케이스</span>
-            <span className="case-dot">DEMO-001</span>
+            <span className="muted">
+              {loadedCase ? '공개 환자 케이스 · 3D 열람' : '연구용 데모 케이스'}
+            </span>
+            <span className="case-dot">{loadedCase?.id || 'DEMO-001'}</span>
           </div>
           <div className="nav-label">PLANNING WORKFLOW</div>
           <SidebarMenu className="workflow">
             {steps.map((s, i) => (
               <SidebarMenuItem key={s.id}>
                 <SidebarMenuButton
+                  disabled={!!loadedCase && !['data', 'anatomy'].includes(s.id)}
                   onClick={() => setStep(s.id)}
                   isActive={step === s.id}
                   className="workflow-item"
@@ -816,11 +831,21 @@ export default function Studio() {
         <header className="topbar">
           <div className="breadcrumb">
             케이스 <ChevronRight size={14} />
-            <strong>DEMO-001</strong>
+            <strong>
+              {loadedCase
+                ? `OFJ · ${loadedCase.id.replace('Patient_', 'P')}`
+                : 'DEMO-001'}
+            </strong>
             <span className="top-separator" />
             <span className="top-demo">비임상 프로토타입</span>
           </div>
           <div className="top-actions">
+            <button
+              className="outline-button case-open"
+              onClick={() => setCaseBrowserOpen(true)}
+            >
+              <FolderInput size={16} /> 케이스 불러오기
+            </button>
             <button
               className="quiet-button"
               onClick={() => planInput.current?.click()}
@@ -831,7 +856,7 @@ export default function Studio() {
             <button
               className="outline-button browser-save"
               onClick={toggleBrowserSave}
-              disabled={!localReady}
+              disabled={!localReady || !!loadedCase}
               title={
                 localError ||
                 (localSaved
@@ -842,11 +867,19 @@ export default function Studio() {
               {localSaved ? <Trash2 size={15} /> : <Save size={15} />}
               {localSaved ? '로컬 저장 지우기' : '브라우저 저장'}
             </button>
-            <button className="outline-button file-save" onClick={savePlan}>
+            <button
+              className="outline-button file-save"
+              onClick={savePlan}
+              disabled={!!loadedCase}
+            >
               <ArrowDownToLine size={15} />
               계획서 파일저장
             </button>
-            <button className="primary-button" onClick={() => setReport(true)}>
+            <button
+              className="primary-button"
+              onClick={() => setReport(true)}
+              disabled={!!loadedCase}
+            >
               <FileText size={16} />
               계획서 보기
             </button>
@@ -866,7 +899,9 @@ export default function Studio() {
               {step === 'perio'
                 ? '예제 케이스 치주 검사'
                 : external
-                  ? '가져온 모델 · 정합 전'
+                  ? loadedCase
+                    ? '공개 환자 모델 · 3D 열람'
+                    : '가져온 모델 · 정합 전'
                   : '공개 CBCT 분할 모델'}
               <span>•</span>
               <span title={localError || undefined}>
@@ -1014,6 +1049,7 @@ export default function Studio() {
                       guide={guide}
                       onSelect={chooseTooth}
                       external={external}
+                      caseVisibility={caseVisibility}
                     />
                     {!buffer && !loadError && (
                       <div className="model-loading">
@@ -1233,7 +1269,11 @@ export default function Studio() {
                         )}
                       </span>
                       <span>
-                        {external ? '방향·단위 확인 필요' : 'mm · 예제 좌표계'}
+                        {loadedCase
+                          ? 'mm · 원본 악궁 배치'
+                          : external
+                            ? '방향·단위 확인 필요'
+                            : 'mm · 예제 좌표계'}
                       </span>
                     </div>
                   </div>
@@ -1305,8 +1345,9 @@ export default function Studio() {
                         가져온 데이터 연결 상태
                       </div>
                       <p className="helper">
-                        표면 표시 완료 · 치아 번호 미지정 · 신경관 주석 없음 ·
-                        치주 검사 미연결
+                        {loadedCase
+                          ? `${loadedCase.name} · ${loadedCase.upper ? '상악 + 하악' : '하악'} · 치아·골·치주인대 분리 표시`
+                          : '표면 표시 완료 · 치아 번호 미지정 · 신경관 주석 없음 · 치주 검사 미연결'}
                       </p>
                       <p className="helper">
                         식립계획을 연결하려면 동일 환자 확인, 공간 정합 및
@@ -1491,7 +1532,9 @@ export default function Studio() {
               </div>
               {external && step !== 'perio' ? (
                 <div className="inspector-section">
-                  <div className="section-title">표면 데이터</div>
+                  <div className="section-title">
+                    {loadedCase ? '케이스 조직 가시성' : '표면 데이터'}
+                  </div>
                   <p className="helper">{externalName}</p>
                   <div className="measurement">
                     <span>정점 수</span>
@@ -1499,15 +1542,69 @@ export default function Studio() {
                       {external.getAttribute('position').count.toLocaleString()}
                     </strong>
                   </div>
-                  <div className="amber-note">
-                    조직 이름·치아 번호가 지정되지 않은 표면입니다. CT 등가면은
-                    자동 해부학 분할 결과가 아닙니다.
-                  </div>
-                  <p className="helper">
-                    STL/OBJ/PLY는 원본 단위·방향을 확인하세요.
-                    신경관·혈관·잇몸의 가시성이나 이격을 이 표면만으로 평가하지
-                    않습니다.
-                  </p>
+                  {loadedCase ? (
+                    <>
+                      <p className="helper">
+                        {loadedCase.upper ? '상악 + 하악' : '하악만 포함'} ·
+                        원본의 상대 위치 유지
+                      </p>
+                      {(
+                        [
+                          ['upper', '상악'],
+                          ['lower', '하악'],
+                          ['tooth', '치아'],
+                          ['bone', '턱뼈'],
+                          ['pdl', '치주인대'],
+                        ] as const
+                      ).map(([key, label]) => (
+                        <label className="case-layer-toggle" key={key}>
+                          <span>{label}</span>
+                          <Switch
+                            checked={caseVisibility[key]}
+                            disabled={key === 'upper' && !loadedCase.upper}
+                            onCheckedChange={(checked) =>
+                              setCaseVisibility((v) => ({
+                                ...v,
+                                [key]: checked,
+                              }))
+                            }
+                            aria-label={`${label} 표시`}
+                          />
+                        </label>
+                      ))}
+                      <Range
+                        label="턱뼈 불투명도"
+                        value={opacity}
+                        min={0}
+                        max={100}
+                        unit="%"
+                        onChange={setOpacity}
+                      />
+                      <p className="helper">
+                        치주인대는 계산 모델의 층입니다. 치주 검사값과 신경관
+                        주석은 포함하지 않습니다. 이 케이스는 3D 열람용이며 기존
+                        계획은 ToothFairy3 케이스에 보존됩니다.
+                      </p>
+                      <button
+                        className="outline-button full"
+                        onClick={() => setCaseBrowserOpen(true)}
+                      >
+                        <FolderInput size={15} /> 다른 케이스 불러오기
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="amber-note">
+                        조직 이름·치아 번호가 지정되지 않은 표면입니다. CT
+                        등가면은 자동 해부학 분할 결과가 아닙니다.
+                      </div>
+                      <p className="helper">
+                        STL/OBJ/PLY는 원본 단위·방향을 확인하세요.
+                        신경관·혈관·잇몸의 가시성이나 이격을 이 표면만으로
+                        평가하지 않습니다.
+                      </p>
+                    </>
+                  )}
                   <button
                     className="outline-button full"
                     onClick={() => setStep('data')}
@@ -2236,6 +2333,16 @@ export default function Studio() {
           <button onClick={() => setSources(true)}>데이터 및 라이선스 ↗</button>
         </footer>
       </div>
+      <CaseBrowser
+        open={caseBrowserOpen}
+        onOpenChange={setCaseBrowserOpen}
+        currentId={loadedCase?.id}
+        onLoad={acceptGeometry}
+        onDemo={() => {
+          restoreDemo();
+          setStep('anatomy');
+        }}
+      />
       {notice && (
         <output className="toast" aria-live="polite">
           <Check size={17} />

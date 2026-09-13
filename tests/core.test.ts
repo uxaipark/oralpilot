@@ -1,3 +1,4 @@
+import './jaw-cases.test';
 import './sequence-decision.test';
 import './browser-plan.test';
 import './prosthetic-guide.test';

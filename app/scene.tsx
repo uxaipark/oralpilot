@@ -1,6 +1,11 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
+import {
+  buildJawCaseMeshes,
+  defaultCaseVisibility,
+  type CaseVisibility,
+} from '@/lib/jaw-cases';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import {
@@ -61,6 +66,7 @@ export interface SceneProps {
   guide: { bore: number; thickness: number; offset: number };
   onSelect: (tooth: number) => void;
   external?: THREE.BufferGeometry | null;
+  caseVisibility?: CaseVisibility;
 }
 export default function Scene(props: SceneProps) {
   const host = useRef<HTMLDivElement>(null),
@@ -260,6 +266,11 @@ export default function Scene(props: SceneProps) {
     const r = runtime.current;
     if (!r) return;
     clear(r.anatomy);
+    if (props.external?.userData.jawCase) {
+      const models = buildJawCaseMeshes(props.external);
+      while (models.children.length) r.anatomy.add(models.children[0]);
+      return;
+    }
     if (props.external) {
       const geom = props.external.clone();
       geom.computeVertexNormals();
@@ -372,7 +383,22 @@ export default function Scene(props: SceneProps) {
       const mesh = o as THREE.Mesh,
         p = mesh.userData,
         mat = mesh.material as THREE.MeshStandardMaterial;
-      if (p.group === 'external') return;
+      if (p.group === 'external') {
+        if (p.caseKind) {
+          const visible = props.caseVisibility || defaultCaseVisibility;
+          mesh.visible =
+            visible[p.caseKind as 'bone' | 'tooth' | 'pdl'] &&
+            (p.jaw === 'maxilla' ? visible.upper : visible.lower);
+          mat.opacity =
+            p.caseKind === 'bone'
+              ? props.opacity / 100
+              : p.caseKind === 'pdl'
+                ? 0.45
+                : 1;
+          mat.depthWrite = mat.opacity >= 0.99;
+        }
+        return;
+      }
       const phase =
         props.mode === 'simulation'
           ? phaseAt(props.sequencePlan, props.progress)
@@ -501,6 +527,7 @@ export default function Scene(props: SceneProps) {
     faceResources,
     props.perioChart,
     props.selectedTooth,
+    props.caseVisibility,
   ]);
   useEffect(() => {
     const r = runtime.current;
