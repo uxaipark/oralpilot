@@ -2821,3 +2821,27 @@ h1 {
   border-color: #8adbc7;
   background: #233937;
 }
+
+.simulation-targets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+.simulation-targets > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #415e66;
+  background: #1b3038;
+  border-radius: 7px;
+  padding: 7px 9px;
+}
+.simulation-targets strong {
+  color: #a8e6d7;
+  font-size: 12px;
+}
+.simulation-targets small {
+  color: #a6bac4;
+  font-size: 10px;
+}

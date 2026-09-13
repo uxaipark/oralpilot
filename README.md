@@ -104,7 +104,7 @@ WebMCP: `get_research_plan`, `configure_research_implant`, `navigate_planning_st
 
 각 임플란트를 순차적으로 드릴링·식립하며, 발치/근관치료 가정, 봉합, 회복 관찰, 재평가 단계를 포함합니다. 적색은 처치 영역, 황색은 회복 관찰, 청색은 재평가 단계의 개념 표시입니다. 실제 출혈량·골유착·치유 완료를 예측하지 않습니다. 근관치료 파일과 발치 이동도 개념 동작이며 실제 근관 길이·수술 접근을 계산하지 않습니다. 영상상 존재하는 계획 부위 치아의 발치는 시나리오 가정으로 명시하고, 같은 부위의 근관치료+식립 충돌은 거부합니다.
 
-Full arch를 반드시 여러 날로 제한하지 않습니다. [ITI 전악 부하 합의문](https://academy.iti.org/academy/consensus-database/consensus-statement/-/consensus/loading-protocols-for-fixed-prostheses-in-edentulous-jaws/1313)에 따라 선택된 증례의 단일 회차 가능성을 비교하되, 전신 상태·보철/교합·초기 고정·골 증대 여부 등이 없어 어느 안도 안전/최적이라고 확정하지 않습니다. [EFP 지침](https://www.efp.org/education/continuing-education/clinical-guidelines/)을 참고할 수 있도록 연결했습니다. 날짜·회복 기간·수술 중 토크와 부하 허용 여부는 자동 확정하지 않습니다. 4개 식립 비교 데모는 검증된 전악 보철 처방이 아닙니다.
+Full arch를 반드시 여러 날로 제한하지 않습니다. [ITI 전악 부하 합의문](https://academy.iti.org/academy/consensus-database/consensus-statement/-/consensus/loading-protocols-for-fixed-prostheses-in-edentulous-jaws/1313)에 따라 선택된 증례의 단일 회차 가능성을 비교하되, 전신 상태·보철/교합·초기 고정·골 증대 여부 등이 없어 어느 안도 안전/최적이라고 확정하지 않습니다. [EFP 지침](https://www.efp.org/education/continuing-education/clinical-guidelines/)을 참고할 수 있도록 연결했습니다. 날짜·회복 기간·수술 중 토크와 부하 허용 여부는 자동 확정하지 않습니다.
 
 회차별 식립 누락/중복, 발치 후 회복 순서, 미래 단계 기구 미표시, 후속 처치의 상처 색상 재전환, 입력 변경 무효화와 펼침 시 원본 좌표 보존을 기능 테스트로 확인합니다. 실제 마이크와 브라우저 WebGL 시각 검증은 미실시입니다.
 
@@ -160,4 +160,7 @@ Full arch를 반드시 여러 날로 제한하지 않습니다. [ITI 전악 부�
 
 `npm run dev`에서는 `../datasets`를 로컬 서버에서 읽습니다. 배포 사이트에서는 브라우저 파일 접근 정책에 따라 버튼을 누른 뒤 사용자가 컴퓨터의 datasets 폴더를 선택합니다. 파일은 서버로 업로드하지 않습니다. ZIP/RAR은 먼저 압축을 풀고 NRRD는 제공된 NIfTI 동반 파일을 사용하세요. 대용량 원본은 사이트 배포물에 포함하지 않습니다. 전체 출처·라이선스·검증 내용은 `../datasets/public-examples/README.md`와 JSON 카탈로그에 저장합니다.
 
-이 변경은 TypeScript 검사, 37개 기능 테스트, 프로덕션 빌드와 로컬 HTTP 파일 무결성 확인으로 검증했습니다. 실제 브라우저 WebGL 화면과 마이크는 별도로 확인하지 않았습니다.
+이 변경은 TypeScript 검사, 38개 기능 테스트, 프로덕션 빌드와 로컬 HTTP 파일 무결성 확인으로 검증했습니다. 실제 브라우저 WebGL 화면과 마이크는 별도로 확인하지 않았습니다.
+
+
+임플란트 계획의 **임플란트 계획으로 수술 시뮬레이션** 버튼은 현재 등록된 모든 계획을 그대로 읽어 시뮬레이션 화면으로 이동하고 생성합니다. 시뮬레이션 패널에도 식립 대상 번호·개수·규격을 표시합니다. 계획을 임의의 네 부위 예제로 덮어쓰던 버튼을 제거했습니다. 생성은 계획의 치아·ID·위치·각도·규격을 변경하지 않습니다. 계획의 추가/제거/편집 시 기존 시퀀스는 무효화되며, 추가 선행 처치는 사용자 지정 목록으로 구분합니다.

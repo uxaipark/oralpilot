@@ -327,35 +327,6 @@ export default function Studio() {
       }
     }, 0);
   };
-  const sequenceDemo = () => {
-    const teeth = [34, 32, 42, 44];
-    setImplants(
-      teeth.map((tooth, i) => ({
-        ...initialImplant,
-        id: `IP-${String(i + 1).padStart(2, '0')}`,
-        tooth,
-        diameter: 3.5,
-        length: 8,
-      })),
-    );
-    setSelected('IP-01');
-    setSequenceSettings({
-      scope: 'full-arch',
-      batchSize: 2,
-      needs: {
-        34: 'extraction',
-        32: 'extraction',
-        42: 'extraction',
-        44: 'extraction',
-        36: 'endo',
-      },
-    });
-    setPlaying(false);
-    setProgress(0);
-    notify(
-      '네 부위 식립과 보존 근관치료의 가상 예제로 교체했습니다. 전악 보철 지지나 임상 적합성을 검증한 배치는 아닙니다.',
-    );
-  };
   useEffect(() => {
     setPlaying(false);
     setProgress(0);
@@ -1542,7 +1513,6 @@ export default function Studio() {
                   analyzing={analyzing}
                   stale={sequenceStale}
                   error={sequenceError}
-                  onDemo={sequenceDemo}
                 />
               ) : step === 'perio' ? (
                 <>
@@ -1622,6 +1592,38 @@ export default function Studio() {
                       </button>
                     </div>
                   </div>
+                  {step === 'planning' && (
+                    <div className="inspector-section">
+                      <div className="section-title">
+                        현재 계획으로 수술 준비
+                      </div>
+                      <p className="helper">
+                        식립 대상 {implants.length}개 ·{' '}
+                        {implants.length
+                          ? implants
+                              .map((p) => `#${displayTooth(p.tooth)}`)
+                              .join(' · ')
+                          : '임플란트 계획을 먼저 추가하세요.'}
+                      </p>
+                      <button
+                        className="primary-button full"
+                        disabled={
+                          analyzing || !implants.length || !buffer || !!external
+                        }
+                        onClick={() => {
+                          setStep('simulation');
+                          generateSequence();
+                        }}
+                      >
+                        <Play size={16} /> 임플란트 계획으로 수술 시뮬레이션
+                      </button>
+                      <p className="helper">
+                        등록된 모든 임플란트의 위치·각도·규격을 그대로
+                        사용합니다. 치아를 클릭만 한 경우에는 계획 추가 후
+                        생성하세요.
+                      </p>
+                    </div>
+                  )}
                   {current && (
                     <>
                       {step === 'guide' ? (

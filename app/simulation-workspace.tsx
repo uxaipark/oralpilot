@@ -173,7 +173,6 @@ export function SimulationInspector({
   analyzing,
   stale,
   error,
-  onDemo,
 }: {
   numbering: Numbering;
   settings: SequenceSettings;
@@ -186,7 +185,6 @@ export function SimulationInspector({
   analyzing: boolean;
   stale: boolean;
   error: string;
-  onDemo: () => void;
 }) {
   const displayTooth = (fdi: number) => displayToothNumber(fdi, numbering);
   const displayText = (text: string) => displayToothText(text, numbering);
@@ -195,6 +193,26 @@ export function SimulationInspector({
   return (
     <>
       <div className="inspector-section">
+        <div className="section-title">
+          현재 임플란트 계획 · {implants.length}개
+        </div>
+        <div
+          className="simulation-targets"
+          aria-label="수술 시뮬레이션 식립 대상"
+        >
+          {implants.map((implant) => (
+            <span key={implant.id}>
+              <strong>#{displayTooth(implant.tooth)}</strong>
+              <small>
+                Ø{implant.diameter} × {implant.length} mm
+              </small>
+            </span>
+          ))}
+        </div>
+        <p className="helper">
+          위 식립 계획의 치아·위치·각도·규격으로 생성합니다. 대상 변경은
+          임플란트 계획에서 추가·제거하세요.
+        </p>
         <div className="section-title">시뮬레이션 구성</div>
         <label className="sequence-field">
           보철 범위
@@ -291,7 +309,9 @@ export function SimulationInspector({
           ) : (
             <Play size={16} />
           )}{' '}
-          {analyzing ? '구성과 해부학 정보 분석 중' : '수술 시뮬레이션 생성'}
+          {analyzing
+            ? '구성과 해부학 정보 분석 중'
+            : '임플란트 계획으로 수술 시뮬레이션'}
         </button>
         {error && (
           <p className="amber-note" role="alert">
@@ -303,9 +323,6 @@ export function SimulationInspector({
             입력 또는 해부학 계획이 바뀌었습니다. 다시 생성하세요.
           </p>
         )}
-        <button className="text-button full" onClick={onDemo}>
-          다중 식립 예제로 교체
-        </button>
       </div>
       <div className="inspector-section">
         <div className="section-title">회차별 계획안 비교</div>

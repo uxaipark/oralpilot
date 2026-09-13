@@ -197,3 +197,50 @@ void test('both canal surfaces and their centerlines unfold with the mandible; s
   assert.ok(sinuses.every((p) => p.jaw === 'maxilla'));
   assert.equal(JSON.stringify(parts), before);
 });
+
+void test('simulation uses exactly the edited implant plan and regenerates without removed or demo sites', async () => {
+  const { parts, buffer, chart } = await fixture();
+  const implants = [16, 25, 47].map((tooth, i) => ({
+    ...initialImplant,
+    tooth,
+    id: `USER-${i + 1}`,
+    angle: i * 3 - 4,
+    tilt: i * 2,
+    depth: i * 0.5,
+    length: 8 + i,
+  }));
+  const settings: SequenceSettings = {
+    scope: 'partial',
+    batchSize: 2,
+    needs: {},
+  };
+  const before = structuredClone(implants);
+  const verify = (input: typeof implants) => {
+    const plans = buildSequencePlans(input, settings, chart, parts, buffer);
+    for (const plan of plans) {
+      assert.deepEqual(
+        plan.groups.flat().sort(),
+        input.map((p) => p.id).sort(),
+      );
+      for (const kind of [
+        'drilling',
+        'placement',
+        'abutment',
+        'crown-placement',
+      ]) {
+        const phases = plan.phases.filter((p) => p.kind === kind);
+        assert.equal(phases.length, input.length);
+        for (const implant of input) {
+          const phase = phases.find((p) => p.implantId === implant.id);
+          assert.deepEqual(phase?.teeth, [implant.tooth]);
+        }
+      }
+    }
+    return plans;
+  };
+  assert.deepEqual(verify(implants), verify(implants));
+  assert.deepEqual(implants, before);
+  const edited = [implants[0], { ...implants[2], tooth: 36, angle: 7 }];
+  verify(edited);
+  assert.deepEqual(implants, before);
+});
