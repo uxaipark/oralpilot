@@ -9,9 +9,13 @@ export function validatePlan(v: any): {
   guide: { bore: number; thickness: number; offset: number };
   perio: Perio;
 } {
+  if (v?.schema === 'oralpilot-plan-v1')
+    throw Error(
+      'v1은 월드 좌표계의 계획입니다. 치아 축 기준 v2에서 새로 배치해 주세요. 원본 계획 파일은 보존됩니다.',
+    );
   if (
     !v ||
-    v.schema !== 'oralpilot-plan-v1' ||
+    v.schema !== 'oralpilot-plan-v2' ||
     v.anatomy !== 'ToothFairy3F_026' ||
     v.researchOnly !== true
   )

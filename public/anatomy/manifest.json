@@ -157,7 +157,19 @@
       "sourceVoxels": 22091,
       "sourceMm3": 596.5,
       "meshedTriangles": 17516,
-      "simplifiedError": 0.00079
+      "simplifiedError": 0.00079,
+      "implantAnchor": {
+        "origin": [
+          -67.65914613711199,
+          5.060512705270668,
+          -21.351827365251033
+        ],
+        "crownHeightMm": 8.0,
+        "cervicalProjectionMm": 2.2941642091367758,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 186
+      }
     },
     {
       "id": "tf-tooth-12",
@@ -215,7 +227,19 @@
       "sourceVoxels": 16006,
       "sourceMm3": 432.2,
       "meshedTriangles": 14900,
-      "simplifiedError": 0.00088
+      "simplifiedError": 0.00088,
+      "implantAnchor": {
+        "origin": [
+          -73.62876137335117,
+          9.20585990393243,
+          -20.699207091105183
+        ],
+        "crownHeightMm": 7.862550244850703,
+        "cervicalProjectionMm": 2.5614900447734312,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 197
+      }
     },
     {
       "id": "tf-tooth-13",
@@ -273,7 +297,19 @@
       "sourceVoxels": 24350,
       "sourceMm3": 657.5,
       "meshedTriangles": 19088,
-      "simplifiedError": 0.00075
+      "simplifiedError": 0.00075,
+      "implantAnchor": {
+        "origin": [
+          -79.16036258138854,
+          13.921329333811558,
+          -20.289965378366492
+        ],
+        "crownHeightMm": 8.0,
+        "cervicalProjectionMm": 3.383514961813505,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 177
+      }
     },
     {
       "id": "tf-tooth-14",
@@ -331,7 +367,19 @@
       "sourceVoxels": 17801,
       "sourceMm3": 480.6,
       "meshedTriangles": 15296,
-      "simplifiedError": 0.00079
+      "simplifiedError": 0.00079,
+      "implantAnchor": {
+        "origin": [
+          -81.89381182053422,
+          20.00659548348077,
+          -21.131270845031622
+        ],
+        "crownHeightMm": 7.307292963724713,
+        "cervicalProjectionMm": 1.0714647193565021,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 205
+      }
     },
     {
       "id": "tf-tooth-15",
@@ -389,7 +437,19 @@
       "sourceVoxels": 17284,
       "sourceMm3": 466.7,
       "meshedTriangles": 14632,
-      "simplifiedError": 0.00067
+      "simplifiedError": 0.00067,
+      "implantAnchor": {
+        "origin": [
+          -83.95828157090742,
+          26.031273592034136,
+          -19.600019960808964
+        ],
+        "crownHeightMm": 7.237355289738176,
+        "cervicalProjectionMm": 1.325109159149049,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 252
+      }
     },
     {
       "id": "tf-tooth-16",
@@ -447,7 +507,19 @@
       "sourceVoxels": 38860,
       "sourceMm3": 1049.2,
       "meshedTriangles": 27236,
-      "simplifiedError": 0.00136
+      "simplifiedError": 0.00136,
+      "implantAnchor": {
+        "origin": [
+          -85.95702477119838,
+          34.03606822002923,
+          -17.628356892685932
+        ],
+        "crownHeightMm": 7.245099707564168,
+        "cervicalProjectionMm": 1.0920708161829227,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 229
+      }
     },
     {
       "id": "tf-tooth-17",
@@ -505,7 +577,19 @@
       "sourceVoxels": 30979,
       "sourceMm3": 836.4,
       "meshedTriangles": 21678,
-      "simplifiedError": 0.00114
+      "simplifiedError": 0.00114,
+      "implantAnchor": {
+        "origin": [
+          -88.16874608068028,
+          42.73154525308065,
+          -15.024761913664225
+        ],
+        "crownHeightMm": 7.041564501677227,
+        "cervicalProjectionMm": 1.20603631968285,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 234
+      }
     },
     {
       "id": "tf-tooth-18",
@@ -563,7 +647,19 @@
       "sourceVoxels": 20160,
       "sourceMm3": 544.3,
       "meshedTriangles": 14156,
-      "simplifiedError": 0.00106
+      "simplifiedError": 0.00106,
+      "implantAnchor": {
+        "origin": [
+          -88.6629117984668,
+          49.35427119012302,
+          -7.88075263126321
+        ],
+        "crownHeightMm": 5.0,
+        "cervicalProjectionMm": 1.3295490285693097,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 176
+      }
     },
     {
       "id": "tf-tooth-21",
@@ -621,7 +717,19 @@
       "sourceVoxels": 21860,
       "sourceMm3": 590.2,
       "meshedTriangles": 17608,
-      "simplifiedError": 0.00077
+      "simplifiedError": 0.00077,
+      "implantAnchor": {
+        "origin": [
+          -59.20668196390334,
+          5.347983967251653,
+          -21.638567174346882
+        ],
+        "crownHeightMm": 8.0,
+        "cervicalProjectionMm": 2.2425331040796355,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 205
+      }
     },
     {
       "id": "tf-tooth-22",
@@ -679,7 +787,19 @@
       "sourceVoxels": 14941,
       "sourceMm3": 403.4,
       "meshedTriangles": 13976,
-      "simplifiedError": 0.00077
+      "simplifiedError": 0.00077,
+      "implantAnchor": {
+        "origin": [
+          -53.130710788676666,
+          8.96224047977348,
+          -20.99264832002587
+        ],
+        "crownHeightMm": 7.7065380724180566,
+        "cervicalProjectionMm": 2.2978483250533115,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 189
+      }
     },
     {
       "id": "tf-tooth-23",
@@ -737,7 +857,19 @@
       "sourceVoxels": 24183,
       "sourceMm3": 652.9,
       "meshedTriangles": 19140,
-      "simplifiedError": 0.00071
+      "simplifiedError": 0.00071,
+      "implantAnchor": {
+        "origin": [
+          -48.783351552320724,
+          14.425272057918782,
+          -20.680429422718916
+        ],
+        "crownHeightMm": 8.0,
+        "cervicalProjectionMm": 3.0445853936644713,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 183
+      }
     },
     {
       "id": "tf-tooth-24",
@@ -795,7 +927,19 @@
       "sourceVoxels": 16183,
       "sourceMm3": 436.9,
       "meshedTriangles": 14040,
-      "simplifiedError": 0.00075
+      "simplifiedError": 0.00075,
+      "implantAnchor": {
+        "origin": [
+          -46.80936805276351,
+          20.709701221610935,
+          -20.724745414843433
+        ],
+        "crownHeightMm": 6.8982239338417335,
+        "cervicalProjectionMm": 0.6475192295981422,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 257
+      }
     },
     {
       "id": "tf-tooth-25",
@@ -853,7 +997,19 @@
       "sourceVoxels": 15461,
       "sourceMm3": 417.4,
       "meshedTriangles": 13320,
-      "simplifiedError": 0.00066
+      "simplifiedError": 0.00066,
+      "implantAnchor": {
+        "origin": [
+          -44.23907045936935,
+          26.559309679589663,
+          -19.674279629044708
+        ],
+        "crownHeightMm": 6.884997203572718,
+        "cervicalProjectionMm": 1.0584426309033734,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 242
+      }
     },
     {
       "id": "tf-tooth-26",
@@ -911,7 +1067,19 @@
       "sourceVoxels": 37601,
       "sourceMm3": 1015.2,
       "meshedTriangles": 26476,
-      "simplifiedError": 0.00136
+      "simplifiedError": 0.00136,
+      "implantAnchor": {
+        "origin": [
+          -42.70459689202314,
+          34.59854672825289,
+          -17.572868158182633
+        ],
+        "crownHeightMm": 7.2154946969522324,
+        "cervicalProjectionMm": 0.9275774181935041,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 262
+      }
     },
     {
       "id": "tf-tooth-27",
@@ -969,7 +1137,19 @@
       "sourceVoxels": 32608,
       "sourceMm3": 880.4,
       "meshedTriangles": 22436,
-      "simplifiedError": 0.00114
+      "simplifiedError": 0.00114,
+      "implantAnchor": {
+        "origin": [
+          -41.29355623115935,
+          43.72950138189687,
+          -15.074522687899043
+        ],
+        "crownHeightMm": 7.286299152302607,
+        "cervicalProjectionMm": 0.9527322936086184,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 252
+      }
     },
     {
       "id": "tf-tooth-28",
@@ -1027,7 +1207,19 @@
       "sourceVoxels": 19491,
       "sourceMm3": 526.3,
       "meshedTriangles": 14228,
-      "simplifiedError": 0.00114
+      "simplifiedError": 0.00114,
+      "implantAnchor": {
+        "origin": [
+          -40.56205026219973,
+          50.595601831305395,
+          -7.434182729258901
+        ],
+        "crownHeightMm": 5.0,
+        "cervicalProjectionMm": 1.40317340638211,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 170
+      }
     },
     {
       "id": "tf-tooth-31",
@@ -1085,7 +1277,19 @@
       "sourceVoxels": 10610,
       "sourceMm3": 286.5,
       "meshedTriangles": 11124,
-      "simplifiedError": 0.0006
+      "simplifiedError": 0.0006,
+      "implantAnchor": {
+        "origin": [
+          -61.1590351233403,
+          9.630373263770599,
+          -46.62138280958744
+        ],
+        "crownHeightMm": 7.140102980864305,
+        "cervicalProjectionMm": 2.240938004755116,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 212
+      }
     },
     {
       "id": "tf-tooth-32",
@@ -1143,7 +1347,19 @@
       "sourceVoxels": 12535,
       "sourceMm3": 338.4,
       "meshedTriangles": 12724,
-      "simplifiedError": 0.00063
+      "simplifiedError": 0.00063,
+      "implantAnchor": {
+        "origin": [
+          -56.240418886066585,
+          11.45177111986545,
+          -46.75831118937586
+        ],
+        "crownHeightMm": 7.795684527597237,
+        "cervicalProjectionMm": 2.2178827122851335,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 200
+      }
     },
     {
       "id": "tf-tooth-33",
@@ -1201,7 +1417,19 @@
       "sourceVoxels": 18092,
       "sourceMm3": 488.5,
       "meshedTriangles": 16136,
-      "simplifiedError": 0.00065
+      "simplifiedError": 0.00065,
+      "implantAnchor": {
+        "origin": [
+          -50.988965563659015,
+          15.564238377978645,
+          -45.91093434171651
+        ],
+        "crownHeightMm": 8.0,
+        "cervicalProjectionMm": 2.996714959025949,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 183
+      }
     },
     {
       "id": "tf-tooth-34",
@@ -1259,7 +1487,19 @@
       "sourceVoxels": 14213,
       "sourceMm3": 383.8,
       "meshedTriangles": 12716,
-      "simplifiedError": 0.00063
+      "simplifiedError": 0.00063,
+      "implantAnchor": {
+        "origin": [
+          -47.05572904505227,
+          20.92345996440591,
+          -44.74972206309996
+        ],
+        "crownHeightMm": 7.194075632862243,
+        "cervicalProjectionMm": 1.303695624442656,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 177
+      }
     },
     {
       "id": "tf-tooth-35",
@@ -1317,7 +1557,19 @@
       "sourceVoxels": 14764,
       "sourceMm3": 398.6,
       "meshedTriangles": 12966,
-      "simplifiedError": 0.00069
+      "simplifiedError": 0.00069,
+      "implantAnchor": {
+        "origin": [
+          -45.05556911987257,
+          28.209796088456784,
+          -43.10305613769764
+        ],
+        "crownHeightMm": 7.1734222227119915,
+        "cervicalProjectionMm": 0.8383347780482282,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 237
+      }
     },
     {
       "id": "tf-tooth-36",
@@ -1375,7 +1627,19 @@
       "sourceVoxels": 35719,
       "sourceMm3": 964.4,
       "meshedTriangles": 27180,
-      "simplifiedError": 0.00138
+      "simplifiedError": 0.00138,
+      "implantAnchor": {
+        "origin": [
+          -42.438296509035276,
+          36.11078575117535,
+          -39.78694913842951
+        ],
+        "crownHeightMm": 6.978443566614899,
+        "cervicalProjectionMm": 1.3546492830276176,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 263
+      }
     },
     {
       "id": "tf-tooth-37",
@@ -1433,7 +1697,19 @@
       "sourceVoxels": 31379,
       "sourceMm3": 847.2,
       "meshedTriangles": 21934,
-      "simplifiedError": 0.00146
+      "simplifiedError": 0.00146,
+      "implantAnchor": {
+        "origin": [
+          -39.585654704486146,
+          45.80818429899372,
+          -35.61251588766246
+        ],
+        "crownHeightMm": 6.399027620326913,
+        "cervicalProjectionMm": 1.1143460236611196,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 184
+      }
     },
     {
       "id": "tf-tooth-38",
@@ -1491,7 +1767,19 @@
       "sourceVoxels": 27543,
       "sourceMm3": 743.7,
       "meshedTriangles": 18440,
-      "simplifiedError": 0.00122
+      "simplifiedError": 0.00122,
+      "implantAnchor": {
+        "origin": [
+          -34.54499188380465,
+          53.86246302667053,
+          -31.082537552839693
+        ],
+        "crownHeightMm": 5.566221334717706,
+        "cervicalProjectionMm": 1.4407553305185168,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 142
+      }
     },
     {
       "id": "tf-tooth-41",
@@ -1549,7 +1837,19 @@
       "sourceVoxels": 10194,
       "sourceMm3": 275.2,
       "meshedTriangles": 10540,
-      "simplifiedError": 0.00057
+      "simplifiedError": 0.00057,
+      "implantAnchor": {
+        "origin": [
+          -66.50214580116386,
+          9.17902599104623,
+          -46.98955519602258
+        ],
+        "crownHeightMm": 6.922580989241048,
+        "cervicalProjectionMm": 2.0975958637191994,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 241
+      }
     },
     {
       "id": "tf-tooth-42",
@@ -1607,7 +1907,19 @@
       "sourceVoxels": 12264,
       "sourceMm3": 331.1,
       "meshedTriangles": 12036,
-      "simplifiedError": 0.00062
+      "simplifiedError": 0.00062,
+      "implantAnchor": {
+        "origin": [
+          -71.76654360235985,
+          10.982015410093286,
+          -47.07368903535753
+        ],
+        "crownHeightMm": 7.633567076928448,
+        "cervicalProjectionMm": 2.2549742588422435,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 201
+      }
     },
     {
       "id": "tf-tooth-43",
@@ -1665,7 +1977,19 @@
       "sourceVoxels": 18809,
       "sourceMm3": 507.8,
       "meshedTriangles": 16840,
-      "simplifiedError": 0.00068
+      "simplifiedError": 0.00068,
+      "implantAnchor": {
+        "origin": [
+          -77.11955404359308,
+          14.966081229795583,
+          -46.442720920623714
+        ],
+        "crownHeightMm": 8.0,
+        "cervicalProjectionMm": 3.3668849089262665,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 173
+      }
     },
     {
       "id": "tf-tooth-44",
@@ -1723,7 +2047,19 @@
       "sourceVoxels": 14190,
       "sourceMm3": 383.1,
       "meshedTriangles": 13352,
-      "simplifiedError": 0.00069
+      "simplifiedError": 0.00069,
+      "implantAnchor": {
+        "origin": [
+          -80.4547540024141,
+          20.526926420599242,
+          -44.78952335012604
+        ],
+        "crownHeightMm": 7.329141601018421,
+        "cervicalProjectionMm": 1.256937452530515,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 217
+      }
     },
     {
       "id": "tf-tooth-45",
@@ -1781,7 +2117,19 @@
       "sourceVoxels": 14013,
       "sourceMm3": 378.4,
       "meshedTriangles": 12588,
-      "simplifiedError": 0.00079
+      "simplifiedError": 0.00079,
+      "implantAnchor": {
+        "origin": [
+          -82.78122875033128,
+          27.077933784348197,
+          -42.972401686653825
+        ],
+        "crownHeightMm": 6.050101482950335,
+        "cervicalProjectionMm": 1.584462132688068,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 265
+      }
     },
     {
       "id": "tf-tooth-46",
@@ -1839,7 +2187,19 @@
       "sourceVoxels": 36526,
       "sourceMm3": 986.2,
       "meshedTriangles": 27536,
-      "simplifiedError": 0.00144
+      "simplifiedError": 0.00144,
+      "implantAnchor": {
+        "origin": [
+          -86.05697907332795,
+          34.81802889325184,
+          -40.37972853342515
+        ],
+        "crownHeightMm": 7.0247989952414205,
+        "cervicalProjectionMm": 1.3226844799023407,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 262
+      }
     },
     {
       "id": "tf-tooth-47",
@@ -1897,7 +2257,19 @@
       "sourceVoxels": 31507,
       "sourceMm3": 850.7,
       "meshedTriangles": 23012,
-      "simplifiedError": 0.0015
+      "simplifiedError": 0.0015,
+      "implantAnchor": {
+        "origin": [
+          -88.98250898332122,
+          44.4461198006752,
+          -35.37523639065481
+        ],
+        "crownHeightMm": 6.434875838331926,
+        "cervicalProjectionMm": 0.9986808330079109,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 185
+      }
     },
     {
       "id": "tf-tooth-48",
@@ -1955,7 +2327,19 @@
       "sourceVoxels": 29092,
       "sourceMm3": 785.5,
       "meshedTriangles": 20220,
-      "simplifiedError": 0.0015
+      "simplifiedError": 0.0015,
+      "implantAnchor": {
+        "origin": [
+          -93.28306101580618,
+          51.6706980718107,
+          -30.215403842268362
+        ],
+        "crownHeightMm": 5.816130658562001,
+        "cervicalProjectionMm": 1.3560593537954553,
+        "method": "geometric cervical-plane estimate from coronal 32% of tooth extent; not clinician annotated",
+        "basis": "source PCA side/up/out; up points toward crown",
+        "ringVertexCount": 167
+      }
     },
     {
       "id": "tf-pulp-11",

@@ -137,7 +137,14 @@ const titles: Record<string, string> = {
   guide: '수술 가이드 설계',
   simulation: '수술 과정을 미리 살펴보세요',
 };
+import type { NeurovascularPath } from '@/lib/surface';
 export default function Studio() {
+  const [smoothTeeth, setSmoothTeeth] = useState(true),
+    [crownPreview, setCrownPreview] = useState(true),
+    [neuroXray, setNeuroXray] = useState(true),
+    [neurovascularPaths, setNeurovascularPaths] = useState<NeurovascularPath[]>(
+      [],
+    );
   const [step, setStep] = useState('planning'),
     [parts, setParts] = useState<Part[]>([]),
     [buffer, setBuffer] = useState<ArrayBuffer | null>(null),
@@ -149,12 +156,13 @@ export default function Studio() {
       bone: true,
       tooth: true,
       canal: true,
+      corridor: true,
       pulp: false,
       sinus: false,
-      upper: true,
+      upper: false,
     }),
     [opacity, setOpacity] = useState(32),
-    [view, setView] = useState('perspective'),
+    [view, setView] = useState('implant'),
     [reset, setReset] = useState(0);
   const [guide, setGuide] = useState({ bore: 2.2, thickness: 2, offset: 3 }),
     [playing, setPlaying] = useState(false),
@@ -203,15 +211,22 @@ export default function Studio() {
         if (!r.ok) throw Error();
         return r.json();
       }),
+      fetch('/anatomy/neurovascular-paths.json').then((r) => {
+        if (!r.ok) throw Error();
+        return r.json();
+      }),
       fetch('/anatomy/toothfairy.bin').then((r) => {
         if (!r.ok) throw Error();
         return r.arrayBuffer();
       }),
     ])
-      .then(([m, b]) => {
+      .then(([m, paths, b]) => {
         if (!dead) {
           setParts((m as { parts: Part[] }).parts);
           setBuffer(b);
+          setNeurovascularPaths(
+            (paths as { paths: NeurovascularPath[] }).paths,
+          );
         }
       })
       .catch(() =>
@@ -288,7 +303,7 @@ export default function Studio() {
     download(
       JSON.stringify(
         {
-          schema: 'oralpilot-plan-v1',
+          schema: 'oralpilot-plan-v2',
           researchOnly: true,
           anatomy: 'ToothFairy3F_026',
           implants,
@@ -307,7 +322,7 @@ export default function Studio() {
     );
   };
   async function exportGuide() {
-    if (!current) return;
+    if (!current || !parts.length || external) return;
     const { STLExporter } =
       await import('three/addons/exporters/STLExporter.js');
     const g = buildGuide(guide.bore, guide.thickness, guide.offset),
@@ -494,6 +509,9 @@ export default function Studio() {
                         <Box size={14} />
                         3D View
                       </TabsTrigger>
+                      <TabsTrigger value="implant" disabled={!!external}>
+                        식립부 확대
+                      </TabsTrigger>
                       <TabsTrigger value="front">정면</TabsTrigger>
                       <TabsTrigger value="right">측면</TabsTrigger>
                       <TabsTrigger value="top">교합면</TabsTrigger>
@@ -505,6 +523,10 @@ export default function Studio() {
                   </span>
                 </div>
                 <Scene
+                  smoothTeeth={smoothTeeth}
+                  crownPreview={crownPreview}
+                  neuroXray={neuroXray}
+                  neurovascularPaths={neurovascularPaths}
                   parts={parts}
                   buffer={buffer}
                   implants={implants}
@@ -599,7 +621,8 @@ export default function Studio() {
                       {current.length.toFixed(1)} mm
                     </strong>
                     <small>
-                      식립축 {current.angle}° · 가상 발치 후 예제 계획
+                      치아축 대비 {current.angle}° / {current.tilt}° · 가상 발치
+                      예제
                     </small>
                   </div>
                 )}
@@ -867,6 +890,12 @@ export default function Studio() {
                           '신경 자체가 아닌 관의 분할',
                           '#f5b657',
                         ],
+                        [
+                          'corridor',
+                          '신경혈관 통로',
+                          '하치조관 중심선 · 개별 조직 아님',
+                          '#ffdd65',
+                        ],
                         ['pulp', '치수강', '치아 내부 공간', '#e98687'],
                         [
                           'sinus',
@@ -897,6 +926,25 @@ export default function Studio() {
                         />
                       </div>
                     ))}
+                    {[
+                      ['치아 표면 매끄럽게', smoothTeeth, setSmoothTeeth],
+                      ['원래 치관 반투명 비교', crownPreview, setCrownPreview],
+                      ['신경혈관 통로 투시', neuroXray, setNeuroXray],
+                    ].map(([label, checked, setter]) => (
+                      <div className="layer-row" key={String(label)}>
+                        <div>{String(label)}</div>
+                        <Switch
+                          aria-label={String(label)}
+                          checked={Boolean(checked)}
+                          onCheckedChange={setter as (v: boolean) => void}
+                        />
+                      </div>
+                    ))}
+                    <p className="helper">
+                      표면 보정은 표시용이며 원본 대비 이동은 최대 0.18
+                      mm입니다. 거리 계산에는 원본을 사용합니다. 투시 모드에서는
+                      통로가 뼈 앞에 겹쳐 보입니다.
+                    </p>
                     <Range
                       label="골 불투명도"
                       value={opacity}
@@ -907,11 +955,18 @@ export default function Studio() {
                     />
                   </div>
                   <div className="inspector-section">
+                    <a
+                      className="secondary-button full"
+                      href="/anatomy/neurovascular-paths.json"
+                      download="OralPilot-canal-derived-corridors.json"
+                    >
+                      관 기반 통로 좌표 다운로드
+                    </a>
                     <span className="eyebrow">NOT AVAILABLE IN THIS CASE</span>
                     {[
                       '잇몸 · 구강 표면 스캔 필요',
                       '혀 · 별도 연조직 영상 필요',
-                      '혈관 · 해당 영상 및 주석 없음',
+                      '개별 동맥·정맥 · 해당 영상 및 주석 없음',
                     ].map((s) => (
                       <div className="unavailable" key={s}>
                         <Eye size={15} />
@@ -919,8 +974,10 @@ export default function Studio() {
                       </div>
                     ))}
                     <p className="helper">
-                      데이터에 없는 구조를 생성하지 않습니다. 구강 스캔은 데이터
-                      화면에서 별도로 확인할 수 있습니다.
+                      하치조관 중심선은 신경·혈관이 지나는 공통 통로의
+                      추정입니다. 표시 굵기는 보기용이며 실제 신경·혈관 직경이
+                      아닙니다. 개별 신경과 동맥·정맥은 이 CBCT 분할만으로
+                      구분할 수 없습니다.
                     </p>
                   </div>
                 </>
@@ -1160,6 +1217,60 @@ export default function Studio() {
                         </div>
                       ) : (
                         <div className="inspector-section">
+                          <div className="field-label">해부학 기반 예제</div>
+                          <div className="example-presets">
+                            {[46, 36, 24].map((fdi) => (
+                              <button
+                                key={fdi}
+                                className={
+                                  current.tooth === fdi ? 'active' : ''
+                                }
+                                onClick={() => {
+                                  setImplants([
+                                    {
+                                      ...initialImplant,
+                                      tooth: fdi,
+                                      diameter: fdi === 24 ? 3.5 : 4.2,
+                                    },
+                                  ]);
+                                  setSelected('IP-01');
+                                  setTooth(fdi);
+                                  setView('implant');
+                                  setReset((v) => v + 1);
+                                  setLayers((l) => ({ ...l, upper: fdi < 30 }));
+                                }}
+                              >
+                                #{fdi} {fdi < 30 ? '상악' : '하악'}
+                              </button>
+                            ))}
+                          </div>
+                          <p className="helper">
+                            실제 치아 축에 정렬한 가상 발치 예제입니다. 0°는
+                            해당 치아의 치근 방향이며, 시작점은 메시에서 추정한
+                            치경부입니다. 반투명 원래 치관과 비교하세요. 최종
+                            수술 위치는 아닙니다.
+                          </p>
+                          <button
+                            className="secondary-button full"
+                            onClick={() =>
+                              setImplants((ps) =>
+                                ps.map((p) =>
+                                  p.id === current.id
+                                    ? {
+                                        ...p,
+                                        angle: 0,
+                                        tilt: 0,
+                                        x: 0,
+                                        z: 0,
+                                        depth: 0,
+                                      }
+                                    : p,
+                                ),
+                              )
+                            }
+                          >
+                            원래 치아축으로 재정렬
+                          </button>
                           <div className="field-label">
                             임플란트 시스템<span>GENERIC DEMO</span>
                           </div>
@@ -1213,7 +1324,7 @@ export default function Studio() {
                             </label>
                           </div>
                           <Range
-                            label="근원심 경사"
+                            label="치아축 대비 근원심 경사"
                             value={current.angle}
                             min={-30}
                             max={30}
@@ -1221,7 +1332,7 @@ export default function Studio() {
                             onChange={(v) => update('angle', v)}
                           />
                           <Range
-                            label="협설측 경사"
+                            label="치아축 대비 협설 경사"
                             value={current.tilt}
                             min={-30}
                             max={30}
@@ -1239,7 +1350,7 @@ export default function Studio() {
                           />
                           <div className="two-inputs">
                             <label>
-                              X 이동 (mm)
+                              근원심 이동 (mm)
                               <input
                                 type="number"
                                 min={-15}
@@ -1253,7 +1364,7 @@ export default function Studio() {
                               />
                             </label>
                             <label>
-                              Z 이동 (mm)
+                              협설측 이동 (mm)
                               <input
                                 type="number"
                                 min={-15}
@@ -1448,7 +1559,8 @@ export default function Studio() {
               <strong>치아 · 턱뼈 · 하치조관</strong>
               <p>
                 ToothFairy3 F_026의 공개 CBCT 라벨에서 생성된 70개 표면.
-                OMFAtlas에서 메시 단순화. 신경 자체와 혈관은 포함되지 않습니다.
+                OMFAtlas에서 메시 단순화. 하치조관에서 공통 신경혈관 통로를
+                추정하며 개별 신경·혈관은 분할하지 않습니다.
               </p>
               <a
                 href="https://toothfairy3.grand-challenge.org/dataset/"
@@ -1640,8 +1752,8 @@ function Report({
             {[
               '부위',
               '직경 × 길이',
-              '근원심 / 협설 경사',
-              'X / Z / 깊이',
+              '치아축 대비 근원심 / 협설 경사',
+              '근원심 / 협설 이동 / 깊이',
               '근사 이격',
               '토크 메모',
             ].map((h) => (
@@ -1679,6 +1791,13 @@ function Report({
           근사값이며 분할·정합 오차, 충돌 및 임상 안전성 검증은 포함하지
           않습니다.
         </small>
+      </p>
+      <p>
+        각도는 원본 치아 축 대비 변화량입니다. 시작점은 메시의 치관측 높이와
+        단면에서 추정한 치경부이며 임상 주석이 아닙니다. 표면 평활화는 표시만
+        바꾸고 거리 계산에는 원본 메시를 사용합니다. 하치조관 중심선은
+        신경·혈관의 공통 통로 추정으로, 개별 조직이나 실제 직경을 나타내지
+        않습니다.
       </p>
       <h3>02 · 치주 검사 연동</h3>
       <p>{perioOrigin}</p>

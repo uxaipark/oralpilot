@@ -9,6 +9,7 @@ import {
   vertexClearance,
   implantPose,
   buildGuide,
+  type Part,
 } from '../lib/planning';
 import { validatePlan } from '../lib/validation';
 import {
@@ -19,13 +20,13 @@ import {
   type Volume,
 } from '../lib/medical';
 
-test('6-site periodontal CSV round trip retains all data', () => {
+void test('6-site periodontal CSV round trip retains all data', () => {
   const p = demoPerio();
   p[36].recession[2] = 2;
   p[36].bop[2] = true;
   assert.deepEqual(parsePerioCSV(perioCSV(p)), p);
 });
-test('missing/duplicate sites and invalid values fail without partial import', () => {
+void test('missing/duplicate sites and invalid values fail without partial import', () => {
   const csv = perioCSV({ 46: demoPerio()[46] });
   assert.throws(
     () => parsePerioCSV(csv.split('\n').slice(0, -1).join('\n')),
@@ -35,14 +36,14 @@ test('missing/duplicate sites and invalid values fail without partial import', (
   assert.throws(() => parsePerioCSV(csv.replace('46,MB,6', '46,MB,NaN')));
 });
 const valid = () => ({
-  schema: 'oralpilot-plan-v1',
+  schema: 'oralpilot-plan-v2',
   researchOnly: true,
   anatomy: 'ToothFairy3F_026',
   implants: [{ ...initialImplant }],
   guide: { bore: 2.2, thickness: 2, offset: 3 },
   perio: demoPerio(),
 });
-test('plan restoration validates units, IDs, finite ranges and chart shape', () => {
+void test('plan restoration validates units, IDs, finite ranges and chart shape', () => {
   assert.equal(validatePlan(valid()).implants[0].diameter, 4.2);
   const v = valid();
   v.implants[0].length = -1;
@@ -54,7 +55,7 @@ test('plan restoration validates units, IDs, finite ranges and chart shape', () 
   n.perio[46].bop = [false];
   assert.throws(() => validatePlan(n));
 });
-test('real ToothFairy asset offsets and world transform are valid; geometric clearance responds to depth', async () => {
+void test('real ToothFairy asset offsets and world transform are valid; geometric clearance responds to depth', async () => {
   const m = JSON.parse(await readFile('public/anatomy/manifest.json', 'utf8'));
   const b = await readFile('public/anatomy/toothfairy.bin'),
     ab = b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength);
@@ -70,7 +71,7 @@ test('real ToothFairy asset offsets and world transform are valid; geometric cle
   const pose = implantPose(initialImplant, m.parts);
   assert.ok(pose.point.toArray().every(Number.isFinite));
 });
-test('guide bore and thickness create bounded geometry and exportable triangles', () => {
+void test('guide bore and thickness create bounded geometry and exportable triangles', () => {
   const g = buildGuide(2.2, 2, 3);
   assert.equal(g.children.length, 2);
   for (const mesh of g.children as any[]) {
@@ -103,7 +104,7 @@ function niftiFixture() {
   for (let i = 0; i < count; i++) h.setInt16(352 + i * 2, i, true);
   return b;
 }
-test('NIfTI reads actual signed pixels, scaling, dimensions and rejects unknown spatial unit', async () => {
+void test('NIfTI reads actual signed pixels, scaling, dimensions and rejects unknown spatial unit', async () => {
   const b = niftiFixture();
   const v = await readNifti(new File([b], 'fixture.nii'));
   assert.deepEqual(v.dims, [5, 5, 5]);
@@ -154,7 +155,7 @@ function dicomFixture(z: number, uid = '1.2.3', ts = '1.2.840.10008.1.2.1') {
   tag(0x7fe0, 0x10, 'OW', px);
   return new File([Buffer.concat(chunks)], `slice-${z}.dcm`);
 }
-test('DICOM sorts by physical position and applies pixel spacing and rescale', async () => {
+void test('DICOM sorts by physical position and applies pixel spacing and rescale', async () => {
   const v = await readDicom([
     dicomFixture(2),
     dicomFixture(0),
@@ -165,7 +166,7 @@ test('DICOM sorts by physical position and applies pixel spacing and rescale', a
   assert.equal(v.data[0], -100);
   assert.equal(v.data[9], -80);
 });
-test('DICOM rejects mixed series, missing slices and compressed transfer syntax', async () => {
+void test('DICOM rejects mixed series, missing slices and compressed transfer syntax', async () => {
   await assert.rejects(
     readDicom([dicomFixture(0), dicomFixture(1, '9.9')]),
     /동일/,
@@ -179,14 +180,14 @@ test('DICOM rejects mixed series, missing slices and compressed transfer syntax'
     /비압축/,
   );
 });
-test('OBJ importer reads an actual triangular surface', async () => {
+void test('OBJ importer reads an actual triangular surface', async () => {
   const g = await readMesh(
     new File(['v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3'], 'surface.obj'),
   );
   assert.equal(g.getAttribute('position').count, 3);
   g.dispose();
 });
-test('threshold reconstruction produces data-derived surface and rejects empty threshold', async () => {
+void test('threshold reconstruction produces data-derived surface and rejects empty threshold', async () => {
   const n = 16,
     data = new Float32Array(n * n * n);
   for (let z = 0; z < n; z++)
@@ -214,4 +215,110 @@ test('threshold reconstruction produces data-derived surface and rejects empty t
   assert.ok(g.boundingBox!.max.x - g.boundingBox!.min.x > 7);
   g.dispose();
   await assert.rejects(volumeSurface(v, 2000), /표면/);
+});
+
+void test('tooth-axis placement points apically in both jaws and supports local offsets', async () => {
+  const { Vector3 } = await import('three');
+  const { parts } = JSON.parse(
+    await readFile('public/anatomy/manifest.json', 'utf8'),
+  );
+  for (const tooth of [46, 36, 24]) {
+    const part = parts.find(
+      (p: Part) => p.group === 'tooth' && p.fdi === tooth,
+    );
+    const pose = implantPose({ ...initialImplant, tooth }, parts);
+    const up = new Vector3(
+      part.axes.up[0],
+      part.axes.up[2],
+      -part.axes.up[1],
+    ).normalize();
+    assert.ok(pose.direction.dot(up) < -0.999999);
+    assert.ok(tooth >= 30 ? pose.direction.y < 0 : pose.direction.y > 0);
+    assert.ok(pose.point.distanceTo(pose.anchor) < 1e-8);
+    const shifted = implantPose(
+      { ...initialImplant, tooth, x: 2, z: 3, depth: 1 },
+      parts,
+    );
+    const expected = pose.anchor
+      .clone()
+      .addScaledVector(pose.side, 2)
+      .addScaledVector(pose.out, 3)
+      .add(pose.direction);
+    assert.ok(shifted.point.distanceTo(expected) < 1e-8);
+    const tilted = implantPose(
+      { ...initialImplant, tooth, angle: 12, tilt: 0 },
+      parts,
+    );
+    assert.ok(
+      Math.abs(
+        (tilted.direction.angleTo(pose.direction) * 180) / Math.PI - 12,
+      ) < 1e-6,
+    );
+  }
+  assert.throws(() => implantPose(initialImplant, []));
+  assert.throws(
+    () => validatePlan({ ...valid(), schema: 'oralpilot-plan-v1' }),
+    /월드 좌표계/,
+  );
+});
+
+void test('display smoothing retains source vertices and stays within the displacement cap', async () => {
+  const { BufferGeometry, BufferAttribute } = await import('three');
+  const { smoothDisplaySurface } = await import('../lib/surface');
+  const m = JSON.parse(await readFile('public/anatomy/manifest.json', 'utf8'));
+  const b = await readFile('public/anatomy/toothfairy.bin');
+  const p = m.parts.find((p: Part) => p.group === 'tooth' && p.fdi === 46);
+  const original = new Float32Array(
+    b.buffer,
+    b.byteOffset + p.positions,
+    p.vertexCount * 3,
+  );
+  const before = original.slice();
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new BufferAttribute(original.slice(), 3));
+  geometry.setIndex(
+    new BufferAttribute(
+      new Uint32Array(b.buffer, b.byteOffset + p.indices, p.indexCount).slice(),
+      1,
+    ),
+  );
+  const result = smoothDisplaySurface(geometry);
+  assert.deepEqual(original, before);
+  assert.ok(result.meanDisplacement > 0);
+  assert.ok(result.maxDisplacement <= 0.180001);
+  const pos = geometry.getAttribute('position');
+  for (let i = 0; i < pos.count; i++)
+    assert.ok(
+      Math.hypot(
+        pos.getX(i) - before[i * 3],
+        pos.getY(i) - before[i * 3 + 1],
+        pos.getZ(i) - before[i * 3 + 2],
+      ) <= 0.18001,
+    );
+  geometry.dispose();
+});
+
+void test('neurovascular paths bind to the retained source mesh and have continuous finite coordinates', async () => {
+  const { createHash } = await import('node:crypto');
+  const data = JSON.parse(
+    await readFile('public/anatomy/neurovascular-paths.json', 'utf8'),
+  );
+  const b = await readFile('public/anatomy/toothfairy.bin');
+  assert.equal(
+    data.sourceMeshSHA256,
+    createHash('sha256').update(b).digest('hex'),
+  );
+  assert.equal(data.paths.length, 2);
+  for (const path of data.paths) {
+    assert.ok(path.pointCount > 100);
+    assert.equal(path.pointCount, path.points.length);
+    for (let i = 1; i < path.points.length; i++) {
+      const d = Math.hypot(
+        ...path.points[i].map(
+          (v: number, j: number) => v - path.points[i - 1][j],
+        ),
+      );
+      assert.ok(Number.isFinite(d) && d < 1.3);
+    }
+  }
 });

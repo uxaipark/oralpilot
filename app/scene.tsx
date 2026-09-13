@@ -11,7 +11,12 @@ import {
   type Layers,
   type Part,
 } from '@/lib/planning';
+import { smoothDisplaySurface, type NeurovascularPath } from '@/lib/surface';
 export interface SceneProps {
+  smoothTeeth: boolean;
+  crownPreview: boolean;
+  neuroXray: boolean;
+  neurovascularPaths: NeurovascularPath[];
   parts: Part[];
   buffer: ArrayBuffer | null;
   implants: Implant[];
@@ -51,6 +56,7 @@ export default function Scene(props: SceneProps) {
     }
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.setClearColor(0x171c21, 0);
+    renderer.localClippingEnabled = true;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.4;
@@ -182,7 +188,8 @@ export default function Scene(props: SceneProps) {
           1,
         ),
       );
-      g.computeVertexNormals();
+      if (part.group === 'tooth' && props.smoothTeeth) smoothDisplaySurface(g);
+      else g.computeVertexNormals();
       const colors: Record<string, number> = {
         tooth: 0xeee7d4,
         bone: 0xcbc3b3,
@@ -201,7 +208,31 @@ export default function Scene(props: SceneProps) {
       mesh.userData = part;
       r.anatomy.add(mesh);
     }
-  }, [props.buffer, props.parts, props.external]);
+    for (const path of props.neurovascularPaths) {
+      const curve = new THREE.CurvePath<THREE.Vector3>();
+      const points = path.points.map(toWorld);
+      for (let i = 1; i < points.length; i++)
+        curve.add(new THREE.LineCurve3(points[i - 1], points[i]));
+      const mesh = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, points.length * 3, 0.45, 8, false),
+        new THREE.MeshStandardMaterial({
+          color: 0xffdd65,
+          emissive: 0xc28a21,
+          emissiveIntensity: 0.6,
+          transparent: true,
+        }),
+      );
+      mesh.userData = { group: 'corridor', jaw: 'mandible' };
+      mesh.renderOrder = 100;
+      r.anatomy.add(mesh);
+    }
+  }, [
+    props.buffer,
+    props.parts,
+    props.external,
+    props.smoothTeeth,
+    props.neurovascularPaths,
+  ]);
   useEffect(() => {
     const r = runtime.current;
     if (!r) return;
@@ -217,14 +248,25 @@ export default function Scene(props: SceneProps) {
           (p.group === 'tooth' || p.group === 'pulp') &&
           props.implants.some((i) => i.tooth === p.fdi)
         );
-      mat.opacity = p.group === 'bone' ? props.opacity / 100 : 1;
-      mat.depthWrite = p.group !== 'bone' || props.opacity > 85;
+      mat.opacity =
+        p.group === 'bone'
+          ? props.opacity / 100
+          : p.group === 'canal'
+            ? 0.32
+            : 1;
+      mat.depthTest = p.group === 'corridor' ? !props.neuroXray : true;
+      mat.depthWrite =
+        !['bone', 'canal', 'corridor'].includes(p.group) ||
+        (p.group === 'bone' && props.opacity > 85);
     });
   }, [
     props.layers,
     props.opacity,
     props.implants,
     props.selected,
+    props.smoothTeeth,
+    props.neurovascularPaths,
+    props.neuroXray,
     props.buffer,
     props.external,
   ]);
@@ -232,7 +274,7 @@ export default function Scene(props: SceneProps) {
     const r = runtime.current;
     if (!r) return;
     clear(r.hardware);
-    if (props.external) return;
+    if (props.external || !props.parts.length || !props.buffer) return;
     for (const p of props.implants) {
       const pose = implantPose(p, props.parts),
         group = new THREE.Group();
@@ -255,7 +297,7 @@ export default function Scene(props: SceneProps) {
             }),
           );
           const local = (t - 0.18) / 0.46;
-          drill.position.y = 25 - Math.sin(local * Math.PI) * p.length;
+          drill.position.y = 13 - Math.sin(local * Math.PI) * p.length;
           drill.rotation.y = t * 150;
           group.add(drill);
         }
@@ -276,6 +318,30 @@ export default function Scene(props: SceneProps) {
           ),
         );
       r.hardware.add(group);
+      if (props.crownPreview && props.layers.tooth) {
+        const original = r.anatomy.children.find(
+          (o) => o.userData.group === 'tooth' && o.userData.fdi === p.tooth,
+        ) as THREE.Mesh | undefined;
+        if (
+          original &&
+          (original.userData.jaw !== 'maxilla' || props.layers.upper)
+        ) {
+          const crown = new THREE.Mesh(
+            original.geometry.clone(),
+            new THREE.MeshStandardMaterial({
+              color: 0xc7e0ff,
+              transparent: true,
+              opacity: 0.25,
+              depthWrite: false,
+              side: THREE.DoubleSide,
+              clippingPlanes: [
+                new THREE.Plane(pose.up.clone(), -pose.anchor.dot(pose.up)),
+              ],
+            }),
+          );
+          r.hardware.add(crown);
+        }
+      }
     }
   }, [
     props.implants,
@@ -284,6 +350,11 @@ export default function Scene(props: SceneProps) {
     props.progress,
     props.guide,
     props.external,
+    props.buffer,
+    props.smoothTeeth,
+    props.crownPreview,
+    props.layers,
+    props.neurovascularPaths,
   ]);
   useEffect(() => {
     const r = runtime.current;
@@ -302,9 +373,24 @@ export default function Scene(props: SceneProps) {
         .length();
       r.camera.position.normalize().multiplyScalar(size * 1.65);
       r.controls.target.set(0, 0, 0);
+    } else if (props.view === 'implant' && props.parts.length) {
+      const p =
+        latest.current.implants.find((p) => p.id === props.selected) ||
+        latest.current.implants[0];
+      if (p) {
+        const pose = implantPose(p, props.parts);
+        r.controls.target
+          .copy(pose.point)
+          .addScaledVector(pose.direction, p.length / 3);
+        r.camera.position
+          .copy(r.controls.target)
+          .addScaledVector(pose.out, 65)
+          .addScaledVector(pose.up, 20)
+          .addScaledVector(pose.side, 15);
+      }
     } else r.controls.target.set(0, -5, 0);
     r.controls.update();
-  }, [props.view, props.reset, props.external]);
+  }, [props.view, props.reset, props.external, props.selected, props.parts]);
   return (
     <div
       ref={host}

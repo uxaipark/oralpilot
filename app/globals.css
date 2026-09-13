@@ -2225,3 +2225,21 @@ h1 {
     animation: none;
   }
 }
+
+.example-presets {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0;
+}
+.example-presets button {
+  flex: 1;
+  border: 1px solid #3c4c58;
+  border-radius: 6px;
+  padding: 9px 3px;
+  font-size: 12px;
+}
+.example-presets button.active {
+  border-color: #79ddc3;
+  color: #79ddc3;
+  background: #213e39;
+}

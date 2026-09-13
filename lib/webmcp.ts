@@ -105,7 +105,7 @@ export function usePlanningTools(
             i.id === p.id ? { ...i, ...p } : i,
           );
           const valid = validatePlan({
-            schema: 'oralpilot-plan-v1',
+            schema: 'oralpilot-plan-v2',
             anatomy: 'ToothFairy3F_026',
             researchOnly: true,
             implants: next,

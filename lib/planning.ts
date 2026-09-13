@@ -11,7 +11,8 @@ export interface Part {
   vertexCount: number;
   indexCount: number;
   bounds: number[][];
-  axes?: { center: number[]; up: number[] };
+  axes?: { center: number[]; up: number[]; side?: number[]; out?: number[] };
+  implantAnchor?: { origin: number[]; crownHeightMm: number; method: string };
 }
 export interface Implant {
   id: string;
@@ -32,13 +33,14 @@ export type Layers = {
   pulp: boolean;
   sinus: boolean;
   upper: boolean;
+  corridor: boolean;
 };
 export const initialImplant: Implant = {
   id: 'IP-01',
   tooth: 46,
   diameter: 4.2,
   length: 10,
-  angle: 6,
+  angle: 0,
   tilt: 0,
   x: 0,
   z: 0,
@@ -55,21 +57,33 @@ export const allTeeth = [...upperTeeth, ...lowerTeeth];
 export const toWorld = (p: number[]) =>
   new THREE.Vector3(p[0] + 65.296, p[2] + 39.29, 41.081 - p[1]);
 export function implantPose(p: Implant, parts: Part[]) {
-  const a = parts.find((a) => a.group === 'tooth' && a.fdi === p.tooth),
-    lower = p.tooth >= 30;
-  const c = a?.axes?.center || [-65, 30, -40];
-  const top = a ? (lower ? a.bounds[1][2] - 7 : a.bounds[0][2] + 7) : c[2];
-  const point = toWorld([c[0], c[1], top]);
-  point.x += p.x;
-  point.z += p.z;
-  point.y += lower ? -p.depth : p.depth;
-  const rotation = new THREE.Euler(
-    (p.tilt * Math.PI) / 180,
-    0,
-    (lower ? 0 : Math.PI) + (p.angle * Math.PI) / 180,
+  const part = parts.find((a) => a.group === 'tooth' && a.fdi === p.tooth);
+  if (!part?.axes)
+    throw new Error('치아 축과 원본 해부학을 먼저 불러와야 합니다.');
+  const directionToWorld = (v: number[]) =>
+    new THREE.Vector3(v[0], v[2], -v[1]);
+  const up = directionToWorld(part.axes.up).normalize();
+  const seed = part.axes.side
+    ? directionToWorld(part.axes.side)
+    : new THREE.Vector3(1, 0, 0);
+  const side = seed.addScaledVector(up, -seed.dot(up)).normalize();
+  const out = new THREE.Vector3().crossVectors(side, up).normalize();
+  const basis = new THREE.Quaternion().setFromRotationMatrix(
+    new THREE.Matrix4().makeBasis(side, up, out),
   );
-  const direction = new THREE.Vector3(0, -1, 0).applyEuler(rotation);
-  return { point, rotation, direction };
+  const local = new THREE.Quaternion().setFromEuler(
+    new THREE.Euler((p.tilt * Math.PI) / 180, 0, (p.angle * Math.PI) / 180),
+  );
+  const quaternion = basis.clone().multiply(local);
+  const direction = new THREE.Vector3(0, -1, 0).applyQuaternion(quaternion);
+  const anchor = toWorld(part.implantAnchor?.origin || part.axes.center);
+  const point = anchor
+    .clone()
+    .addScaledVector(side, p.x)
+    .addScaledVector(out, p.z)
+    .addScaledVector(direction, p.depth);
+  const rotation = new THREE.Euler().setFromQuaternion(quaternion);
+  return { point, rotation, quaternion, direction, anchor, up, side, out };
 }
 export function buildImplant(p: Implant) {
   const g = new THREE.Group(),
@@ -190,6 +204,8 @@ export function vertexClearance(
   parts: Part[],
   buffer: ArrayBuffer,
 ) {
+  if (!parts.some((a) => a.group === 'tooth' && a.fdi === p.tooth && a.axes))
+    return null;
   const { point, direction } = implantPose(p, parts),
     end = point.clone().addScaledVector(direction, p.length),
     segment = new THREE.Line3(point, end),
