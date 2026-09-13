@@ -220,7 +220,7 @@ export default function DataPanel({
           </div>
           <div>
             <h3>치아 · 턱뼈 · 하치조관</h3>
-            <p>ToothFairy3 F_026 · 실제 CBCT 분할 모델 · 비상업 연구용</p>
+            <p>ToothFairy3 F_026 · 실제 CBCT 분할 모델 · 연구용</p>
             <button className="outline-button" onClick={onDemo}>
               3D 해부학 예제 열기 <ArrowRight size={14} />
             </button>

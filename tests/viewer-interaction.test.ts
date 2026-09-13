@@ -195,3 +195,63 @@ void test('implant selection toggles single and batch plans, preserves edited pl
   assert.equal(result.plans.length, 1);
   assert.equal(result.plans[0].tooth, 46);
 });
+
+void test('anterior reference gingiva stays near the retained tooth/bone envelope instead of projecting far forward', async () => {
+  const { parts, buffer } = await anatomy();
+  const gums = buildReferenceSoftTissues(parts, buffer);
+  for (const gum of gums) {
+    const jaw = gum.userData.jaw;
+    const hard = new THREE.Group();
+    for (const p of parts.filter(
+      (p) => p.jaw === jaw && ['bone', 'tooth'].includes(p.group),
+    )) {
+      const raw = new Float32Array(buffer, p.positions, p.vertexCount * 3);
+      const points = new Float32Array(raw.length);
+      for (let i = 0; i < raw.length; i += 3)
+        points.set(toWorld([raw[i], raw[i + 1], raw[i + 2]]).toArray(), i);
+      const g = new THREE.BufferGeometry().setAttribute(
+        'position',
+        new THREE.BufferAttribute(points, 3),
+      );
+      g.setIndex(
+        new THREE.BufferAttribute(
+          new Uint32Array(buffer, p.indices, p.indexCount),
+          1,
+        ),
+      );
+      hard.add(
+        new THREE.Mesh(
+          g,
+          new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }),
+        ),
+      );
+    }
+    const incisor = parts.find(
+      (p) => p.group === 'tooth' && p.fdi === (jaw === 'maxilla' ? 11 : 41),
+    )!;
+    const anchor = toWorld(incisor.implantAnchor!.origin);
+    let samples = 0;
+    for (const x of [-12, -8, -4, 0, 4, 8, 12])
+      for (const depth of [1, 3, 5, 7, 9, 11, 13]) {
+        const y = anchor.y + (jaw === 'maxilla' ? depth : -depth);
+        const ray = new THREE.Raycaster(
+          new THREE.Vector3(x, y, 150),
+          new THREE.Vector3(0, 0, -1),
+        );
+        const tissue = ray.intersectObject(gum)[0],
+          source = ray.intersectObject(hard, true)[0];
+        if (!tissue || !source) continue;
+        // A rendering regression bound for this fixture, not a clinical tissue thickness.
+        assert.ok(
+          tissue.point.z - source.point.z < 3,
+          `${jaw} x=${x}, depth=${depth}: excessive forward envelope`,
+        );
+        samples++;
+      }
+    assert.ok(samples >= 40);
+    for (const mesh of [...hard.children, gum] as THREE.Mesh[]) {
+      mesh.geometry.dispose();
+      (mesh.material as THREE.Material).dispose();
+    }
+  }
+});

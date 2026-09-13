@@ -15,6 +15,60 @@ function vertices(part: Part, buffer: ArrayBuffer) {
   return points;
 }
 
+/** Front-facing height field from the actual retained hard-tissue triangles.
+ * Display clearance only, not a measured gingival thickness or clinical threshold.
+ */
+function anteriorEnvelope(parts: Part[], buffer: ArrayBuffer) {
+  const spacing = 0.65;
+  const field = new Map<string, number>();
+  for (const part of parts) {
+    const points = vertices(part, buffer);
+    const faces = new Uint32Array(buffer, part.indices, part.indexCount);
+    for (let i = 0; i < faces.length; i += 3) {
+      const a = points[faces[i]],
+        b = points[faces[i + 1]],
+        c = points[faces[i + 2]];
+      const area = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y);
+      if (Math.abs(area) < 1e-8) continue;
+      const x0 = Math.ceil(Math.max(-26, Math.min(a.x, b.x, c.x)) / spacing);
+      const x1 = Math.floor(Math.min(26, Math.max(a.x, b.x, c.x)) / spacing);
+      const y0 = Math.ceil(Math.min(a.y, b.y, c.y) / spacing);
+      const y1 = Math.floor(Math.max(a.y, b.y, c.y) / spacing);
+      for (let ix = x0; ix <= x1; ix++)
+        for (let iy = y0; iy <= y1; iy++) {
+          const x = ix * spacing,
+            y = iy * spacing;
+          const u = ((b.y - c.y) * (x - c.x) + (c.x - b.x) * (y - c.y)) / area;
+          const v = ((c.y - a.y) * (x - c.x) + (a.x - c.x) * (y - c.y)) / area;
+          if (u < -1e-6 || v < -1e-6 || u + v > 1.000001) continue;
+          const z = u * a.z + v * b.z + (1 - u - v) * c.z;
+          const key = `${ix},${iy}`;
+          field.set(key, Math.max(field.get(key) ?? -Infinity, z));
+        }
+    }
+  }
+  return (x: number, y: number) => {
+    const gx = x / spacing,
+      gy = y / spacing,
+      ix = Math.floor(gx),
+      iy = Math.floor(gy);
+    const z = [
+      field.get(`${ix},${iy}`),
+      field.get(`${ix + 1},${iy}`),
+      field.get(`${ix},${iy + 1}`),
+      field.get(`${ix + 1},${iy + 1}`),
+    ];
+    if (z.every((value) => value !== undefined))
+      return THREE.MathUtils.lerp(
+        THREE.MathUtils.lerp(z[0]!, z[1]!, gx - ix),
+        THREE.MathUtils.lerp(z[2]!, z[3]!, gx - ix),
+        gy - iy,
+      );
+    const available = z.filter((value): value is number => value !== undefined);
+    return available.length ? Math.max(...available) : null;
+  };
+}
+
 /** Display-only gingival envelope; estimated cervical anchors are not a segmented gingival margin. */
 export function buildReferenceSoftTissues(
   parts: Part[],
@@ -40,6 +94,10 @@ export function buildReferenceSoftTissues(
     );
     const bone = parts.find((p) => p.group === 'bone' && p.jaw === jaw);
     const bonePoints = bone ? vertices(bone, buffer) : [];
+    const frontLimit = anteriorEnvelope(
+      [...teeth, ...(bone ? [bone] : [])],
+      buffer,
+    );
     const profiles = teeth.map((tooth, i) => {
       const center = centers[i];
       const tangent = curve
@@ -127,6 +185,26 @@ export function buildReferenceSoftTissues(
           .clone()
           .addScaledVector(lateral, s.x)
           .addScaledVector(up, s.y);
+        // Keep the closed shell, while removing the anterior bulge introduced by
+        // wide lateral quantiles and curve interpolation. Blend into the premolars.
+        const anteriorWeight =
+          1 - THREE.MathUtils.smoothstep(Math.abs(point.x), 14, 24);
+        if (anteriorWeight > 0 && point.z > center.z) {
+          const surface = frontLimit(point.x, point.y);
+          if (surface !== null) {
+            const clearance = THREE.MathUtils.lerp(
+              0.65,
+              1.15,
+              THREE.MathUtils.smoothstep(-s.y, 0, 6),
+            );
+            const excess = point.z - (surface + clearance);
+            if (excess > 0) {
+              const limited =
+                surface + clearance + 0.2 * Math.tanh(excess / 0.2);
+              point.z = THREE.MathUtils.lerp(point.z, limited, anteriorWeight);
+            }
+          }
+        }
         positions.push(...point.toArray());
         const color = margin
           .clone()

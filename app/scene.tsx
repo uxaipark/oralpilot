@@ -6,6 +6,7 @@ import {
   defaultCaseVisibility,
   type CaseVisibility,
 } from '@/lib/jaw-cases';
+import { jawVisible } from '@/lib/jaw-visibility';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import {
@@ -67,6 +68,7 @@ export interface SceneProps {
   onSelect: (tooth: number) => void;
   external?: THREE.BufferGeometry | null;
   caseVisibility?: CaseVisibility;
+  guideOnly?: boolean;
 }
 export default function Scene(props: SceneProps) {
   const host = useRef<HTMLDivElement>(null),
@@ -101,6 +103,7 @@ export default function Scene(props: SceneProps) {
     );
   }, [
     props.mode,
+    props.guideOnly,
     props.sequencePlan,
     props.implants,
     props.parts,
@@ -415,15 +418,6 @@ export default function Scene(props: SceneProps) {
       const plannedTooth =
         props.mode === 'planning' &&
         props.implants.some((i) => i.tooth === p.fdi);
-      const upperVisible =
-        props.layers.upper ||
-        ['unfolded', 'upper-occlusal', 'front'].includes(props.view);
-      const inJawView =
-        props.view === 'upper-occlusal'
-          ? p.jaw === 'maxilla'
-          : props.view === 'lower-occlusal'
-            ? p.jaw !== 'maxilla'
-            : true;
       const phaseHidesTooth =
         props.mode === 'simulation'
           ? !!(
@@ -435,9 +429,9 @@ export default function Scene(props: SceneProps) {
           : props.mode === 'guide' &&
             props.implants.some((i) => i.tooth === p.fdi);
       mesh.visible =
+        !(props.mode === 'guide' && props.guideOnly) &&
         Boolean(props.layers[p.group as keyof Layers]) &&
-        (p.jaw !== 'maxilla' || upperVisible) &&
-        inJawView &&
+        jawVisible(p.jaw, props.layers, props.view) &&
         !(['tooth', 'pulp'].includes(p.group) && phaseHidesTooth) &&
         !(
           ['tooth', 'pulp'].includes(p.group) &&
@@ -520,6 +514,7 @@ export default function Scene(props: SceneProps) {
     props.sequencePlan,
     props.progress,
     props.mode,
+    props.guideOnly,
     props.view,
     props.parts,
     props.buffer,
@@ -551,20 +546,14 @@ export default function Scene(props: SceneProps) {
       );
       for (const o of [...frameGroup.children]) {
         if (props.view === 'unfolded') unfoldObject(o, props.parts);
-        o.visible =
-          (props.view === 'upper-occlusal'
-            ? o.userData.jaw === 'maxilla'
-            : props.view === 'lower-occlusal'
-              ? o.userData.jaw !== 'maxilla'
-              : true) &&
-          (o.userData.jaw !== 'maxilla' ||
-            props.layers.upper ||
-            ['unfolded', 'upper-occlusal', 'front'].includes(props.view));
+        o.visible = jawVisible(o.userData.jaw, props.layers, props.view);
         r.hardware.add(o);
       }
       return;
     }
-    for (const p of props.implants) {
+    for (const p of props.mode === 'guide' && props.guideOnly
+      ? []
+      : props.implants) {
       const pose = implantPose(p, props.parts),
         group = new THREE.Group();
       group.position.copy(pose.point);
@@ -584,9 +573,7 @@ export default function Scene(props: SceneProps) {
         ) as THREE.Mesh | undefined;
         if (
           original &&
-          (original.userData.jaw !== 'maxilla' ||
-            props.layers.upper ||
-            ['unfolded', 'upper-occlusal', 'front'].includes(props.view))
+          jawVisible(original.userData.jaw, props.layers, props.view)
         ) {
           const crown = new THREE.Mesh(
             original.geometry.clone(),
@@ -613,19 +600,17 @@ export default function Scene(props: SceneProps) {
         props.buffer,
         props.perioChart,
         props.guide,
+        !props.guideOnly,
       );
       r.hardware.add(...[...guides.children]);
     }
     for (const o of r.hardware.children) {
-      o.visible =
-        (props.view === 'upper-occlusal'
-          ? o.userData.jaw === 'maxilla'
-          : props.view === 'lower-occlusal'
-            ? o.userData.jaw !== 'maxilla'
-            : true) &&
-        (o.userData.jaw !== 'maxilla' ||
-          props.layers.upper ||
-          ['unfolded', 'upper-occlusal', 'front'].includes(props.view));
+      o.visible = jawVisible(
+        o.userData.jaw,
+        props.layers,
+        props.view,
+        props.mode === 'guide' && props.guideOnly,
+      );
       if (props.view === 'unfolded') unfoldObject(o, props.parts);
     }
   }, [
@@ -633,6 +618,7 @@ export default function Scene(props: SceneProps) {
     props.implants,
     props.parts,
     props.mode,
+    props.guideOnly,
     props.progress,
     props.guide,
     props.external,
@@ -700,14 +686,7 @@ export default function Scene(props: SceneProps) {
         ((o.userData.kind !== 'perio' &&
           o.userData.group !== 'extraction-site') ||
           props.layers.tooth) &&
-        (jaw !== 'maxilla' ||
-          props.layers.upper ||
-          ['unfolded', 'upper-occlusal', 'front'].includes(props.view)) &&
-        (props.view === 'upper-occlusal'
-          ? jaw === 'maxilla'
-          : props.view === 'lower-occlusal'
-            ? jaw === 'mandible'
-            : true);
+        jawVisible(jaw, props.layers, props.view);
       if (props.view === 'unfolded') unfoldObject(o, props.parts);
       r.annotations.add(o);
     }
@@ -717,6 +696,7 @@ export default function Scene(props: SceneProps) {
     props.buffer,
     props.external,
     props.mode,
+    props.guideOnly,
     props.view,
     props.layers,
     props.selectedTooth,
@@ -754,6 +734,24 @@ export default function Scene(props: SceneProps) {
         .length();
       r.camera.position.normalize().multiplyScalar(size * 1.65);
       r.controls.target.set(0, 0, 0);
+    } else if (
+      props.mode === 'guide' &&
+      props.guideOnly &&
+      r.hardware.children.some((o) => o.visible)
+    ) {
+      const box = new THREE.Box3();
+      for (const o of r.hardware.children) if (o.visible) box.expandByObject(o);
+      const radius = box.getSize(new THREE.Vector3()).length() / 2;
+      const direction = r.camera.position.clone().normalize();
+      box.getCenter(r.controls.target);
+      const fov = THREE.MathUtils.degToRad(r.camera.fov / 2);
+      const distance =
+        (radius /
+          Math.sin(Math.min(fov, Math.atan(Math.tan(fov) * r.camera.aspect)))) *
+        1.1;
+      r.camera.position
+        .copy(r.controls.target)
+        .addScaledVector(direction, Math.max(20, distance));
     } else if (props.view === 'face' && faceResources && props.parts.length) {
       const box = faceResources.geometry
         .boundingBox!.clone()

@@ -33,6 +33,7 @@ export type Layers = {
   pulp: boolean;
   sinus: boolean;
   upper: boolean;
+  lower: boolean;
   corridor: boolean;
   gingiva: boolean;
   lips: boolean;

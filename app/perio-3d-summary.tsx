@@ -7,12 +7,10 @@ export function Perio3DSummary({
   chart,
   tooth,
   numbering,
-  onOpen,
 }: {
   chart: Chart;
   tooth: number;
   numbering: Numbering;
-  onOpen: () => void;
 }) {
   const t = examTooth(chart, tooth),
     s = examSummary(t);
@@ -25,9 +23,6 @@ export function Perio3DSummary({
         <span>
           #{displayToothNumber(tooth, numbering)} 검사 상태 · 실시간 연동
         </span>
-        <button className="text-button" onClick={onOpen}>
-          치주차트에서 수정
-        </button>
       </div>
       <div className="perio-status-chips">
         <span>

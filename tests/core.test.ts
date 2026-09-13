@@ -1,3 +1,5 @@
+import './jaw-visibility.test';
+import './cad-export.test';
 import './jaw-cases.test';
 import './sequence-decision.test';
 import './browser-plan.test';

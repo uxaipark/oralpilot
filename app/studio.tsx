@@ -8,6 +8,9 @@ import {
   useReducer,
 } from 'react';
 import * as THREE from 'three';
+import { jawVisible } from '@/lib/jaw-visibility';
+import { ToothIcon } from './tooth-icon';
+import { toothIconShape } from '@/lib/tooth-icon';
 import {
   Activity,
   ArrowDownToLine,
@@ -28,6 +31,10 @@ import {
   Maximize2,
   Move3D,
   Pause,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
   Play,
   Plus,
   RotateCcw,
@@ -76,7 +83,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import Scene from './scene';
-import { buildAnatomicalGuides, guideDepth } from '@/lib/anatomical-guide';
+import { guideDepth } from '@/lib/anatomical-guide';
 import {
   implantSelection,
   toggleImplantSelection,
@@ -111,6 +118,7 @@ import {
   decisionMatches,
   type SequenceDecision,
 } from '@/lib/sequence-decision';
+import type { CADFormat, CADScope } from '@/lib/cad-export';
 import { CaseBrowser } from './case-browser';
 import { caseFromGeometry, defaultCaseVisibility } from '@/lib/jaw-cases';
 import { PerioCanvas, PerioInspector, PerioReport } from './perio-workspace';
@@ -195,6 +203,15 @@ import {
   clearBrowserPlan,
 } from '@/lib/browser-plan';
 export default function Studio() {
+  const [leftOpen, setLeftOpen] = useState(true);
+  const [rightOpen, setRightOpen] = useState(true);
+  const leftToggle = useRef<HTMLButtonElement>(null);
+  const rightToggle = useRef<HTMLButtonElement>(null);
+  const [guideOnly, setGuideOnly] = useState(false);
+  const [cadScope, setCadScope] = useState<CADScope>('guide');
+  const [cadFormat, setCadFormat] = useState<CADFormat>('stl');
+  const [cadExporting, setCadExporting] = useState(false);
+  const [cadError, setCadError] = useState('');
   const [caseBrowserOpen, setCaseBrowserOpen] = useState(false);
   const [caseVisibility, setCaseVisibility] = useState(defaultCaseVisibility);
   const [sequenceDecision, setSequenceDecision] =
@@ -249,6 +266,7 @@ export default function Studio() {
       pulp: false,
       sinus: false,
       upper: true,
+      lower: true,
     }),
     [opacity, setOpacity] = useState(32),
     [view, setViewState] = useState('perspective'),
@@ -256,6 +274,7 @@ export default function Studio() {
   const faceViewSnapshot = useRef<{
     face: boolean;
     upper: boolean;
+    lower: boolean;
     tooth: boolean;
     softTissueOpacity: number;
     neuroXray: boolean;
@@ -265,11 +284,18 @@ export default function Studio() {
       faceViewSnapshot.current = {
         face: layers.face,
         upper: layers.upper,
+        lower: layers.lower,
         tooth: layers.tooth,
         softTissueOpacity,
         neuroXray,
       };
-      setLayers((l) => ({ ...l, face: true, upper: true, tooth: true }));
+      setLayers((l) => ({
+        ...l,
+        face: true,
+        upper: true,
+        lower: true,
+        tooth: true,
+      }));
       setSoftTissueOpacity(100);
       setNeuroXray(false);
     } else if (next !== 'face' && faceViewSnapshot.current) {
@@ -279,13 +305,17 @@ export default function Studio() {
         ...l,
         face: saved.face,
         upper: saved.upper,
+        lower: saved.lower,
         tooth: saved.tooth,
       }));
       setSoftTissueOpacity(saved.softTissueOpacity);
       setNeuroXray(saved.neuroXray);
     }
-    if (next === 'front' || next === 'perspective')
-      setLayers((l) => ({ ...l, upper: true, tooth: true }));
+    // Restoring face-view settings takes precedence over a default two-arch view.
+    else if (['front', 'perspective', 'unfolded'].includes(next))
+      setLayers((l) => ({ ...l, upper: true, lower: true, tooth: true }));
+    if (next === 'upper-occlusal') setLayers((l) => ({ ...l, upper: true }));
+    if (next === 'lower-occlusal') setLayers((l) => ({ ...l, lower: true }));
     setViewState(next);
   };
   const [guide, setGuide] = useState({ bore: 2.2, thickness: 2, offset: 3 }),
@@ -307,7 +337,12 @@ export default function Studio() {
     setTooth(fdi);
     setHighlightedTeeth([fdi]);
     setSelected(implants.find((p) => p.tooth === fdi)?.id || '');
-    setLayers((l) => ({ ...l, tooth: true, upper: fdi < 30 ? true : l.upper }));
+    setLayers((l) => ({
+      ...l,
+      tooth: true,
+      upper: fdi < 30 ? true : l.upper,
+      lower: fdi >= 30 ? true : l.lower,
+    }));
   }, [perioState.cursor.n, step]);
   const currentSignature = useMemo(
     () =>
@@ -372,7 +407,11 @@ export default function Studio() {
         );
         setProgress(0);
         setView('perspective');
-        setLayers((l) => ({ ...l, upper: implants.some((p) => p.tooth < 30) }));
+        setLayers((l) => ({
+          ...l,
+          upper: implants.some((p) => p.tooth < 30),
+          lower: implants.some((p) => p.tooth >= 30),
+        }));
       } catch (e) {
         setSequenceError((e as Error).message);
       } finally {
@@ -478,7 +517,12 @@ export default function Studio() {
   };
   const chooseTooth = (n: number) => {
     setTooth(n);
-    setLayers((l) => ({ ...l, tooth: true, upper: n < 30 ? true : l.upper }));
+    setLayers((l) => ({
+      ...l,
+      tooth: true,
+      upper: n < 30 ? true : l.upper,
+      lower: n >= 30 ? true : l.lower,
+    }));
     setHighlightedTeeth((list) =>
       list.includes(n) ? list.filter((t) => t !== n) : [...list, n],
     );
@@ -532,6 +576,7 @@ export default function Studio() {
       ...l,
       tooth: true,
       upper: implantTargets.some((n) => n < 30) || l.upper,
+      lower: implantTargets.some((n) => n >= 30) || l.lower,
     }));
     setHighlightedTeeth(
       result.removed
@@ -635,10 +680,10 @@ export default function Studio() {
       }
     } catch {
       setLocalError(
-        '브라우저 저장 내용을 복원하지 못했습니다. 저장 지우기 또는 계획서 파일 열기를 사용하세요.',
+        '계획서 임시공간을 복원하지 못했습니다. 임시공간 삭제 또는 계획서 파일 열기를 사용하세요.',
       );
       notify(
-        '브라우저 저장 내용을 읽지 못했습니다. 기존 저장 내용은 덮어쓰지 않았습니다.',
+        '계획서 임시공간을 읽지 못했습니다. 기존 저장 내용은 덮어쓰지 않았습니다.',
       );
     } finally {
       setLocalReady(true);
@@ -652,10 +697,10 @@ export default function Studio() {
     } catch {
       localAutosave.current = false;
       setLocalError(
-        '브라우저 저장 공간 또는 접근 권한을 확인하세요. 최근 변경은 저장되지 않았습니다.',
+        '계획서 임시공간의 용량 또는 브라우저 접근 권한을 확인하세요. 최근 변경은 저장되지 않았습니다.',
       );
       notify(
-        '브라우저 자동 저장에 실패했습니다. 계획서 파일저장으로 현재 계획을 보관하세요.',
+        '계획서 임시공간 자동 저장에 실패했습니다. 계획서 파일저장으로 현재 계획을 보관하세요.',
       );
     }
   }, [planDocument, localReady, localSaved]);
@@ -685,7 +730,7 @@ export default function Studio() {
         setLocalSaved(false);
         setLocalError('');
         notify(
-          '브라우저의 저장 내용을 지웠습니다. 현재 화면의 계획은 유지됩니다.',
+          '계획서 임시공간을 삭제했습니다. 현재 화면의 계획은 유지됩니다.',
         );
       } else {
         writeBrowserPlan(window.localStorage, planDocument);
@@ -693,13 +738,15 @@ export default function Studio() {
         setLocalSaved(true);
         setLocalError('');
         notify(
-          '이 브라우저에 계획과 치주 검사를 저장했습니다. 이후 변경도 자동 저장합니다. 영상 원본은 포함하지 않습니다.',
+          '이 브라우저의 계획서 임시공간에 계획과 치주 검사를 저장했습니다. 이후 변경도 자동 저장합니다. 영상 원본은 포함하지 않습니다.',
         );
       }
     } catch {
-      setLocalError('브라우저 저장 공간 또는 접근 권한을 확인하세요.');
+      setLocalError(
+        '계획서 임시공간의 용량 또는 브라우저 접근 권한을 확인하세요.',
+      );
       notify(
-        '브라우저 저장 작업에 실패했습니다. 계획서 파일저장을 사용할 수 있습니다.',
+        '계획서 임시공간 저장에 실패했습니다. 계획서 파일저장을 사용할 수 있습니다.',
       );
     }
   };
@@ -709,37 +756,43 @@ export default function Studio() {
       '계획서 파일을 다운로드했습니다. 다음 세션에서 다시 불러올 수 있습니다.',
     );
   };
-  async function exportGuide() {
-    if (!current || !parts.length || !buffer || external) return;
-    const { STLExporter } =
-      await import('three/addons/exporters/STLExporter.js');
-    const g = buildAnatomicalGuides(
-      implants,
-      parts,
-      buffer,
-      perioState.chart,
-      guide,
-      false,
-    );
-    g.updateMatrixWorld(true);
-    const stl = new STLExporter().parse(g);
-    download(
-      stl.replace(
-        'solid exported',
-        'solid ORALPILOT_CONCEPT_NOT_FOR_CLINICAL_USE',
-      ),
-      `CONCEPT-ONLY-partial-arch-guides.stl`,
-      'model/stl',
-    );
-    g.traverse((o) => {
-      if (o instanceof THREE.Mesh) {
-        o.geometry.dispose();
-        (o.material as THREE.Material).dispose();
-      }
-    });
-    notify(
-      '검토용 STL을 내보냈습니다. 치아에 맞춘 내면·공차·제작 검증이 없는 개념 모델입니다.',
-    );
+  async function exportCAD() {
+    if (
+      !implants.length ||
+      !parts.length ||
+      !buffer ||
+      external ||
+      cadExporting
+    )
+      return;
+    setCadExporting(true);
+    setCadError('');
+    try {
+      const { createCADPackage } = await import('@/lib/cad-export');
+      const result = createCADPackage({
+        implants,
+        parts,
+        buffer,
+        chart: perioState.chart,
+        guide,
+        scope: cadScope,
+        format: cadFormat,
+        smooth: smoothTeeth,
+        numbering,
+      });
+      download(
+        new Uint8Array(result.data).buffer,
+        result.filename,
+        'application/zip',
+      );
+      notify(
+        `CAD 참조 패키지 · ${result.manifest.files.length}개 형상 파일을 내보냈습니다.`,
+      );
+    } catch (e) {
+      setCadError((e as Error).message);
+    } finally {
+      setCadExporting(false);
+    }
   }
   const restoreDemo = () => {
     setExternal(null);
@@ -762,9 +815,27 @@ export default function Studio() {
   };
   return (
     <SidebarProvider
-      className={`oral-app ${step === 'perio' ? 'perio-mode' : ''}`}
+      className={`oral-app ${step === 'perio' ? 'perio-mode' : ''} ${leftOpen ? '' : 'left-panel-collapsed'}`}
+      open={leftOpen}
+      onOpenChange={setLeftOpen}
     >
-      <Sidebar collapsible="none" className="nav-shell">
+      <Sidebar
+        collapsible="none"
+        className="nav-shell"
+        id="planning-navigation"
+        aria-label="왼쪽 계획 메뉴"
+      >
+        <button
+          className="panel-collapse-button nav-collapse"
+          aria-label="왼쪽 패널 접기"
+          title="왼쪽 패널 접기"
+          onClick={() => {
+            setLeftOpen(false);
+            leftToggle.current?.focus();
+          }}
+        >
+          <PanelLeftClose size={17} />
+        </button>
         <SidebarHeader className="brand">
           <span className="brand-mark">
             <ScanLine size={25} />
@@ -804,13 +875,12 @@ export default function Studio() {
           </SidebarMenu>
           <div className="sidebar-note">
             <ShieldCheck size={20} />
-            <strong>Research preview</strong>
+            <strong>연구용</strong>
             <p>
               실제 해부학 데이터로 경험하는
               <br />
               다음 세대의 치료계획
             </p>
-            <span>임상 사용 불가</span>
           </div>
         </SidebarContent>
         <SidebarFooter className="nav-footer">
@@ -821,7 +891,7 @@ export default function Studio() {
           <div className="profile">
             <span>OP</span>
             <div>
-              OralPilot Studio<small>Prototype · v0.1</small>
+              OralPilot Studio<small>연구용 · v0.1</small>
             </div>
             <span className="online-dot" />
           </div>
@@ -830,6 +900,40 @@ export default function Studio() {
       <div className="app-body">
         <header className="topbar">
           <div className="breadcrumb">
+            <button
+              ref={leftToggle}
+              className="panel-toggle"
+              aria-label={leftOpen ? '왼쪽 패널 접기' : '왼쪽 패널 펼치기'}
+              title={leftOpen ? '왼쪽 패널 접기' : '왼쪽 패널 펼치기'}
+              aria-expanded={leftOpen}
+              aria-controls="planning-navigation"
+              onClick={() => setLeftOpen((v) => !v)}
+            >
+              {leftOpen ? (
+                <PanelLeftClose size={18} />
+              ) : (
+                <PanelLeftOpen size={18} />
+              )}
+            </button>
+            {step !== 'data' && (
+              <button
+                ref={rightToggle}
+                className="panel-toggle"
+                aria-label={
+                  rightOpen ? '오른쪽 패널 접기' : '오른쪽 패널 펼치기'
+                }
+                title={rightOpen ? '오른쪽 패널 접기' : '오른쪽 패널 펼치기'}
+                aria-expanded={rightOpen}
+                aria-controls="planning-inspector"
+                onClick={() => setRightOpen((v) => !v)}
+              >
+                {rightOpen ? (
+                  <PanelRightClose size={18} />
+                ) : (
+                  <PanelRightOpen size={18} />
+                )}
+              </button>
+            )}
             케이스 <ChevronRight size={14} />
             <strong>
               {loadedCase
@@ -837,7 +941,7 @@ export default function Studio() {
                 : 'DEMO-001'}
             </strong>
             <span className="top-separator" />
-            <span className="top-demo">비임상 프로토타입</span>
+            <span className="top-demo">연구용</span>
           </div>
           <div className="top-actions">
             <button
@@ -860,12 +964,12 @@ export default function Studio() {
               title={
                 localError ||
                 (localSaved
-                  ? '현재 계획은 유지하고 이 브라우저의 저장 내용만 삭제합니다.'
-                  : '계획과 치주 검사를 이 브라우저에 저장하고 이후 변경을 자동 저장합니다. 영상 원본은 제외합니다.')
+                  ? '현재 계획은 유지하고 이 브라우저의 계획서 임시공간만 삭제합니다.'
+                  : '계획과 치주 검사를 이 브라우저의 임시공간에 저장하고 이후 변경을 자동 저장합니다. 영상 원본은 제외합니다.')
               }
             >
               {localSaved ? <Trash2 size={15} /> : <Save size={15} />}
-              {localSaved ? '로컬 저장 지우기' : '브라우저 저장'}
+              {localSaved ? '계획서 임시공간 삭제' : '계획서 임시공간 저장'}
             </button>
             <button
               className="outline-button file-save"
@@ -885,38 +989,28 @@ export default function Studio() {
             </button>
           </div>
         </header>
-        <div className="page-heading">
-          <div>
-            <div className="eyebrow">
-              {steps.find((s) => s.id === step)?.sub.toUpperCase()}
-            </div>
-            <h1>{titles[step]}</h1>
-            <p>
-              {external && step !== 'perio'
+        <div className="page-heading compact-heading">
+          <h1>{steps.find((s) => s.id === step)?.name || titles[step]}</h1>
+          <p
+            title={
+              external && step !== 'perio'
                 ? externalName
-                : 'ToothFairy3 · F_026'}
-              <span>•</span>
-              {step === 'perio'
-                ? '예제 케이스 치주 검사'
-                : external
-                  ? loadedCase
-                    ? '공개 환자 모델 · 3D 열람'
-                    : '가져온 모델 · 정합 전'
-                  : '공개 CBCT 분할 모델'}
-              <span>•</span>
-              <span title={localError || undefined}>
-                {localError
-                  ? '브라우저 저장 확인 필요'
-                  : localSaved
-                    ? '브라우저 저장 사용 중'
-                    : '세션 내 편집'}
-              </span>
-            </p>
-          </div>
-          <button className="outline-button" onClick={() => setStep('data')}>
-            <Plus size={16} />
-            데이터 가져오기
-          </button>
+                : 'ToothFairy3 · F_026'
+            }
+          >
+            {external && step !== 'perio'
+              ? externalName
+              : 'ToothFairy3 · F_026'}
+          </p>
+          {localError && (
+            <span
+              className="compact-save-error"
+              role="status"
+              title={localError}
+            >
+              임시공간 확인 필요
+            </span>
+          )}
         </div>
         <div style={{ display: step === 'data' ? 'block' : 'none' }}>
           <DataPanel
@@ -929,7 +1023,9 @@ export default function Studio() {
           />
         </div>
         {step !== 'data' && (
-          <div className="workspace">
+          <div
+            className={`workspace ${rightOpen ? '' : 'right-panel-collapsed'}`}
+          >
             <section className="main-workspace">
               {step === 'perio' ? (
                 <PerioCanvas state={perioState} dispatch={perioDispatch} />
@@ -1047,6 +1143,7 @@ export default function Studio() {
                       mode={step}
                       progress={progress}
                       guide={guide}
+                      guideOnly={guideOnly}
                       onSelect={chooseTooth}
                       external={external}
                       caseVisibility={caseVisibility}
@@ -1102,6 +1199,7 @@ export default function Studio() {
                           setLayers((l) => ({
                             ...l,
                             upper: true,
+                            lower: true,
                             tooth: true,
                           }));
                           setReset((x) => x + 1);
@@ -1109,17 +1207,37 @@ export default function Studio() {
                       >
                         <RotateCcw size={18} />
                       </button>
-                      <button
-                        title="상악 표시 전환"
-                        aria-label="상악 표시 전환"
-                        disabled={!!external}
-                        className={!layers.upper ? 'active' : ''}
-                        onClick={() =>
-                          setLayers((l) => ({ ...l, upper: !l.upper }))
-                        }
-                      >
-                        <Layers3 size={18} />
-                      </button>
+                      {(['upper', 'lower'] as const).map((jaw) => {
+                        const isolated = step === 'guide' && guideOnly;
+                        const enabled = jawVisible(
+                          jaw === 'upper' ? 'maxilla' : 'mandible',
+                          layers,
+                          view,
+                          isolated,
+                        );
+                        return (
+                          <button
+                            key={jaw}
+                            title={`${jaw === 'upper' ? '상악' : '하악'} 표시 전환`}
+                            aria-label={`${jaw === 'upper' ? '상악' : '하악'} 표시 전환`}
+                            aria-pressed={enabled}
+                            disabled={
+                              !!external ||
+                              isolated ||
+                              (view === 'upper-occlusal' && jaw === 'lower') ||
+                              (view === 'lower-occlusal' && jaw === 'upper')
+                            }
+                            className={enabled ? 'active' : ''}
+                            onClick={() =>
+                              setLayers((l) => ({ ...l, [jaw]: !l[jaw] }))
+                            }
+                          >
+                            <span className="jaw-toggle-label">
+                              {jaw === 'upper' ? '상' : '하'}
+                            </span>
+                          </button>
+                        );
+                      })}
                       <button
                         title="골 불투명도 전환"
                         aria-label="골 불투명도 전환"
@@ -1351,8 +1469,8 @@ export default function Studio() {
                       </p>
                       <p className="helper">
                         식립계획을 연결하려면 동일 환자 확인, 공간 정합 및
-                        구조별 주석이 필요합니다. 이 프로토타입의 수술계획은
-                        공개 해부학 예제에서 체험할 수 있습니다.
+                        구조별 주석이 필요합니다. 수술계획은 공개 해부학
+                        예제에서 체험할 수 있습니다.
                       </p>
                     </div>
                   ) : step === 'simulation' ? (
@@ -1407,16 +1525,14 @@ export default function Studio() {
                             onClick={() => chooseTooth(t)}
                             className={`tooth-cell ${highlightedTeeth.includes(t) ? 'selected' : ''} ${implants.some((p) => p.tooth === t) ? 'planned' : ''}`}
                             aria-pressed={highlightedTeeth.includes(t)}
-                            aria-label={`치아 ${displayTooth(t)} 선택 전환`}
+                            aria-label={`치아 ${displayTooth(t)} · ${toothIconShape(t).name} 선택 전환`}
+                            title={`${displayTooth(t)} · ${toothIconShape(t).name}`}
                           >
                             <span className="tooth-glyph">
-                              {examTooth(perioState.chart, t)?.status ===
-                              'missing'
-                                ? '—'
-                                : examTooth(perioState.chart, t)?.status ===
-                                    'implant'
-                                  ? '▥'
-                                  : '🦷'}
+                              <ToothIcon
+                                fdi={t}
+                                status={examTooth(perioState.chart, t)?.status}
+                              />
                             </span>
                             <b>{displayTooth(t)}</b>
                             <i
@@ -1443,16 +1559,14 @@ export default function Studio() {
                             onClick={() => chooseTooth(t)}
                             className={`tooth-cell ${highlightedTeeth.includes(t) ? 'selected' : ''} ${implants.some((p) => p.tooth === t) ? 'planned' : ''}`}
                             aria-pressed={highlightedTeeth.includes(t)}
-                            aria-label={`치아 ${displayTooth(t)} 선택 전환`}
+                            aria-label={`치아 ${displayTooth(t)} · ${toothIconShape(t).name} 선택 전환`}
+                            title={`${displayTooth(t)} · ${toothIconShape(t).name}`}
                           >
                             <span className="tooth-glyph">
-                              {examTooth(perioState.chart, t)?.status ===
-                              'missing'
-                                ? '—'
-                                : examTooth(perioState.chart, t)?.status ===
-                                    'implant'
-                                  ? '▥'
-                                  : '🦷'}
+                              <ToothIcon
+                                fdi={t}
+                                status={examTooth(perioState.chart, t)?.status}
+                              />
                             </span>
                             <b>{displayTooth(t)}</b>
                             <i
@@ -1475,7 +1589,6 @@ export default function Studio() {
                         chart={perioState.chart}
                         tooth={tooth}
                         numbering={numbering}
-                        onOpen={() => setStep('perio')}
                       />
                       <div className="chart-legend">
                         <span>
@@ -1506,13 +1619,17 @@ export default function Studio() {
               )}
               <div className="case-bottom">
                 <ShieldCheck size={15} />
-                <span>연구용 계획 · 임상 검증 및 제조사 프로토콜 확인 전</span>
+                <span>연구용</span>
                 <button onClick={() => setSources(true)}>
                   구현 범위 <ChevronRight size={13} />
                 </button>
               </div>
             </section>
-            <aside className="inspector">
+            <aside
+              className="inspector"
+              id="planning-inspector"
+              aria-label="오른쪽 설정 패널"
+            >
               <div className="inspector-title">
                 <SlidersHorizontal size={18} />
                 <strong>
@@ -1528,7 +1645,17 @@ export default function Studio() {
                             ? '치료 회차 · 계획안 비교'
                             : '식립 파라미터'}
                 </strong>
-                <span className="mini-badge">LIVE</span>
+                <button
+                  className="panel-collapse-button inspector-collapse"
+                  aria-label="오른쪽 패널 접기"
+                  title="오른쪽 패널 접기"
+                  onClick={() => {
+                    setRightOpen(false);
+                    rightToggle.current?.focus();
+                  }}
+                >
+                  <PanelRightClose size={17} />
+                </button>
               </div>
               {external && step !== 'perio' ? (
                 <div className="inspector-section">
@@ -1615,8 +1742,34 @@ export default function Studio() {
               ) : step === 'anatomy' ? (
                 <>
                   <div className="inspector-section">
-                    <div className="section-title">
-                      조직 가시성<span className="muted">70 structures</span>
+                    <div className="section-title">표시 범위</div>
+                    {(['upper', 'lower'] as const).map((key) => {
+                      const excluded =
+                        (view === 'upper-occlusal' && key === 'lower') ||
+                        (view === 'lower-occlusal' && key === 'upper');
+                      return (
+                        <div className="layer-row" key={key}>
+                          <div>
+                            {key === 'upper' ? '상악' : '하악'}
+                            <small>
+                              {excluded
+                                ? '현재 교합면 뷰에서 제외'
+                                : '해당 악궁의 조직 · 식립물 · 선택 표시'}
+                            </small>
+                          </div>
+                          <Switch
+                            aria-label={key === 'upper' ? '상악' : '하악'}
+                            checked={!excluded && layers[key]}
+                            disabled={excluded}
+                            onCheckedChange={(v) =>
+                              setLayers((l) => ({ ...l, [key]: v }))
+                            }
+                          />
+                        </div>
+                      );
+                    })}
+                    <div className="section-title layer-group-title">
+                      조직 가시성
                     </div>
                     {(
                       [
@@ -1628,24 +1781,12 @@ export default function Studio() {
                           '좌우 2개 · 관 표면 분할',
                           '#f5b657',
                         ],
-                        [
-                          'corridor',
-                          '하치조관 중심선',
-                          '같은 좌우 관의 내부 참고선',
-                          '#ffdd65',
-                        ],
                         ['pulp', '치수강', '치아 내부 공간', '#e98687'],
                         [
                           'sinus',
                           '상악동 저부',
                           '촬영 범위 내 표면',
                           '#9bbce9',
-                        ],
-                        [
-                          'upper',
-                          '상악 표시',
-                          '상악골 및 상악 치아',
-                          '#b9bec9',
                         ],
                       ] as const
                     ).map(([key, label, sub, color]) => (
@@ -1664,9 +1805,25 @@ export default function Studio() {
                         />
                       </div>
                     ))}
+                    <div className="section-title layer-group-title">
+                      표현 설정
+                    </div>
+                    <div className="layer-row">
+                      <div>
+                        하치조관 중심선
+                        <small>좌우 관 내부의 참고선 · 별도 신경 아님</small>
+                      </div>
+                      <Switch
+                        aria-label="하치조관 중심선"
+                        checked={layers.corridor}
+                        onCheckedChange={(v) =>
+                          setLayers((l) => ({ ...l, corridor: v }))
+                        }
+                      />
+                    </div>
                     {[
                       ['치아 표면 매끄럽게', smoothTeeth, setSmoothTeeth],
-                      ['신경혈관 통로 투시', neuroXray, setNeuroXray],
+                      ['하치조관 · 중심선 투시', neuroXray, setNeuroXray],
                     ].map(([label, checked, setter]) => (
                       <div className="layer-row" key={String(label)}>
                         <div>{String(label)}</div>
@@ -1699,12 +1856,12 @@ export default function Studio() {
                       onChange={(v) => setRootOpacity(100 - v)}
                     />
                     <Range
-                      label="골 불투명도"
-                      value={opacity}
+                      label="턱뼈 투명도"
+                      value={100 - opacity}
                       min={0}
                       max={100}
                       unit="%"
-                      onChange={setOpacity}
+                      onChange={(v) => setOpacity(100 - v)}
                     />
                     <div className="soft-tissue-controls">
                       <div className="section-title">얼굴 외관 · 연조직</div>
@@ -1947,6 +2104,109 @@ export default function Studio() {
                       </p>
                     </div>
                   )}
+                  {step === 'guide' && (
+                    <div className="inspector-section guide-export-panel">
+                      <div className="section-title">가이드 보기</div>
+                      <button
+                        className={
+                          guideOnly
+                            ? 'primary-button full'
+                            : 'outline-button full'
+                        }
+                        aria-pressed={guideOnly}
+                        onClick={() => setGuideOnly((v) => !v)}
+                        disabled={
+                          !!external || (!implants.length && !guideOnly)
+                        }
+                      >
+                        <Eye size={16} />{' '}
+                        {guideOnly
+                          ? '해부학과 함께 보기'
+                          : '가이드 기구물만 보기'}
+                      </button>
+                      <p className="helper">
+                        {guideOnly
+                          ? '레진 쉘·금속 슬리브만 표시합니다. 치아·골의 가시성 설정은 유지됩니다.'
+                          : '가이드와 해부학 구조를 함께 검토합니다.'}
+                      </p>
+                      {guideOnly && (
+                        <button
+                          className="outline-button full"
+                          onClick={() => setReset((n) => n + 1)}
+                        >
+                          <Maximize2 size={15} /> 기구물 화면 맞춤
+                        </button>
+                      )}
+                      <div className="section-title">
+                        CAD 참조 데이터 내보내기
+                      </div>
+                      <label className="sequence-field">
+                        대상
+                        <select
+                          value={cadScope}
+                          onChange={(e) =>
+                            setCadScope(e.target.value as CADScope)
+                          }
+                          disabled={cadExporting}
+                        >
+                          <option value="guide">
+                            가이드 기구물 · 쉘 + 슬리브
+                          </option>
+                          <option value="prosthetic">
+                            보철 참조 · 지대주 + 크라운 + 식립체
+                          </option>
+                          <option value="all">가이드 + 보철 참조 전체</option>
+                        </select>
+                      </label>
+                      <label className="sequence-field">
+                        파일 형식
+                        <select
+                          value={cadFormat}
+                          onChange={(e) =>
+                            setCadFormat(e.target.value as CADFormat)
+                          }
+                          disabled={cadExporting}
+                        >
+                          <option value="stl">STL · 바이너리 메시</option>
+                          <option value="obj">OBJ · 구성품 메시</option>
+                        </select>
+                      </label>
+                      <button
+                        className="primary-button full"
+                        onClick={exportCAD}
+                        disabled={
+                          cadExporting ||
+                          !implants.length ||
+                          !buffer ||
+                          !!external
+                        }
+                      >
+                        {cadExporting ? (
+                          <Loader2 size={16} className="spin" />
+                        ) : (
+                          <Download size={16} />
+                        )}{' '}
+                        {cadExporting
+                          ? 'CAD 파일 생성 중…'
+                          : 'CAD 참조 패키지 내보내기 · ZIP'}
+                      </button>
+                      {cadError && (
+                        <p className="amber-note" role="alert">
+                          {cadError}
+                        </p>
+                      )}
+                      <p className="helper">
+                        등록된 식립계획 {implants.length}개 전체 · mm · 동일
+                        원점. 부품별 형상과 위치·각도·깊이 명세를 포함합니다.
+                        화면에서 숨긴 악궁도 내보냅니다.
+                      </p>
+                      <p className="helper">
+                        STL/OBJ 메시 참조용이며 STEP 솔리드·제작 완료 CAD가
+                        아닙니다. 가이드 적합·폐곡면·공차, 보철
+                        마진·연결부·교합은 별도 설계 및 검증이 필요합니다.
+                      </p>
+                    </div>
+                  )}
                   {current && (
                     <>
                       {step === 'guide' ? (
@@ -2043,14 +2303,6 @@ export default function Studio() {
                             슬리브를 표시합니다. 잇몸 접촉은 참고 위치이며 삽입
                             경로·지지 안정성·프린터 공차는 미검증입니다.
                           </div>
-                          <button
-                            className="primary-button full"
-                            onClick={exportGuide}
-                            disabled={!!external}
-                          >
-                            <Download size={16} />
-                            전체 가이드 참고 STL 내보내기
-                          </button>
                         </div>
                       ) : (
                         <div className="inspector-section">
@@ -2074,7 +2326,11 @@ export default function Studio() {
                                   setTooth(fdi);
                                   setView('focus');
                                   setReset((v) => v + 1);
-                                  setLayers((l) => ({ ...l, upper: fdi < 30 }));
+                                  setLayers((l) => ({
+                                    ...l,
+                                    upper: fdi < 30,
+                                    lower: fdi >= 30,
+                                  }));
                                 }}
                               >
                                 #{displayTooth(fdi)}{' '}
@@ -2329,7 +2585,7 @@ export default function Studio() {
             <span className="online-dot" />
             OralPilot Research Studio
           </span>
-          <span>임상용 의료기기 아님 · 자동 진단/자동 수술 기능 없음</span>
+          <span>연구용</span>
           <button onClick={() => setSources(true)}>데이터 및 라이선스 ↗</button>
         </footer>
       </div>
@@ -2455,7 +2711,7 @@ export default function Studio() {
               </a>
             </article>
             <article>
-              <strong>프로토타입에서 가능한 일</strong>
+              <strong>지원 기능</strong>
               <p>
                 STL/OBJ/PLY 표면 보기, 지원 DICOM/NIfTI 단면 및 임계값 기반 표면
                 생성, 6점 치주 CSV, 가상 식립계획, 개념 가이드 STL, 동작
@@ -2475,10 +2731,10 @@ export default function Studio() {
       </Dialog>
       <Dialog open={report} onOpenChange={setReport}>
         <DialogContent className="report-dialog">
-          <DialogTitle>수술계획서 · 연구용 초안</DialogTitle>
+          <DialogTitle>수술계획서 · 연구용</DialogTitle>
           <DialogDescription>
             DEMO-001 · ToothFairy3 F_026 ·{' '}
-            {new Date().toLocaleDateString('ko-KR')} · 임상 적용 불가
+            {new Date().toLocaleDateString('ko-KR')} · 연구용
           </DialogDescription>
           <Report
             numbering={numbering}
@@ -2594,13 +2850,12 @@ function Report({
   return (
     <div id="plan-report" className="report-content">
       <div className="report-brand">
-        OralPilot <span>RESEARCH PLAN</span>
+        OralPilot <span>연구용</span>
       </div>
       <h2>임플란트 수술계획서</h2>
       <p>DEMO-001 · ToothFairy3 F_026 · {new Date().toLocaleString('ko-KR')}</p>
       <div className="amber-note">
-        비임상 연구용 초안. 실제 환자 수술 또는 가이드 제작에 사용할 수
-        없습니다. 식립 부위 치아는 시뮬레이션을 위해 가상 제거되었으며, 발치
+        연구용. 식립 부위 치아는 시뮬레이션을 위해 가상 제거되었으며, 발치
         적응증을 판단한 것이 아닙니다.
       </div>
       <h3>01 · 식립계획 · {numberingName(numbering)}</h3>
@@ -2677,8 +2932,7 @@ function Report({
       </p>
       <p>
         <small>
-          동의 확인은 프로토타입 내 기록이며 본인 인증·서명된 의료 동의서가
-          아닙니다.
+          동의 확인은 연구용 기록이며 본인 인증·서명된 의료 동의서가 아닙니다.
         </small>
       </p>
       {sequencePlan ? (

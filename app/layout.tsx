@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'OralPilot — Implant Planning Studio',
   description:
-    '3D 해부학, 치주 차트, 임플란트 배치와 수술 시뮬레이션을 연결하는 연구용 프로토타입.',
+    '3D 해부학, 치주 차트, 임플란트 배치와 수술 시뮬레이션을 연결하는 연구용 플랫폼.',
 };
 
 export default function RootLayout({
