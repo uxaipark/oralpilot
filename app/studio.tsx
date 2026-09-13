@@ -540,6 +540,7 @@ export default function Studio() {
                   <button
                     title="상악 표시 전환"
                     aria-label="상악 표시 전환"
+                    disabled={!!external}
                     className={!layers.upper ? 'active' : ''}
                     onClick={() =>
                       setLayers((l) => ({ ...l, upper: !l.upper }))
@@ -550,6 +551,7 @@ export default function Studio() {
                   <button
                     title="골 불투명도 전환"
                     aria-label="골 불투명도 전환"
+                    disabled={!!external}
                     onClick={() => setOpacity((o) => (o > 60 ? 32 : 100))}
                   >
                     <Eye size={18} />
@@ -570,7 +572,10 @@ export default function Studio() {
                     <Expand size={18} />
                   </button>
                 </div>
-                <div className="anatomy-key">
+                <div
+                  className="anatomy-key"
+                  style={{ display: external ? 'none' : undefined }}
+                >
                   <span>
                     <i style={{ background: '#e4ddcb' }} />
                     치아 · 골
@@ -593,10 +598,15 @@ export default function Studio() {
                       Ø {current.diameter.toFixed(1)} ×{' '}
                       {current.length.toFixed(1)} mm
                     </strong>
-                    <small>식립축 {current.angle}° · 예제 계획</small>
+                    <small>
+                      식립축 {current.angle}° · 가상 발치 후 예제 계획
+                    </small>
                   </div>
                 )}
-                <div className="view-direction">
+                <div
+                  className="view-direction"
+                  style={{ display: external ? 'none' : undefined }}
+                >
                   <span>S</span>
                   <div>
                     <b>R</b>
@@ -607,7 +617,13 @@ export default function Studio() {
                 </div>
                 <div className="viewer-bottom">
                   <span>
-                    드래그 회전 <i /> 스크롤 확대 <i /> 치아 클릭 선택
+                    드래그 회전 <i /> 스크롤 확대{' '}
+                    {!external && (
+                      <>
+                        <i />
+                        치아 클릭 선택
+                      </>
+                    )}
                   </span>
                   <span>
                     {external ? '방향·단위 확인 필요' : 'mm · 예제 좌표계'}
@@ -623,7 +639,20 @@ export default function Studio() {
                   </button>
                 </div>
               )}
-              {step === 'simulation' ? (
+              {external ? (
+                <div className="dental-chart">
+                  <div className="section-title">가져온 데이터 연결 상태</div>
+                  <p className="helper">
+                    표면 표시 완료 · 치아 번호 미지정 · 신경관 주석 없음 · 치주
+                    검사 미연결
+                  </p>
+                  <p className="helper">
+                    식립계획을 연결하려면 동일 환자 확인, 공간 정합 및 구조별
+                    주석이 필요합니다. 이 프로토타입의 수술계획은 공개 해부학
+                    예제에서 체험할 수 있습니다.
+                  </p>
+                </div>
+              ) : step === 'simulation' ? (
                 <div className="simulation-panel">
                   <div className="section-title">
                     <span>
@@ -782,19 +811,47 @@ export default function Studio() {
               <div className="inspector-title">
                 <SlidersHorizontal size={18} />
                 <strong>
-                  {step === 'perio'
-                    ? '치주 검사 입력'
-                    : step === 'guide'
-                      ? '가이드 파라미터'
-                      : step === 'anatomy'
-                        ? '해부학 레이어'
-                        : step === 'simulation'
-                          ? '시뮬레이션 계획'
-                          : '식립 파라미터'}
+                  {external
+                    ? '가져온 표면'
+                    : step === 'perio'
+                      ? '치주 검사 입력'
+                      : step === 'guide'
+                        ? '가이드 파라미터'
+                        : step === 'anatomy'
+                          ? '해부학 레이어'
+                          : step === 'simulation'
+                            ? '시뮬레이션 계획'
+                            : '식립 파라미터'}
                 </strong>
                 <span className="mini-badge">LIVE</span>
               </div>
-              {step === 'anatomy' ? (
+              {external ? (
+                <div className="inspector-section">
+                  <div className="section-title">표면 데이터</div>
+                  <p className="helper">{externalName}</p>
+                  <div className="measurement">
+                    <span>정점 수</span>
+                    <strong>
+                      {external.getAttribute('position').count.toLocaleString()}
+                    </strong>
+                  </div>
+                  <div className="amber-note">
+                    조직 이름·치아 번호가 지정되지 않은 표면입니다. CT 등가면은
+                    자동 해부학 분할 결과가 아닙니다.
+                  </div>
+                  <p className="helper">
+                    STL/OBJ/PLY는 원본 단위·방향을 확인하세요.
+                    신경관·혈관·잇몸의 가시성이나 이격을 이 표면만으로 평가하지
+                    않습니다.
+                  </p>
+                  <button
+                    className="outline-button full"
+                    onClick={() => setStep('data')}
+                  >
+                    입력 영상으로 돌아가기
+                  </button>
+                </div>
+              ) : step === 'anatomy' ? (
                 <>
                   <div className="inspector-section">
                     <div className="section-title">
@@ -1292,12 +1349,18 @@ export default function Studio() {
                 <button
                   className="primary-button full"
                   onClick={
-                    step === 'simulation' ? () => setReport(true) : proceed
+                    external
+                      ? restoreDemo
+                      : step === 'simulation'
+                        ? () => setReport(true)
+                        : proceed
                   }
                 >
-                  {step === 'simulation'
-                    ? '수술계획서 검토'
-                    : `${steps[Math.min(steps.findIndex((s) => s.id === step) + 1, 5)].name} 단계로`}
+                  {external
+                    ? '공개 해부학 예제로 돌아가기'
+                    : step === 'simulation'
+                      ? '수술계획서 검토'
+                      : `${steps[Math.min(steps.findIndex((s) => s.id === step) + 1, 5)].name} 단계로`}
                   <ArrowRight size={16} />
                 </button>
               </div>

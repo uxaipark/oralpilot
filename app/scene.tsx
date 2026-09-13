@@ -310,7 +310,11 @@ export default function Scene(props: SceneProps) {
       ref={host}
       className="scene-canvas"
       role="img"
-      aria-label="3D 턱뼈, 치아, 하치조관과 연구용 임플란트 배치. 드래그 회전, 스크롤 확대."
+      aria-label={
+        props.external
+          ? '가져온 표면 모델. 조직 라벨과 방향은 미확인. 드래그 회전, 스크롤 확대.'
+          : '3D 턱뼈, 치아, 하치조관과 연구용 임플란트 배치. 드래그 회전, 스크롤 확대.'
+      }
     >
       {error && <p className="scene-error">{error}</p>}
     </div>
