@@ -413,11 +413,6 @@ export default function Studio() {
   const chooseTooth = (n: number) => {
     setTooth(n);
     setLayers((l) => ({ ...l, tooth: true, upper: n < 30 ? true : l.upper }));
-    if (
-      (view === 'upper-occlusal' && n >= 30) ||
-      (view === 'lower-occlusal' && n < 30)
-    )
-      setView('focus');
     setHighlightedTeeth((list) =>
       list.includes(n) ? list.filter((t) => t !== n) : [...list, n],
     );
@@ -467,14 +462,6 @@ export default function Studio() {
     setSelected(result.plans.find((p) => p.tooth === focus)?.id || '');
     setStep('planning');
     setPlaying(false);
-    if (implantTargets.length === 1) setView('focus');
-    else if (
-      ['focus', 'axis', 'face', 'upper-occlusal', 'lower-occlusal'].includes(
-        view,
-      )
-    )
-      setView('perspective');
-    setReset((n) => n + 1);
     setLayers((l) => ({
       ...l,
       tooth: true,
@@ -491,7 +478,6 @@ export default function Studio() {
     setImplants(next);
     setSelected(next[0]?.id || '');
     setTooth(next[0]?.tooth || tooth);
-    if (view === 'axis') setView('focus');
     notify('식립계획을 삭제하고 원래 치아를 표시했습니다.');
   };
   const savePlan = () => {
@@ -760,6 +746,9 @@ export default function Studio() {
                             key={id}
                             value={id}
                             title={hint}
+                            onClick={() => {
+                              if (view === id) setReset((n) => n + 1);
+                            }}
                             disabled={
                               (!!external &&
                                 ![

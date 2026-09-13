@@ -67,12 +67,6 @@ export default function Scene(props: SceneProps) {
     latest = useRef(props);
   latest.current = props;
   const [error, setError] = useState('');
-  const axisCameraKey =
-    props.view === 'axis'
-      ? JSON.stringify(
-          props.implants.find((p) => p.tooth === props.selectedTooth),
-        )
-      : '';
   const [faceResources, setFaceResources] = useState<FaceResources | null>(
     null,
   );
@@ -664,6 +658,9 @@ export default function Scene(props: SceneProps) {
   useEffect(() => {
     const r = runtime.current;
     if (!r) return;
+    // Selection and plan edits update overlays, not the user's orbit/zoom.
+    // Read the latest target only when an explicit view request fits the camera.
+    const selectedTooth = latest.current.selectedTooth;
     const poses: Record<string, number[]> = {
       perspective: [95, 20, 180],
       front: [0, 0, 200],
@@ -705,8 +702,8 @@ export default function Scene(props: SceneProps) {
         );
     } else if (['focus', 'axis'].includes(props.view) && props.parts.length) {
       const p = latest.current.implants.find(
-        (p) => p.tooth === props.selectedTooth,
-      ) || { ...initialImplant, tooth: props.selectedTooth };
+        (p) => p.tooth === selectedTooth,
+      ) || { ...initialImplant, tooth: selectedTooth };
       if (p) {
         const pose = implantPose(p, props.parts);
         r.controls.target
@@ -738,16 +735,7 @@ export default function Scene(props: SceneProps) {
         0,
       );
     r.controls.update();
-  }, [
-    props.view,
-    props.reset,
-    props.external,
-    props.selected,
-    props.selectedTooth,
-    props.parts,
-    faceResources,
-    axisCameraKey,
-  ]);
+  }, [props.view, props.reset, props.external, props.parts, faceResources]);
   return (
     <div
       ref={host}
