@@ -33,7 +33,7 @@ void test('all permanent tooth symbols follow FDI anatomy independently of Unive
     assert.equal(shape.upper, fdi < 30);
   }
   // Universal #8 is an upper central incisor, while FDI 18 is a third molar.
-  assert.equal(String(displayToothNumber(11, 'universal')), '8');
+  assert.equal(String(displayToothNumber(11, 'uni')), '8');
   assert.match(toothIconShape(11).name, /중절치/);
   assert.match(toothIconShape(18).name, /제3대구치/);
   assert.notEqual(toothIconShape(11).crown, toothIconShape(18).crown);
