@@ -1739,7 +1739,7 @@ export default function Studio() {
                 </div>
               ) : step === 'anatomy' ? (
                 <>
-                  <div className="inspector-section">
+                  <div className="inspector-section anatomy-layer-controls">
                     <div className="section-title">표시 범위</div>
                     {(['upper', 'lower'] as const).map((key) => {
                       const excluded =
@@ -1747,13 +1747,14 @@ export default function Studio() {
                         (view === 'lower-occlusal' && key === 'upper');
                       return (
                         <div className="layer-row" key={key}>
-                          <div>
-                            {key === 'upper' ? '상악' : '하악'}
-                            <small>
-                              {excluded
+                          <div
+                            title={
+                              excluded
                                 ? '현재 교합면 뷰에서 제외'
-                                : '해당 악궁의 조직 · 식립물 · 선택 표시'}
-                            </small>
+                                : '해당 악궁의 조직 · 식립물 · 선택 표시'
+                            }
+                          >
+                            {key === 'upper' ? '상악' : '하악'}
                           </div>
                           <Switch
                             aria-label={key === 'upper' ? '상악' : '하악'}
@@ -1790,16 +1791,14 @@ export default function Studio() {
                     ).map(([key, label, sub, color]) => (
                       <div className="layer-row" key={key}>
                         <i style={{ background: color }} />
-                        <div>
-                          {label}
-                          <small>{sub}</small>
-                        </div>
+                        <div title={sub}>{label}</div>
                         <Switch
                           checked={layers[key]}
                           onCheckedChange={(v) =>
                             setLayers((l) => ({ ...l, [key]: v }))
                           }
                           aria-label={label}
+                          aria-description={sub}
                         />
                       </div>
                     ))}
@@ -1807,12 +1806,12 @@ export default function Studio() {
                       표현 설정
                     </div>
                     <div className="layer-row">
-                      <div>
+                      <div title="좌우 관 내부의 참고선 · 별도 신경 아님">
                         하치조관 중심선
-                        <small>좌우 관 내부의 참고선 · 별도 신경 아님</small>
                       </div>
                       <Switch
                         aria-label="하치조관 중심선"
+                        aria-description="좌우 관 내부의 참고선 · 별도 신경 아님"
                         checked={layers.corridor}
                         onCheckedChange={(v) =>
                           setLayers((l) => ({ ...l, corridor: v }))
@@ -1832,11 +1831,14 @@ export default function Studio() {
                         />
                       </div>
                     ))}
-                    <p className="helper">
-                      표면은 표시용으로 평활화하고 삼각형을 세분화했습니다. 거리
-                      계산에는 원본을 사용합니다. 투시 모드에서는 통로가 뼈 앞에
-                      겹쳐 보입니다.
-                    </p>
+                    <details className="layer-help">
+                      <summary>표현 방식 안내</summary>
+                      <p className="helper">
+                        표면은 표시용으로 평활화하고 삼각형을 세분화했습니다.
+                        거리 계산에는 원본을 사용합니다. 투시 모드에서는 통로가
+                        뼈 앞에 겹쳐 보입니다.
+                      </p>
+                    </details>
                     <Range
                       label="치관 투명도"
                       value={100 - crownOpacity}
@@ -1877,15 +1879,16 @@ export default function Studio() {
                                 key === 'face' ? '#c59d8a' : '#c77a82',
                             }}
                           />
-                          <div>
-                            {label}
-                            <small>
-                              {key === 'gingiva'
+                          <div
+                            title={
+                              key === 'gingiva'
                                 ? '치아 배치 기반 · 실제 분할 아님'
                                 : key === 'face'
                                   ? 'Infinite 실물 스캔 · 입술 포함'
-                                  : '동일 스캔에서 잘라낸 표시 영역'}
-                            </small>
+                                  : '동일 스캔에서 잘라낸 표시 영역'
+                            }
+                          >
+                            {label}
                           </div>
                           <Switch
                             aria-label={label}
@@ -1910,30 +1913,33 @@ export default function Studio() {
                         unit="%"
                         onChange={(v) => setSoftTissueOpacity(100 - v)}
                       />
-                      <p className="helper">
-                        Lee Perry-Smith / Infinite-Realities 실물 스캔 · 4K 피부
-                        텍스처. CT와 다른 대상이며 표시를 위한 대략적
-                        배치입니다. 환자별 안면 복원이나 정합이 아니며,
-                        치은연·입술 두께 측정 및 가이드 설계에는 사용하지
-                        않습니다.
-                      </p>
-                      <p className="helper">
-                        <a
-                          href="https://www.ir-ltd.net/2023/04/09/irs-digital-doubles/"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          스캔 출처
-                        </a>{' '}
-                        ·{' '}
-                        <a
-                          href="/anatomy/face-scan/LICENSE.txt"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          CC BY 3.0 · 기여자
-                        </a>
-                      </p>
+                      <details className="layer-help">
+                        <summary>안면 모형 · 출처 안내</summary>
+                        <p className="helper">
+                          Lee Perry-Smith / Infinite-Realities 실물 스캔 · 4K
+                          피부 텍스처. CT와 다른 대상이며 표시를 위한 대략적
+                          배치입니다. 환자별 안면 복원이나 정합이 아니며,
+                          치은연·입술 두께 측정 및 가이드 설계에는 사용하지
+                          않습니다.
+                        </p>
+                        <p className="helper">
+                          <a
+                            href="https://www.ir-ltd.net/2023/04/09/irs-digital-doubles/"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            스캔 출처
+                          </a>{' '}
+                          ·{' '}
+                          <a
+                            href="/anatomy/face-scan/LICENSE.txt"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            CC BY 3.0 · 기여자
+                          </a>
+                        </p>
+                      </details>
                     </div>
                   </div>
                   <div className="inspector-section">

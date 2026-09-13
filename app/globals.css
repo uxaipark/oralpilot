@@ -3212,3 +3212,42 @@ h1 {
 .perio-dropdown-menu [data-slot='select-label'] {
   color: #65768a;
 }
+
+/* Compact one-line anatomy controls; explanatory text stays available on demand. */
+.anatomy-layer-controls .layer-row {
+  min-height: 34px;
+  padding: 5px 0;
+  gap: 8px;
+}
+.anatomy-layer-controls .layer-row > div {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 22px;
+}
+.anatomy-layer-controls .layer-row > i,
+.anatomy-layer-controls .layer-row > button {
+  flex-shrink: 0;
+}
+.anatomy-layer-controls .layer-group-title,
+.anatomy-layer-controls .soft-tissue-controls {
+  margin-top: 10px;
+  padding-top: 10px;
+}
+.anatomy-layer-controls .range-field {
+  margin: 10px 0;
+}
+.layer-help {
+  margin: 8px 0;
+}
+.layer-help > summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: #98acba;
+  line-height: 24px;
+}
+.layer-help > summary:focus-visible {
+  outline: 2px solid #78b8aa;
+  outline-offset: 2px;
+}
