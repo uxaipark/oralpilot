@@ -1,0 +1,64 @@
+{
+  "name": "3D Slicer CBCT-MR Head / DZ-CBCT",
+  "file": "cbct-small-int16.raw.gz",
+  "encoding": "gzip",
+  "dtype": "int16",
+  "endian": "little",
+  "dimensions": [
+    223,
+    223,
+    145
+  ],
+  "storage": "x fastest, then y, then z. index=x+width*(y+height*z)",
+  "space": "left-posterior-superior",
+  "spaceOrigin": [
+    -90.18957281929183,
+    -136.38053832817164,
+    -49.96369270971145
+  ],
+  "spaceDirections": [
+    [
+      0.7455586475970036,
+      -0.06849875924505679,
+      0.044161328956619374
+    ],
+    [
+      0.07270803860650706,
+      0.7426283338870081,
+      -0.07560885417860211
+    ],
+    [
+      -0.03682178859482088,
+      0.0794422915712669,
+      0.7448711822822682
+    ]
+  ],
+  "spacingMm": [
+    0.75,
+    0.75,
+    0.75
+  ],
+  "originalDimensions": [
+    667,
+    667,
+    433
+  ],
+  "downsampleFactor": 3,
+  "downsampling": "Every third original voxel retained without interpolation. This is a browser prototype display asset.",
+  "intensityRange": [
+    -999,
+    14102
+  ],
+  "intensityPercentiles": {
+    "p1": -999.0,
+    "p10": -999.0,
+    "p50": -729.0,
+    "p90": 0.0,
+    "p99": 1180.0
+  },
+  "source": "https://github.com/Slicer/Slicer/blob/main/Modules/Scripted/SampleData/SampleData.py",
+  "download": "https://github.com/Slicer/SlicerTestingData/releases/download/SHA256/4ce7aa75278b5a7b757ed0c8d7a6b3caccfc3e2973b020532456dbc8f3def7db",
+  "sourceSHA256": "4ce7aa75278b5a7b757ed0c8d7a6b3caccfc3e2973b020532456dbc8f3def7db",
+  "permission": "Official Slicer SampleData acknowledgement: CBCT-MR Head donated to the project by the person visible, to be used without any restrictions.",
+  "registration": "This CBCT sample, ToothFairy3 mesh F_026, and panorama-real.jpg are three unrelated example subjects and are not spatially registered."
+}
