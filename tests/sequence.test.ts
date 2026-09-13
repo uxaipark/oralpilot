@@ -15,8 +15,10 @@ import {
   initialImplant,
   demoPerio,
   implantPose,
+  toWorld,
   type Part,
 } from '../lib/planning';
+import type { NeurovascularPath } from '../lib/surface';
 import { fromLegacy } from '../lib/voice-perio/bridge';
 async function fixture() {
   const m = JSON.parse(await readFile('public/anatomy/manifest.json', 'utf8'));
@@ -155,4 +157,43 @@ void test('unfolded view separates both arches and faces crown axes toward the v
     );
     assert.ok(before.equals(pose.anchor));
   }
+});
+
+void test('both canal surfaces and their centerlines unfold with the mandible; sinus surfaces belong to the maxilla', async () => {
+  const { parts, buffer } = await fixture();
+  const { paths } = JSON.parse(
+    await readFile('public/anatomy/neurovascular-paths.json', 'utf8'),
+  ) as { paths: NeurovascularPath[] };
+  const before = JSON.stringify(parts);
+  const canals = parts.filter((p) => p.group === 'canal');
+  assert.equal(canals.length, 2);
+  assert.equal(paths.length, 2);
+  assert.equal(new Set(paths.map((p) => p.sourcePart)).size, 2);
+  const mandible = new THREE.Object3D();
+  mandible.userData = parts.find((p) => p.id === 'tf-bone-mandible')!;
+  unfoldObject(mandible, parts);
+  for (const path of paths) {
+    const part = canals.find((p) => p.id === path.sourcePart)!;
+    assert.equal(part.jaw, 'mandible');
+    const surface = new THREE.Object3D(),
+      centerline = new THREE.Object3D();
+    surface.userData = part;
+    centerline.userData = { jaw: part.jaw };
+    unfoldObject(surface, parts);
+    unfoldObject(centerline, parts);
+    assert.deepEqual(surface.matrix.elements, mandible.matrix.elements);
+    assert.deepEqual(centerline.matrix.elements, mandible.matrix.elements);
+    const vertex = toWorld(
+      Array.from(new Float32Array(buffer, part.positions, 3)),
+    );
+    const point = toWorld(path.points[0]);
+    const distance = vertex.distanceTo(point);
+    vertex.applyMatrix4(surface.matrix);
+    point.applyMatrix4(centerline.matrix);
+    assert.ok(Math.abs(vertex.distanceTo(point) - distance) < 1e-9);
+  }
+  const sinuses = parts.filter((p) => p.group === 'sinus');
+  assert.equal(sinuses.length, 2);
+  assert.ok(sinuses.every((p) => p.jaw === 'maxilla'));
+  assert.equal(JSON.stringify(parts), before);
 });

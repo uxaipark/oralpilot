@@ -397,6 +397,25 @@ export default function Studio() {
       );
       return;
     }
+    if (
+      !buffer ||
+      !parts.some((p) => p.group === 'tooth' && p.fdi === tooth && p.axes)
+    ) {
+      notify('해부학 모델을 불러온 뒤 추가할 수 있습니다.');
+      return;
+    }
+    setStep('planning');
+    setPlaying(false);
+    setView('implant');
+    setReset((n) => n + 1);
+    setLayers((l) => ({
+      ...l,
+      tooth: true,
+      upper: tooth < 30 ? true : l.upper,
+    }));
+    setHighlightedTeeth((list) =>
+      list.includes(tooth) ? list : [...list, tooth],
+    );
     if (implants.some((p) => p.tooth === tooth)) {
       setSelected(implants.find((p) => p.tooth === tooth)!.id);
       notify(`#${tooth}의 기존 계획을 선택했습니다.`);
@@ -859,6 +878,45 @@ export default function Studio() {
                   </div>
                 </div>
               )}
+              {!external && step !== 'perio' && (
+                <div className="implant-add-bar">
+                  <label htmlFor="implant-target-tooth">식립 위치</label>
+                  <select
+                    id="implant-target-tooth"
+                    value={tooth}
+                    onChange={(e) => chooseTooth(Number(e.target.value))}
+                  >
+                    {[
+                      ['상악', upperTeeth],
+                      ['하악', lowerTeeth],
+                    ].map(([label, teeth]) => (
+                      <optgroup key={String(label)} label={String(label)}>
+                        {(teeth as number[]).map((n) => (
+                          <option value={n} key={n}>
+                            #{n}
+                            {implants.some((p) => p.tooth === n)
+                              ? ' · 계획 있음'
+                              : ''}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  <button
+                    className="primary-button"
+                    onClick={addImplant}
+                    disabled={!buffer || !parts.length}
+                  >
+                    <Plus size={16} />
+                    {implants.some((p) => p.tooth === tooth)
+                      ? `#${tooth} 임플란트 편집`
+                      : `#${tooth}에 임플란트 추가`}
+                  </button>
+                  <small>
+                    치아를 클릭하거나 번호 선택 · 추가 후 위치·각도·크기 조정
+                  </small>
+                </div>
+              )}
               {external && step !== 'perio' && (
                 <div className="inline-note">
                   가져온 표면만 표시합니다. 데모의 신경관·치주 차트·식립계획과
@@ -1037,13 +1095,13 @@ export default function Studio() {
                         [
                           'canal',
                           '하치조관',
-                          '신경 자체가 아닌 관의 분할',
+                          '좌우 2개 · 관 표면 분할',
                           '#f5b657',
                         ],
                         [
                           'corridor',
-                          '신경혈관 통로',
-                          '하치조관 중심선 · 개별 조직 아님',
+                          '하치조관 중심선',
+                          '같은 좌우 관의 내부 참고선',
                           '#ffdd65',
                         ],
                         ['pulp', '치수강', '치아 내부 공간', '#e98687'],
@@ -1225,8 +1283,7 @@ export default function Studio() {
                         hidden={step !== 'planning'}
                         onClick={addImplant}
                       >
-                        <Plus size={14} />
-                        추가
+                        <Plus size={14} />#{tooth}에 추가
                       </button>
                     </div>
                     <div className="implant-list">

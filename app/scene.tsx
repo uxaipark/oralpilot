@@ -230,6 +230,10 @@ export default function Scene(props: SceneProps) {
     }
     r.anatomy.add(...buildReferenceSoftTissues(props.parts));
     for (const path of props.neurovascularPaths) {
+      const sourcePart = props.parts.find(
+        (part) => part.id === path.sourcePart,
+      );
+      if (!sourcePart?.jaw) continue;
       const curve = new THREE.CurvePath<THREE.Vector3>();
       const points = path.points.map(toWorld);
       for (let i = 1; i < points.length; i++)
@@ -243,7 +247,11 @@ export default function Scene(props: SceneProps) {
           transparent: true,
         }),
       );
-      mesh.userData = { group: 'corridor', jaw: 'mandible' };
+      mesh.userData = {
+        group: 'corridor',
+        jaw: sourcePart.jaw,
+        sourcePart: sourcePart.id,
+      };
       mesh.renderOrder = 100;
       r.anatomy.add(mesh);
     }

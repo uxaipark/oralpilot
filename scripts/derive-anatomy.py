@@ -13,6 +13,8 @@ ROOT=Path(__file__).resolve().parents[1]/'public/anatomy'
 b=(ROOT/'toothfairy.bin').read_bytes();manifest=json.loads((ROOT/'manifest.json').read_text())
 paths=[]
 for part in manifest['parts']:
+ if part['group']=='canal':part['jaw']='mandible'
+ elif part['group']=='sinus':part['jaw']='maxilla'
  if part['group'] not in ['tooth','canal']:continue
  vertices=np.frombuffer(b,dtype='<f4',count=part['vertexCount']*3,offset=part['positions']).reshape(-1,3).astype(float)
  faces=np.frombuffer(b,dtype='<u4',count=part['indexCount'],offset=part['indices']).reshape(-1,3)

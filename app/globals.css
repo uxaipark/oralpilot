@@ -2521,3 +2521,32 @@ h1 {
   cursor: pointer;
   margin-top: 10px;
 }
+
+.implant-add-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+}
+.implant-add-bar label {
+  font-size: 14px;
+  font-weight: 600;
+}
+.implant-add-bar select {
+  font: inherit;
+  font-size: 14px;
+  color: var(--foreground);
+  background: #18232d;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  min-height: 38px;
+  padding: 6px 10px;
+}
+.implant-add-bar small {
+  color: var(--muted-foreground);
+  font-size: 13px;
+}

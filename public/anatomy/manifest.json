@@ -3560,7 +3560,8 @@
       "sourceVoxels": 12644,
       "sourceMm3": 341.4,
       "meshedTriangles": 19944,
-      "simplifiedError": 0.00091
+      "simplifiedError": 0.00091,
+      "jaw": "mandible"
     },
     {
       "id": "tf-canal-right",
@@ -3593,7 +3594,8 @@
       "sourceVoxels": 12872,
       "sourceMm3": 347.5,
       "meshedTriangles": 19832,
-      "simplifiedError": 0.0009
+      "simplifiedError": 0.0009,
+      "jaw": "mandible"
     },
     {
       "id": "tf-sinus-left",
@@ -3626,7 +3628,8 @@
       "sourceVoxels": 71064,
       "sourceMm3": 1918.7,
       "meshedTriangles": 34440,
-      "simplifiedError": 0.00194
+      "simplifiedError": 0.00194,
+      "jaw": "maxilla"
     },
     {
       "id": "tf-sinus-right",
@@ -3659,7 +3662,8 @@
       "sourceVoxels": 68616,
       "sourceMm3": 1852.6,
       "meshedTriangles": 33544,
-      "simplifiedError": 0.00192
+      "simplifiedError": 0.00192,
+      "jaw": "maxilla"
     }
   ]
 }
