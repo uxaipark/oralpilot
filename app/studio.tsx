@@ -205,6 +205,9 @@ export default function Studio() {
   const [rightOpen, setRightOpen] = useState(true);
   const leftToggle = useRef<HTMLButtonElement>(null);
   const rightToggle = useRef<HTMLButtonElement>(null);
+  const leftCollapse = useRef<HTMLButtonElement>(null);
+  const rightCollapse = useRef<HTMLButtonElement>(null);
+  const panelFocus = useRef<'left' | 'right' | null>(null);
   const [guideOnly, setGuideOnly] = useState(false);
   const [cadScope, setCadScope] = useState<CADScope>('guide');
   const [cadFormat, setCadFormat] = useState<CADFormat>('stl');
@@ -329,6 +332,13 @@ export default function Studio() {
     [external, setExternal] = useState<THREE.BufferGeometry | null>(null),
     [externalName, setExternalName] = useState('');
   const loadedCase = caseFromGeometry(external);
+  useEffect(() => {
+    if (panelFocus.current === 'left')
+      (leftOpen ? leftCollapse : leftToggle).current?.focus();
+    if (panelFocus.current === 'right')
+      (rightOpen ? rightCollapse : rightToggle).current?.focus();
+    panelFocus.current = null;
+  }, [leftOpen, rightOpen, step]);
   useEffect(() => {
     if (step !== 'perio') return;
     const fdi = Number(toothLabel(perioState.cursor.n, 'fdi'));
@@ -824,12 +834,13 @@ export default function Studio() {
         aria-label="왼쪽 계획 메뉴"
       >
         <button
+          ref={leftCollapse}
           className="panel-collapse-button nav-collapse"
           aria-label="왼쪽 패널 접기"
           title="왼쪽 패널 접기"
           onClick={() => {
+            panelFocus.current = 'left';
             setLeftOpen(false);
-            leftToggle.current?.focus();
           }}
         >
           <PanelLeftClose size={17} />
@@ -898,40 +909,6 @@ export default function Studio() {
       <div className="app-body">
         <header className="topbar">
           <div className="breadcrumb">
-            <button
-              ref={leftToggle}
-              className="panel-toggle"
-              aria-label={leftOpen ? '왼쪽 패널 접기' : '왼쪽 패널 펼치기'}
-              title={leftOpen ? '왼쪽 패널 접기' : '왼쪽 패널 펼치기'}
-              aria-expanded={leftOpen}
-              aria-controls="planning-navigation"
-              onClick={() => setLeftOpen((v) => !v)}
-            >
-              {leftOpen ? (
-                <PanelLeftClose size={18} />
-              ) : (
-                <PanelLeftOpen size={18} />
-              )}
-            </button>
-            {step !== 'data' && (
-              <button
-                ref={rightToggle}
-                className="panel-toggle"
-                aria-label={
-                  rightOpen ? '오른쪽 패널 접기' : '오른쪽 패널 펼치기'
-                }
-                title={rightOpen ? '오른쪽 패널 접기' : '오른쪽 패널 펼치기'}
-                aria-expanded={rightOpen}
-                aria-controls="planning-inspector"
-                onClick={() => setRightOpen((v) => !v)}
-              >
-                {rightOpen ? (
-                  <PanelRightClose size={18} />
-                ) : (
-                  <PanelRightOpen size={18} />
-                )}
-              </button>
-            )}
             케이스 <ChevronRight size={14} />
             <strong>
               {loadedCase
@@ -1010,7 +987,26 @@ export default function Studio() {
             </span>
           )}
         </div>
-        <div style={{ display: step === 'data' ? 'block' : 'none' }}>
+        <div
+          className={`data-panel-shell ${leftOpen ? '' : 'has-left-restore'}`}
+          style={{ display: step === 'data' ? 'block' : 'none' }}
+        >
+          {step === 'data' && !leftOpen && (
+            <button
+              ref={leftToggle}
+              className="panel-restore-button restore-left"
+              aria-label="왼쪽 패널 펼치기"
+              title="왼쪽 패널 펼치기"
+              aria-expanded={false}
+              aria-controls="planning-navigation"
+              onClick={() => {
+                panelFocus.current = 'left';
+                setLeftOpen(true);
+              }}
+            >
+              <PanelLeftOpen size={16} />
+            </button>
+          )}
           <DataPanel
             onGeometry={acceptGeometry}
             notify={notify}
@@ -1024,7 +1020,41 @@ export default function Studio() {
           <div
             className={`workspace ${rightOpen ? '' : 'right-panel-collapsed'}`}
           >
-            <section className="main-workspace">
+            <section
+              className={`main-workspace ${leftOpen ? '' : 'has-left-restore'} ${rightOpen ? '' : 'has-right-restore'}`}
+            >
+              {!leftOpen && (
+                <button
+                  ref={leftToggle}
+                  className="panel-restore-button restore-left"
+                  aria-label="왼쪽 패널 펼치기"
+                  title="왼쪽 패널 펼치기"
+                  aria-expanded={false}
+                  aria-controls="planning-navigation"
+                  onClick={() => {
+                    panelFocus.current = 'left';
+                    setLeftOpen(true);
+                  }}
+                >
+                  <PanelLeftOpen size={16} />
+                </button>
+              )}
+              {!rightOpen && (
+                <button
+                  ref={rightToggle}
+                  className="panel-restore-button restore-right"
+                  aria-label="오른쪽 패널 펼치기"
+                  title="오른쪽 패널 펼치기"
+                  aria-expanded={false}
+                  aria-controls="planning-inspector"
+                  onClick={() => {
+                    panelFocus.current = 'right';
+                    setRightOpen(true);
+                  }}
+                >
+                  <PanelRightOpen size={16} />
+                </button>
+              )}
               {step === 'perio' ? (
                 <PerioCanvas state={perioState} dispatch={perioDispatch} />
               ) : (
@@ -1644,12 +1674,13 @@ export default function Studio() {
                             : '식립 파라미터'}
                 </strong>
                 <button
+                  ref={rightCollapse}
                   className="panel-collapse-button inspector-collapse"
                   aria-label="오른쪽 패널 접기"
                   title="오른쪽 패널 접기"
                   onClick={() => {
+                    panelFocus.current = 'right';
                     setRightOpen(false);
-                    rightToggle.current?.focus();
                   }}
                 >
                   <PanelRightClose size={17} />

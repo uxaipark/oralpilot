@@ -3087,7 +3087,7 @@ h1 {
   font-size: 11px;
   margin-left: auto;
 }
-.panel-toggle,
+.panel-restore-button,
 .panel-collapse-button {
   display: inline-flex;
   align-items: center;
@@ -3101,12 +3101,12 @@ h1 {
   border: 1px solid #41515d;
   cursor: pointer;
 }
-.panel-toggle:hover,
+.panel-restore-button:hover,
 .panel-collapse-button:hover {
   color: #dcfff1;
   background: #29453e;
 }
-.panel-toggle:focus-visible,
+.panel-restore-button:focus-visible,
 .panel-collapse-button:focus-visible {
   outline: 2px solid #92d9c5;
   outline-offset: 2px;
@@ -3250,4 +3250,56 @@ h1 {
 .layer-help > summary:focus-visible {
   outline: 2px solid #78b8aa;
   outline-offset: 2px;
+}
+
+/* Restore a collapsed panel at the matching upper corner of the main card. */
+.main-workspace,
+.data-panel-shell {
+  position: relative;
+}
+.panel-restore-button {
+  position: absolute;
+  top: 9px;
+  z-index: 5;
+  width: 28px;
+  height: 28px;
+  background: #202d35;
+  box-shadow: 0 2px 5px #0002;
+}
+.restore-left {
+  left: 8px;
+}
+.restore-right {
+  right: 8px;
+}
+.main-workspace.has-left-restore > .viewer > .viewer-top {
+  padding-left: 44px;
+}
+.main-workspace.has-right-restore > .viewer > .viewer-top {
+  padding-right: 44px;
+}
+.main-workspace.has-left-restore > .perio-sheet > .perio-sheet-head {
+  padding-left: 30px;
+}
+.main-workspace.has-right-restore > .perio-sheet > .perio-sheet-head {
+  padding-right: 30px;
+}
+.perio-mode .panel-restore-button {
+  background: #f0f5fa;
+  border-color: #b7c8d7;
+  color: #405d77;
+}
+.perio-mode .panel-restore-button:hover {
+  background: #e2edf7;
+}
+.data-panel-shell > .restore-left {
+  left: 35px;
+}
+.data-panel-shell.has-left-restore .upload-zone {
+  padding-left: 48px;
+}
+@media (max-width: 760px) {
+  .data-panel-shell > .restore-left {
+    left: 20px;
+  }
 }
