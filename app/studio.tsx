@@ -833,18 +833,6 @@ export default function Studio() {
         id="planning-navigation"
         aria-label="왼쪽 계획 메뉴"
       >
-        <button
-          ref={leftCollapse}
-          className="panel-collapse-button nav-collapse"
-          aria-label="왼쪽 패널 접기"
-          title="왼쪽 패널 접기"
-          onClick={() => {
-            panelFocus.current = 'left';
-            setLeftOpen(false);
-          }}
-        >
-          <PanelLeftClose size={17} />
-        </button>
         <SidebarHeader className="brand">
           <span className="brand-mark">
             <ScanLine size={25} />
@@ -854,13 +842,29 @@ export default function Studio() {
           </div>
         </SidebarHeader>
         <SidebarContent>
-          <div className="case-card">
-            <span className="eyebrow">WORKSPACE</span>
-            <strong>임플란트 수술계획</strong>
-            <span className="muted">
-              {loadedCase ? '공개 환자 케이스 · 3D 열람' : '연구용 데모 케이스'}
-            </span>
-            <span className="case-dot">{loadedCase?.id || 'DEMO-001'}</span>
+          <div className="workspace-card-shell">
+            <button
+              ref={leftCollapse}
+              className="panel-collapse-button nav-collapse"
+              aria-label="왼쪽 패널 접기"
+              title="왼쪽 패널 접기"
+              onClick={() => {
+                panelFocus.current = 'left';
+                setLeftOpen(false);
+              }}
+            >
+              <PanelLeftClose size={17} />
+            </button>
+            <div className="case-card">
+              <span className="eyebrow">WORKSPACE</span>
+              <strong>임플란트 수술계획</strong>
+              <span className="muted">
+                {loadedCase
+                  ? '공개 환자 케이스 · 3D 열람'
+                  : '연구용 데모 케이스'}
+              </span>
+              <span className="case-dot">{loadedCase?.id || 'DEMO-001'}</span>
+            </div>
           </div>
           <div className="nav-label">PLANNING WORKFLOW</div>
           <SidebarMenu className="workflow">
