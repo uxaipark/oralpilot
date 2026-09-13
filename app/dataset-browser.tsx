@@ -1,4 +1,5 @@
 'use client';
+import { Dropdown, DropdownOption } from '@/components/ui/dropdown';
 import { useMemo, useRef, useState } from 'react';
 import { FolderSearch, Loader2, ArrowRight } from 'lucide-react';
 import {
@@ -166,21 +167,21 @@ export default function DatasetBrowser({
                 setPage(0);
               }}
             />
-            <select
+            <Dropdown
               aria-label="datasets 데이터 종류"
               value={kind}
-              onChange={(e) => {
-                setKind(e.target.value as DatasetKind | 'all');
+              onValueChange={(value) => {
+                setKind(value as DatasetKind | 'all');
                 setPage(0);
               }}
             >
-              <option value="all">전체 형식</option>
+              <DropdownOption value="all">전체 형식</DropdownOption>
               {Object.entries(datasetKindName).map(([id, name]) => (
-                <option key={id} value={id}>
+                <DropdownOption key={id} value={id}>
                   {name}
-                </option>
+                </DropdownOption>
               ))}
-            </select>
+            </Dropdown>
             <span>{filtered.length.toLocaleString()}개</span>
           </div>
           <div className="dataset-list">

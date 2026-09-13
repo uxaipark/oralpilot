@@ -1121,7 +1121,7 @@
 }
 .voice-perio button,
 .voice-perio input,
-.voice-perio select {
+.voice-perio .app-dropdown {
   font-family: inherit;
   color: inherit;
 }
@@ -1192,7 +1192,7 @@
   flex: 1;
   min-width: 90px;
 }
-.perio-settings select,
+.perio-settings .app-dropdown,
 .voice-perio .cmd input,
 .perio-value input {
   min-width: 0;

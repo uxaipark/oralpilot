@@ -1,4 +1,5 @@
 'use client';
+import { Dropdown, DropdownOption } from '@/components/ui/dropdown';
 import {
   displayToothNumber,
   displayToothText,
@@ -246,33 +247,33 @@ export function SimulationInspector({
         <div className="section-title">시뮬레이션 구성</div>
         <label className="sequence-field">
           보철 범위
-          <select
+          <Dropdown
             value={settings.scope}
-            onChange={(e) =>
+            onValueChange={(value) =>
               setSettings({
                 ...settings,
-                scope: e.target.value as SequenceSettings['scope'],
+                scope: value as SequenceSettings['scope'],
               })
             }
           >
-            <option value="partial">부분 결손 검토</option>
-            <option value="full-arch">Full arch 검토</option>
-          </select>
+            <DropdownOption value="partial">부분 결손 검토</DropdownOption>
+            <DropdownOption value="full-arch">Full arch 검토</DropdownOption>
+          </Dropdown>
         </label>
         <label className="sequence-field">
           분할안의 회차당 상한
-          <select
+          <Dropdown
             value={settings.batchSize}
-            onChange={(e) =>
-              setSettings({ ...settings, batchSize: Number(e.target.value) })
+            onValueChange={(value) =>
+              setSettings({ ...settings, batchSize: Number(value) })
             }
           >
             {[1, 2, 3, 4, 6].map((n) => (
-              <option key={n} value={n}>
+              <DropdownOption key={n} value={n}>
                 {n}개 · 비교 가정
-              </option>
+              </DropdownOption>
             ))}
-          </select>
+          </Dropdown>
         </label>
         <p className="helper">
           이 상한은 안전 기준이 아닙니다. 수술 내성·골 증대·교합·임시 보철
@@ -282,37 +283,37 @@ export function SimulationInspector({
         <div className="two-inputs">
           <label>
             치아 · {numberingName(numbering)}
-            <select
+            <Dropdown
               value={tooth}
-              onChange={(e) => setTooth(Number(e.target.value))}
+              onValueChange={(value) => setTooth(Number(value))}
             >
               {allTeeth.map((t) => (
-                <option key={t} value={t}>
+                <DropdownOption key={t} value={t}>
                   #{displayTooth(t)}
-                </option>
+                </DropdownOption>
               ))}
-            </select>
+            </Dropdown>
           </label>
           <label>
             처치
-            <select
+            <Dropdown
               value={settings.needs[tooth] || 'none'}
-              onChange={(e) => {
+              onValueChange={(value) => {
                 const needs = { ...settings.needs };
-                if (e.target.value === 'none') delete needs[tooth];
-                else needs[tooth] = e.target.value as 'endo' | 'extraction';
+                if (value === 'none') delete needs[tooth];
+                else needs[tooth] = value as 'endo' | 'extraction';
                 setSettings({ ...settings, needs });
               }}
             >
-              <option value="none">미지정</option>
-              <option value="extraction">발치 가정</option>
-              <option
+              <DropdownOption value="none">미지정</DropdownOption>
+              <DropdownOption value="extraction">발치 가정</DropdownOption>
+              <DropdownOption
                 value="endo"
                 disabled={implants.some((p) => p.tooth === tooth)}
               >
                 보존 근관치료
-              </option>
-            </select>
+              </DropdownOption>
+            </Dropdown>
           </label>
         </div>
         <div className="needs-tags">

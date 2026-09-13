@@ -1,4 +1,5 @@
 'use client';
+import { Dropdown, DropdownOption } from '@/components/ui/dropdown';
 import { useEffect, useRef, useState } from 'react';
 import { Mic, MicOff, Undo2, Redo2, Download } from 'lucide-react';
 import type { AppState, Action } from '@/lib/voice-perio/state/chartReducer';
@@ -80,54 +81,57 @@ export function PerioCanvas({ state, dispatch }: Props) {
       <div className="perio-settings">
         <label>
           치아 번호
-          <select
+          <Dropdown
+            tone="perio"
             value={state.meta.numbering}
-            onChange={(e) =>
+            onValueChange={(value) =>
               dispatch({
                 type: 'setMeta',
                 patch: {
-                  numbering: e.target.value as AppState['meta']['numbering'],
+                  numbering: value as AppState['meta']['numbering'],
                 },
               })
             }
           >
-            <option value="fdi">FDI</option>
-            <option value="uni">Universal</option>
-          </select>
+            <DropdownOption value="fdi">FDI</DropdownOption>
+            <DropdownOption value="uni">Universal</DropdownOption>
+          </Dropdown>
         </label>
         <label>
           측정 순서
-          <select
+          <Dropdown
+            tone="perio"
             value={state.meta.sequence}
-            onChange={(e) =>
+            onValueChange={(value) =>
               dispatch({
                 type: 'setMeta',
                 patch: {
-                  sequence: e.target.value as AppState['meta']['sequence'],
+                  sequence: value as AppState['meta']['sequence'],
                 },
               })
             }
           >
-            <option value="serpentine">연속 순회</option>
-            <option value="screen">화면 순서</option>
-          </select>
+            <DropdownOption value="serpentine">연속 순회</DropdownOption>
+            <DropdownOption value="screen">화면 순서</DropdownOption>
+          </Dropdown>
         </label>
         <label>
           자동 이동
-          <select
+          <Dropdown
+            tone="perio"
             value={state.meta.entry}
-            onChange={(e) =>
+            onValueChange={(value) =>
               dispatch({
                 type: 'setMeta',
-                patch: { entry: e.target.value as AppState['meta']['entry'] },
+                patch: { entry: value as AppState['meta']['entry'] },
               })
             }
           >
-            <option value="pass">PD / GM 각 행</option>
-            <option value="pd">PD만</option>
-            <option value="pair">GM → PD</option>
-            <option value="all">모든 측정 행</option>
-          </select>
+            <DropdownOption value="pass">PD / GM 각 행</DropdownOption>
+            <DropdownOption value="pd">PD만</DropdownOption>
+            <DropdownOption value="pair">GM → PD</DropdownOption>
+            <DropdownOption value="all">모든 측정 행</DropdownOption>
+          </Dropdown>
         </label>
       </div>
       <div className="perio-legend">
@@ -195,35 +199,37 @@ export function PerioInspector({ state, dispatch }: Props) {
         <div className="perio-settings">
           <label>
             언어
-            <select
+            <Dropdown
+              tone="perio"
               disabled={status.listening}
               value={state.voice.locale}
-              onChange={(e) =>
+              onValueChange={(value) =>
                 dispatch({
                   type: 'setVoice',
-                  patch: { locale: e.target.value },
+                  patch: { locale: value },
                 })
               }
             >
-              <option value="ko-KR">한국어</option>
-              <option value="en-US">English</option>
-            </select>
+              <DropdownOption value="ko-KR">한국어</DropdownOption>
+              <DropdownOption value="en-US">English</DropdownOption>
+            </Dropdown>
           </label>
           <label>
             인식 방식
-            <select
+            <Dropdown
+              tone="perio"
               disabled={status.listening}
               value={state.voice.processLocally ? 'local' : 'browser'}
-              onChange={(e) =>
+              onValueChange={(value) =>
                 dispatch({
                   type: 'setVoice',
-                  patch: { processLocally: e.target.value === 'local' },
+                  patch: { processLocally: value === 'local' },
                 })
               }
             >
-              <option value="local">기기 내 인식</option>
-              <option value="browser">브라우저 서비스</option>
-            </select>
+              <DropdownOption value="local">기기 내 인식</DropdownOption>
+              <DropdownOption value="browser">브라우저 서비스</DropdownOption>
+            </Dropdown>
           </label>
         </div>
         <p className="perio-help">

@@ -1,5 +1,10 @@
 'use client';
 import {
+  Dropdown,
+  DropdownOption,
+  DropdownGroup,
+} from '@/components/ui/dropdown';
+import {
   useCallback,
   useEffect,
   useMemo,
@@ -57,13 +62,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Sidebar,
   SidebarContent,
@@ -1402,11 +1400,11 @@ export default function Studio() {
                   <label htmlFor="implant-target-tooth">
                     식립 위치 · {numberingName(numbering)}
                   </label>
-                  <select
+                  <Dropdown
                     id="implant-target-tooth"
                     value={tooth}
-                    onChange={(e) => {
-                      const n = Number(e.target.value);
+                    onValueChange={(value) => {
+                      const n = Number(value);
                       chooseTooth(n);
                       setHighlightedTeeth([n]);
                     }}
@@ -1415,18 +1413,18 @@ export default function Studio() {
                       ['상악', upperTeeth],
                       ['하악', lowerTeeth],
                     ].map(([label, teeth]) => (
-                      <optgroup key={String(label)} label={String(label)}>
+                      <DropdownGroup key={String(label)} label={String(label)}>
                         {(teeth as number[]).map((n) => (
-                          <option value={n} key={n}>
+                          <DropdownOption value={n} key={n}>
                             #{displayTooth(n)}
                             {implants.some((p) => p.tooth === n)
                               ? ' · 계획 있음'
                               : ''}
-                          </option>
+                          </DropdownOption>
                         ))}
-                      </optgroup>
+                      </DropdownGroup>
                     ))}
-                  </select>
+                  </Dropdown>
                   <button
                     className="primary-button"
                     onClick={toggleImplants}
@@ -2142,34 +2140,40 @@ export default function Studio() {
                       </div>
                       <label className="sequence-field">
                         대상
-                        <select
+                        <Dropdown
                           value={cadScope}
-                          onChange={(e) =>
-                            setCadScope(e.target.value as CADScope)
+                          onValueChange={(value) =>
+                            setCadScope(value as CADScope)
                           }
                           disabled={cadExporting}
                         >
-                          <option value="guide">
+                          <DropdownOption value="guide">
                             가이드 기구물 · 쉘 + 슬리브
-                          </option>
-                          <option value="prosthetic">
+                          </DropdownOption>
+                          <DropdownOption value="prosthetic">
                             보철 참조 · 지대주 + 크라운 + 식립체
-                          </option>
-                          <option value="all">가이드 + 보철 참조 전체</option>
-                        </select>
+                          </DropdownOption>
+                          <DropdownOption value="all">
+                            가이드 + 보철 참조 전체
+                          </DropdownOption>
+                        </Dropdown>
                       </label>
                       <label className="sequence-field">
                         파일 형식
-                        <select
+                        <Dropdown
                           value={cadFormat}
-                          onChange={(e) =>
-                            setCadFormat(e.target.value as CADFormat)
+                          onValueChange={(value) =>
+                            setCadFormat(value as CADFormat)
                           }
                           disabled={cadExporting}
                         >
-                          <option value="stl">STL · 바이너리 메시</option>
-                          <option value="obj">OBJ · 구성품 메시</option>
-                        </select>
+                          <DropdownOption value="stl">
+                            STL · 바이너리 메시
+                          </DropdownOption>
+                          <DropdownOption value="obj">
+                            OBJ · 구성품 메시
+                          </DropdownOption>
+                        </Dropdown>
                       </label>
                       <button
                         className="primary-button full"
@@ -2378,43 +2382,33 @@ export default function Studio() {
                           <div className="two-inputs">
                             <label>
                               직경 (mm)
-                              <Select
+                              <Dropdown
                                 value={current.diameter}
                                 onValueChange={(v) =>
                                   update('diameter', Number(v))
                                 }
                               >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {[3, 3.5, 4, 4.2, 4.5, 5, 5.5, 6].map((n) => (
-                                    <SelectItem value={n} key={n}>
-                                      {n.toFixed(1)}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                {[3, 3.5, 4, 4.2, 4.5, 5, 5.5, 6].map((n) => (
+                                  <DropdownOption value={n} key={n}>
+                                    {n.toFixed(1)}
+                                  </DropdownOption>
+                                ))}
+                              </Dropdown>
                             </label>
                             <label>
                               길이 (mm)
-                              <Select
+                              <Dropdown
                                 value={current.length}
                                 onValueChange={(v) =>
                                   update('length', Number(v))
                                 }
                               >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {[6, 8, 10, 11.5, 13, 15, 18].map((n) => (
-                                    <SelectItem value={n} key={n}>
-                                      {n.toFixed(1)}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                {[6, 8, 10, 11.5, 13, 15, 18].map((n) => (
+                                  <DropdownOption value={n} key={n}>
+                                    {n.toFixed(1)}
+                                  </DropdownOption>
+                                ))}
+                              </Dropdown>
                             </label>
                           </div>
                           <Range
@@ -2592,8 +2586,6 @@ export default function Studio() {
       <CaseBrowser
         open={caseBrowserOpen}
         onOpenChange={setCaseBrowserOpen}
-        currentId={loadedCase?.id}
-        onLoad={acceptGeometry}
         onDemo={() => {
           restoreDemo();
           setStep('anatomy');

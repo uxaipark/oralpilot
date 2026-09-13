@@ -2404,8 +2404,8 @@ h1 {
   font-size: 12px;
   margin: 12px 0;
 }
-.sequence-field select,
-.inspector .two-inputs select {
+.sequence-field .app-dropdown,
+.inspector .two-inputs .app-dropdown {
   border: 1px solid #495764;
   border-radius: 5px;
   background: #27333e;
@@ -2612,7 +2612,7 @@ h1 {
   font-size: 14px;
   font-weight: 600;
 }
-.implant-add-bar select {
+.implant-add-bar .app-dropdown {
   font: inherit;
   font-size: 14px;
   color: var(--foreground);
@@ -2769,7 +2769,7 @@ h1 {
   font-size: 14px;
 }
 .dataset-filters input,
-.dataset-filters select {
+.dataset-filters .app-dropdown {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 9px 12px;
@@ -3055,7 +3055,7 @@ h1 {
 .guide-export-panel .section-title:not(:first-child) {
   margin-top: 22px;
 }
-.guide-export-panel select {
+.guide-export-panel .app-dropdown {
   min-width: 0;
   max-width: 100%;
 }
@@ -3147,4 +3147,68 @@ h1 {
   .compact-save-error {
     max-width: 90px;
   }
+}
+
+.app-dropdown {
+  max-width: 100%;
+  min-width: 0;
+  font: inherit;
+}
+.app-dropdown [data-slot='select-value'] {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.app-dropdown:focus-visible {
+  outline: 2px solid #78b8aa;
+  outline-offset: 2px;
+}
+.app-dropdown-menu {
+  background: #202b34;
+  color: #e0e8eb;
+  border: 1px solid #4a5b66;
+  box-shadow: 0 12px 32px #0006;
+  max-height: min(340px, var(--available-height));
+  min-width: 150px;
+  max-width: calc(100vw - 24px);
+  padding: 4px;
+}
+.app-dropdown-menu [data-slot='select-item'] {
+  min-height: 34px;
+  font-size: 12px;
+  padding: 7px 30px 7px 9px;
+}
+.app-dropdown-menu [data-slot='select-item'][data-highlighted] {
+  background: #334b48;
+  color: #e3fff6;
+}
+.app-dropdown-menu [data-slot='select-item'][data-selected] {
+  color: #9fdec8;
+}
+.app-dropdown-menu [data-slot='select-label'] {
+  color: #9aadb7;
+  font-size: 11px;
+  padding: 8px 9px 5px;
+}
+.app-dropdown-menu [data-slot='select-scroll-up-button'],
+.app-dropdown-menu [data-slot='select-scroll-down-button'] {
+  background: inherit;
+}
+.perio-dropdown-menu {
+  background: #fff;
+  color: #223449;
+  border-color: #bccbdd;
+  color-scheme: light;
+}
+.perio-dropdown-menu [data-slot='select-item'][data-highlighted] {
+  background: #e4effb;
+  color: #18578f;
+}
+.perio-dropdown-menu [data-slot='select-item'][data-selected] {
+  color: #18578f;
+  font-weight: 600;
+}
+.perio-dropdown-menu [data-slot='select-label'] {
+  color: #65768a;
 }
