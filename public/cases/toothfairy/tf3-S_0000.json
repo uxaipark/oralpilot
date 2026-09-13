@@ -1,0 +1,179 @@
+{
+  "processingVersion": 2,
+  "id": "tf3-S_0000",
+  "name": "ToothFairy3 · S_0000",
+  "dataset": "ToothFairy3",
+  "upper": true,
+  "lower": true,
+  "teeth": [
+    43,
+    48
+  ],
+  "bytes": 1249404,
+  "sha256": "49b02973a1a78c4eab081840dc0125b538c9ece26a1e53ac91d98c2e77babb44",
+  "url": "/cases/toothfairy/tf3-S_0000.bin",
+  "segments": [
+    {
+      "jaw": "mandible",
+      "kind": "bone",
+      "label": 1,
+      "positions": 0,
+      "vertexCount": 11966,
+      "indices": 143592,
+      "indexCount": 72000,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    },
+    {
+      "jaw": "mandible",
+      "kind": "canal",
+      "label": 3,
+      "positions": 431592,
+      "vertexCount": 2252,
+      "indices": 458616,
+      "indexCount": 13500,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    },
+    {
+      "jaw": "mandible",
+      "kind": "canal",
+      "label": 4,
+      "positions": 512616,
+      "vertexCount": 2252,
+      "indices": 539640,
+      "indexCount": 13500,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    },
+    {
+      "jaw": "both",
+      "kind": "restoration",
+      "label": 8,
+      "positions": 593640,
+      "vertexCount": 2502,
+      "indices": 623664,
+      "indexCount": 15000,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    },
+    {
+      "jaw": "both",
+      "kind": "restoration",
+      "label": 9,
+      "positions": 683664,
+      "vertexCount": 2495,
+      "indices": 713604,
+      "indexCount": 15000,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    },
+    {
+      "jaw": "both",
+      "kind": "restoration",
+      "label": 10,
+      "positions": 773604,
+      "vertexCount": 2512,
+      "indices": 803748,
+      "indexCount": 15000,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    },
+    {
+      "jaw": "mandible",
+      "kind": "tooth",
+      "label": 43,
+      "positions": 863748,
+      "vertexCount": 3004,
+      "indices": 899796,
+      "indexCount": 18000,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    },
+    {
+      "jaw": "mandible",
+      "kind": "tooth",
+      "label": 48,
+      "positions": 971796,
+      "vertexCount": 3004,
+      "indices": 1007844,
+      "indexCount": 18000,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    },
+    {
+      "jaw": "mandible",
+      "kind": "canal",
+      "label": 103,
+      "positions": 1079844,
+      "vertexCount": 1026,
+      "indices": 1092156,
+      "indexCount": 6144,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    },
+    {
+      "jaw": "mandible",
+      "kind": "canal",
+      "label": 104,
+      "positions": 1116732,
+      "vertexCount": 946,
+      "indices": 1128084,
+      "indexCount": 5664,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    },
+    {
+      "jaw": "mandible",
+      "kind": "canal",
+      "label": 105,
+      "positions": 1150740,
+      "vertexCount": 274,
+      "indices": 1154028,
+      "indexCount": 1620,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    },
+    {
+      "jaw": "mandible",
+      "kind": "pulp",
+      "label": 143,
+      "positions": 1160508,
+      "vertexCount": 970,
+      "indices": 1172148,
+      "indexCount": 5808,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    },
+    {
+      "jaw": "mandible",
+      "kind": "pulp",
+      "label": 148,
+      "positions": 1195380,
+      "vertexCount": 1502,
+      "indices": 1213404,
+      "indexCount": 9000,
+      "source": "labelsTr/ToothFairy3S_0000.nii.gz",
+      "sourceSHA256": "db194d0e4b0c49970a3a857fba700f475380d5e051d0b4a5dc003b91f9fd6369"
+    }
+  ],
+  "sourceArchive": "ToothFairy3.zip",
+  "sourceImage": "imagesTr/ToothFairy3S_0000_0000.nii.gz",
+  "sourceLabel": "labelsTr/ToothFairy3S_0000.nii.gz",
+  "sourceShape": [
+    164,
+    370,
+    370
+  ],
+  "spacing": [
+    0.30000001192092896,
+    0.30000001192092896,
+    0.30000001192092896
+  ],
+  "units": "mm",
+  "kind": "segmented",
+  "orientation": "RPI voxel axes; rigid rotation [-x,y,-z], viewer [x,z,-y]",
+  "reports": [],
+  "sourceUrl": "https://ditto.ing.unimore.it/toothfairy3/",
+  "processing": "Label boundary: Gaussian 0.55 voxel (canal/pulp 0.35), marching cubes 0.5, quadric decimation, Taubin 8 iterations with displacement capped at 0.75 of the smallest voxel spacing. All labeled components retained. Unlabeled images use intensity threshold preview only."
+}

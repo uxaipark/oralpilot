@@ -1,0 +1,56 @@
+{
+  "processingVersion": 2,
+  "id": "tf1-P1",
+  "name": "ToothFairy1 · P1",
+  "dataset": "ToothFairy1",
+  "upper": true,
+  "lower": true,
+  "teeth": [],
+  "bytes": 1291236,
+  "sha256": "415efe15f756c785e1786120a2e689f2152b5f1ded29a18dfcd66e6fc27a76f0",
+  "url": "/cases/toothfairy/tf1-P1.bin",
+  "segments": [
+    {
+      "jaw": "both",
+      "kind": "surface",
+      "label": 0,
+      "positions": 0,
+      "vertexCount": 32099,
+      "indices": 385188,
+      "indexCount": 195000,
+      "source": "ToothFairy_Dataset/Dataset/P1/data.npy",
+      "sourceSHA256": "49c0e21cebc297b7e1e6588b3e564f80591c442eb5f6ab75580fc4392d66568b"
+    },
+    {
+      "jaw": "mandible",
+      "kind": "canal",
+      "label": 1,
+      "positions": 1165188,
+      "vertexCount": 3504,
+      "indices": 1207236,
+      "indexCount": 21000,
+      "source": "ToothFairy_Dataset/Dataset/P1/data.npy",
+      "sourceSHA256": "49c0e21cebc297b7e1e6588b3e564f80591c442eb5f6ab75580fc4392d66568b"
+    }
+  ],
+  "sourceArchive": "ToothFairy_Dataset.zip",
+  "sourceImage": "ToothFairy_Dataset/Dataset/P1/data.npy",
+  "sourceLabel": "ToothFairy_Dataset/Dataset/P1/gt_alpha.npy",
+  "sourceShape": [
+    170,
+    352,
+    370
+  ],
+  "spacing": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "units": "voxel",
+  "kind": "canal",
+  "orientation": "RPI voxel axes; rigid rotation [-x,y,-z], viewer [x,z,-y]",
+  "reports": [],
+  "sourceUrl": "https://ditto.ing.unimore.it/toothfairy/",
+  "processing": "Label boundary: Gaussian 0.55 voxel (canal/pulp 0.35), marching cubes 0.5, quadric decimation, Taubin 8 iterations with displacement capped at 0.75 of the smallest voxel spacing. All labeled components retained. Unlabeled images use intensity threshold preview only.",
+  "threshold": 700.0
+}

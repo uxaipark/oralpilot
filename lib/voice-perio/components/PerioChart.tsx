@@ -272,8 +272,21 @@ function DataRow({
     });
   return localize(
     <>
-      <div className="rl" title={def.hint}>
-        <span>{def.label}</span>
+      <div className="rl" title={def.hint || def.label} aria-label={def.label}>
+        <span>
+          {(
+            {
+              pd: 'PD',
+              gm: 'GM',
+              cal: 'CAL',
+              bop: 'BOP',
+              gi: 'GI',
+              mob: 'MOB',
+              imp: 'IMP',
+              furc: 'FUR',
+            } as Partial<Record<RowId, string>>
+          )[row] || def.label}
+        </span>
         {def.unit && <span className="u">{def.unit}</span>}
       </div>
       {half(b.teeth.slice(0, 8))}
@@ -422,20 +435,23 @@ function ToothRow({
   );
 }
 
-const BandLabel = ({ b }: { b: Band }) => (
-  <div className="bandlabel">
-    <span className="rail" />
-    <span className="bl">{b.label}</span>
-    <span className="hint">
-      {b.surf === 'B'
-        ? 'facial / buccal'
-        : b.arch === 'U'
-          ? 'palatal'
-          : 'lingual'}{' '}
-      · three sites per tooth, mesial – mid – distal · roots face the data
-    </span>
-  </div>
-);
+const BandLabel = ({ b }: { b: Band }) => {
+  const localize = useLocalize();
+  return localize(
+    <div className="bandlabel">
+      <span className="rail" />
+      <span className="bl">{b.label}</span>
+      <span className="hint">
+        {b.surf === 'B'
+          ? 'facial / buccal'
+          : b.arch === 'U'
+            ? 'palatal'
+            : 'lingual'}{' '}
+        · three sites per tooth, mesial – mid – distal · roots face the data
+      </span>
+    </div>,
+  );
+};
 
 function SummaryBar({ chart }: { chart: Chart }) {
   const localize = useLocalize();

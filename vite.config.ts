@@ -1,3 +1,4 @@
+import { localToothFairy } from './scripts/local-toothfairy';
 import { localDatasets } from './scripts/local-datasets';
 import { sites } from '@openai/sites-vite-plugin';
 import tailwindcss from '@tailwindcss/postcss';
@@ -52,6 +53,7 @@ export default defineConfig(async () => {
       : undefined,
     plugins: [
       localDatasets(),
+      localToothFairy(),
       vinext(),
       sites(),
       cloudflare({

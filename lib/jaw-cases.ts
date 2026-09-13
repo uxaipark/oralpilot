@@ -1,7 +1,16 @@
 import * as THREE from 'three';
 export type JawSegment = {
-  jaw: 'maxilla' | 'mandible';
-  kind: 'bone' | 'tooth' | 'pdl';
+  jaw: 'maxilla' | 'mandible' | 'both';
+  kind:
+    | 'bone'
+    | 'tooth'
+    | 'pdl'
+    | 'canal'
+    | 'pulp'
+    | 'sinus'
+    | 'restoration'
+    | 'surface';
+  label?: number;
   positions: number;
   vertexCount: number;
   indices: number;
@@ -19,6 +28,10 @@ export type JawCase = {
   sha256: string;
   url: string;
   segments: JawSegment[];
+  dataset?: string;
+  kind?: 'segmented' | 'canal' | 'volume';
+  units?: string;
+  reports?: { name: string; text: string }[];
 };
 export type CaseVisibility = {
   upper: boolean;
@@ -26,6 +39,11 @@ export type CaseVisibility = {
   bone: boolean;
   tooth: boolean;
   pdl: boolean;
+  canal: boolean;
+  pulp: boolean;
+  sinus: boolean;
+  restoration: boolean;
+  surface: boolean;
 };
 export const defaultCaseVisibility: CaseVisibility = {
   upper: true,
@@ -33,6 +51,11 @@ export const defaultCaseVisibility: CaseVisibility = {
   bone: true,
   tooth: true,
   pdl: false,
+  canal: true,
+  pulp: false,
+  sinus: false,
+  restoration: true,
+  surface: true,
 };
 export function caseFromGeometry(
   g: THREE.BufferGeometry | null,
@@ -131,7 +154,17 @@ export function buildJawCaseMeshes(source: THREE.BufferGeometry) {
             ? 0xeee7d4
             : segment.kind === 'bone'
               ? 0xc5b49a
-              : 0xe7a4aa,
+              : segment.kind === 'canal'
+                ? 0xe59b6d
+                : segment.kind === 'pulp'
+                  ? 0xdc8996
+                  : segment.kind === 'sinus'
+                    ? 0x96c6d9
+                    : segment.kind === 'restoration'
+                      ? 0x97b9c7
+                      : segment.kind === 'surface'
+                        ? 0xc5b49a
+                        : 0xe7a4aa,
         roughness: segment.kind === 'tooth' ? 0.3 : 0.65,
         side: THREE.DoubleSide,
         transparent: true,

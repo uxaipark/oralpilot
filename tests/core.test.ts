@@ -336,3 +336,5 @@ void test('neurovascular paths bind to the retained source mesh and have continu
     }
   }
 });
+
+import './toothfairy.test';

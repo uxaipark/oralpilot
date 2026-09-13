@@ -180,7 +180,7 @@ export default function Scene(props: SceneProps) {
     container.appendChild(renderer.domElement);
     const scene = new THREE.Scene(),
       camera = new THREE.PerspectiveCamera(34, 1, 0.1, 2000);
-    camera.position.set(-145, 20, 145);
+    camera.position.set(-102.5, 20, 177.535207);
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.minDistance = 20;
@@ -393,10 +393,14 @@ export default function Scene(props: SceneProps) {
         if (p.caseKind) {
           const visible = props.caseVisibility || defaultCaseVisibility;
           mesh.visible =
-            visible[p.caseKind as 'bone' | 'tooth' | 'pdl'] &&
-            (p.jaw === 'maxilla' ? visible.upper : visible.lower);
+            visible[p.caseKind as keyof CaseVisibility] &&
+            (p.jaw === 'both'
+              ? visible.upper || visible.lower
+              : p.jaw === 'maxilla'
+                ? visible.upper
+                : visible.lower);
           mat.opacity =
-            p.caseKind === 'bone'
+            p.caseKind === 'bone' || p.caseKind === 'surface'
               ? props.opacity / 100
               : p.caseKind === 'pdl'
                 ? 0.45
@@ -716,7 +720,7 @@ export default function Scene(props: SceneProps) {
     // Read the latest target only when an explicit view request fits the camera.
     const selectedTooth = latest.current.selectedTooth;
     const poses: Record<string, number[]> = {
-      perspective: [-145, 20, 145],
+      perspective: [-102.5, 20, 177.535207],
       front: [0, 0, 200],
       right: [-200, 0, 0],
       left: [200, 0, 0],

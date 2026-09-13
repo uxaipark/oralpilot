@@ -139,3 +139,60 @@ void test('all generated surgical proposals, tips and visits translate without K
         );
     }
 });
+void test('anatomical direction letters, clinical notation and case IDs are invariant in every locale', () => {
+  const labels = [
+    'L',
+    'R',
+    'S',
+    'I',
+    'A',
+    'P',
+    'X',
+    'Y',
+    'Z',
+    'PD',
+    'GM',
+    'CAL',
+    'MGJ',
+    'BOP',
+    'IMP',
+    'CR',
+    'FDI',
+    'Universal',
+    'N·cm',
+    'mm',
+    'HU',
+    'ToothFairy3 F_026',
+    'IP-01',
+  ];
+  for (const locale of locales)
+    for (const label of labels)
+      assert.equal(translate(label, locale), label, `${locale}: ${label}`);
+  assert.equal(translate('L · I', 'ko'), 'L · I');
+  assert.equal(translate('PD ≥ 5 mm', 'ko'), 'PD ≥ 5mm');
+  assert.equal(translate('동요', 'en'), 'Mobility');
+  assert.equal(translate('상악동', 'en'), 'Maxillary sinus');
+  assert.equal(translate('상악동', 'ja'), '上顎洞');
+  assert.equal(
+    translate('Recession class cleared', 'ko'),
+    '치은퇴축 분류를 지웠습니다.',
+  );
+  assert.equal(translate('개', 'en'), 'items');
+  assert.equal(translate('회', 'en'), 'times');
+  for (const [word, ja] of [
+    ['중절치', '中切歯'],
+    ['측절치', '側切歯'],
+    ['견치', '犬歯'],
+    ['제1대구치', '第一大臼歯'],
+  ])
+    assert.equal(translate(word, 'ja'), ja);
+  const tree = createElement(
+    'div',
+    { translate: 'no', className: 'view-direction' },
+    ['S', 'R', 'L', 'I'],
+  );
+  assert.equal(
+    localizeNode(tree, (s) => translate(s, 'ko')),
+    tree,
+  );
+});

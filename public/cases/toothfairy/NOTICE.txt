@@ -1,0 +1,5 @@
+ToothFairy case derivatives for OralPilot research viewing.
+Original data: Federico Bolelli, Luca Lumetti and collaborators, University of Modena and Reggio Emilia and participating institutions.
+Sources and release documentation: https://ditto.ing.unimore.it/toothfairy/ https://ditto.ing.unimore.it/toothfairy2/ https://ditto.ing.unimore.it/toothfairy3/ https://ditto.ing.unimore.it/toothfairy4/
+Original archives are retained locally. Per-case JSON includes source archive and member names, hashes, source labels, spacing and processing details. No new tissue annotations are inferred.
+TF2/3 archive dataset.json declares CC BY-SA 4.0; challenge documentation has more restrictive non-commercial terms. These derivatives retain the project non-commercial research use handling and source attribution. Verify the original release terms for any further redistribution.

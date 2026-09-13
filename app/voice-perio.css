@@ -1300,3 +1300,19 @@
     opacity: 0.35;
   }
 }
+
+/* Chart notation stays compact across locales; full meanings remain in tooltips. */
+.voice-perio .rl {
+  white-space: nowrap;
+  overflow: hidden;
+}
+.voice-perio .rl > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.perio-inspector .fieldrow > .eyebrow {
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}

@@ -913,7 +913,7 @@ export default function Studio() {
             케이스 <ChevronRight size={14} />
             <strong>
               {loadedCase
-                ? `OFJ · ${loadedCase.id.replace('Patient_', 'P')}`
+                ? `${loadedCase.dataset || 'Case'} · ${loadedCase.id.replace('Patient_', 'P')}`
                 : 'DEMO-001'}
             </strong>
           </div>
@@ -1070,7 +1070,7 @@ export default function Studio() {
                             [
                               'perspective',
                               '3D View',
-                              '상·하악 원본 교합 위치 · 환자 오른쪽 45도',
+                              '상·하악 원본 교합 위치 · 환자 오른쪽 30도',
                             ],
                             [
                               'front',
@@ -1383,6 +1383,7 @@ export default function Studio() {
                     )}
                     <div
                       className="view-direction"
+                      translate="no"
                       style={{
                         display:
                           external ||
@@ -1416,7 +1417,9 @@ export default function Studio() {
                       </span>
                       <span>
                         {loadedCase
-                          ? 'mm · 원본 악궁 배치'
+                          ? loadedCase.units === 'voxel'
+                            ? 'voxel · 원본 좌표'
+                            : 'mm · 원본 악궁 배치'
                           : external
                             ? '방향·단위 확인 필요'
                             : 'mm · 예제 좌표계'}
@@ -1492,7 +1495,7 @@ export default function Studio() {
                       </div>
                       <p className="helper">
                         {loadedCase
-                          ? `${loadedCase.name} · ${loadedCase.upper ? '상악 + 하악' : '하악'} · 치아·골·치주인대 분리 표시`
+                          ? `${loadedCase.name} · ${loadedCase.upper && loadedCase.lower ? '상악 + 하악' : loadedCase.upper ? '상악' : '하악'} · 라벨별 조직 분리 표시`
                           : '표면 표시 완료 · 치아 번호 미지정 · 신경관 주석 없음 · 치주 검사 미연결'}
                       </p>
                       <p className="helper">
@@ -1699,8 +1702,12 @@ export default function Studio() {
                   {loadedCase ? (
                     <>
                       <p className="helper">
-                        {loadedCase.upper ? '상악 + 하악' : '하악만 포함'} ·
-                        원본의 상대 위치 유지
+                        {loadedCase.upper && loadedCase.lower
+                          ? '상악 + 하악'
+                          : loadedCase.upper
+                            ? '상악만 포함'
+                            : '하악만 포함'}{' '}
+                        · 원본의 상대 위치 유지
                       </p>
                       {(
                         [
@@ -1709,23 +1716,37 @@ export default function Studio() {
                           ['tooth', '치아'],
                           ['bone', '턱뼈'],
                           ['pdl', '치주인대'],
+                          ['canal', '신경관'],
+                          ['pulp', '치수강'],
+                          ['sinus', '상악동'],
+                          ['restoration', '보철물'],
+                          ['surface', 'CT 등가면'],
                         ] as const
-                      ).map(([key, label]) => (
-                        <label className="case-layer-toggle" key={key}>
-                          <span>{label}</span>
-                          <Switch
-                            checked={caseVisibility[key]}
-                            disabled={key === 'upper' && !loadedCase.upper}
-                            onCheckedChange={(checked) =>
-                              setCaseVisibility((v) => ({
-                                ...v,
-                                [key]: checked,
-                              }))
-                            }
-                            aria-label={`${label} 표시`}
-                          />
-                        </label>
-                      ))}
+                      )
+                        .filter(
+                          ([key]) =>
+                            ['upper', 'lower'].includes(key) ||
+                            loadedCase.segments.some((s) => s.kind === key),
+                        )
+                        .map(([key, label]) => (
+                          <label className="case-layer-toggle" key={key}>
+                            <span>{label}</span>
+                            <Switch
+                              checked={caseVisibility[key]}
+                              disabled={
+                                (key === 'upper' && !loadedCase.upper) ||
+                                (key === 'lower' && !loadedCase.lower)
+                              }
+                              onCheckedChange={(checked) =>
+                                setCaseVisibility((v) => ({
+                                  ...v,
+                                  [key]: checked,
+                                }))
+                              }
+                              aria-label={`${label} 표시`}
+                            />
+                          </label>
+                        ))}
                       <Range
                         label="턱뼈 불투명도"
                         value={opacity}
@@ -1735,10 +1756,22 @@ export default function Studio() {
                         onChange={setOpacity}
                       />
                       <p className="helper">
-                        치주인대는 계산 모델의 층입니다. 치주 검사값과 신경관
-                        주석은 포함하지 않습니다. 이 케이스는 3D 열람용이며 기존
-                        계획은 ToothFairy3 케이스에 보존됩니다.
+                        {loadedCase.dataset
+                          ? loadedCase.kind === 'segmented'
+                            ? '원본 분할 라벨의 조직만 표시합니다. 신경관은 신경·혈관 자체의 분할이 아닙니다.'
+                            : 'CT 강도에서 생성한 참고 표면입니다. 치아·턱뼈를 구분한 분할 모델이 아닙니다.'
+                          : '치주인대는 계산 모델의 층입니다.'}{' '}
+                        새 케이스의 치주 검사값은 포함하지 않으며 기존 계획은
+                        레퍼런스 케이스에 보존됩니다.
+                        {loadedCase.units === 'voxel' &&
+                          ' 이 파일은 복셀 좌표이며 mm 단위를 가정하지 않습니다.'}
                       </p>
+                      {loadedCase.reports?.map((report) => (
+                        <details className="case-report" key={report.name}>
+                          <summary>영문 판독문</summary>
+                          <p translate="no">{report.text}</p>
+                        </details>
+                      ))}
                       <button
                         className="outline-button full"
                         onClick={() => setCaseBrowserOpen(true)}
@@ -2619,6 +2652,7 @@ export default function Studio() {
         </footer>
       </div>
       <CaseBrowser
+        onGeometry={acceptGeometry}
         open={caseBrowserOpen}
         onOpenChange={setCaseBrowserOpen}
         onDemo={() => {

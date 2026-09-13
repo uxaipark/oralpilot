@@ -1,0 +1,54 @@
+{
+  "processingVersion": 2,
+  "id": "tf4-F026",
+  "name": "ToothFairy4 · F026",
+  "dataset": "ToothFairy4",
+  "upper": true,
+  "lower": true,
+  "teeth": [],
+  "bytes": 1155852,
+  "sha256": "88eeaea7fe792bd8e1009585f2917e0d4e1e5cb6434e65e728526817f47a5cb4",
+  "url": "/cases/toothfairy/tf4-F026.bin",
+  "segments": [
+    {
+      "jaw": "both",
+      "kind": "surface",
+      "label": 0,
+      "positions": 0,
+      "vertexCount": 31321,
+      "indices": 375852,
+      "indexCount": 195000,
+      "source": "F026/cbct/volume.nii.gz",
+      "sourceSHA256": "f60ec9a6fc5fa696083b41f7dbb6cf0187fd9007b91542a7feecf6013655fc56"
+    }
+  ],
+  "sourceArchive": "toothfairy4_v03.zip",
+  "sourceImage": "F026/cbct/volume.nii.gz",
+  "sourceLabel": null,
+  "sourceShape": [
+    274,
+    410,
+    410
+  ],
+  "spacing": [
+    0.30000001192092896,
+    0.30000001192092896,
+    0.30000001192092896
+  ],
+  "units": "mm",
+  "kind": "volume",
+  "orientation": "LPS physical coordinates from NIfTI; viewer [x,z,-y]",
+  "reports": [
+    {
+      "name": "cbct_14_392.txt",
+      "text": "Mandible:\nRight mandibular canal in proximity to tooth 48.\n\nLeft mandibular canal with a regular course.\n\nAbsence of tooth 37.\n\nNo definite osteolytic or osteocondensing lesions.\n\nMaxilla:\n\nMaxilla partially included in the acquisition.\n\nPartially appreciable impacted teeth 18 and 28.\n\nMandibular condyles:\nExcluded from the acquisition and not visible.\n"
+    },
+    {
+      "name": "cbct_27_1545.txt",
+      "text": "The MANDIBLE is included in the scan volume. The right mandibular canal has a predominantly lingual course in relation to 47; the left mandibular canal has a predominantly lingual course (except for the initial segment, which is predominantly buccal) in relation to 37. Teeth from 48 to 38 are present in the arch. The lower third molars are extruded, moderately distoverted. Pericoronal radiolucent lesion at 48 and 38.\n\nThe MAXILLA is partially included in the scan volume. The third molars are impacted within bone and mesioverted, impinging on the distal root of the ipsilateral upper second molars.\n\nThe MAXILLARY SINUSES are minimally included in the scan volume; the right is aerated, the left is not aerated; roots of 18-17-16-25-26-27-28 are intrasinusal.\n\nThe MANDIBULAR CONDYLES are not included in the scan volume.\n"
+    }
+  ],
+  "sourceUrl": "https://ditto.ing.unimore.it/toothfairy4/",
+  "processing": "Label boundary: Gaussian 0.55 voxel (canal/pulp 0.35), marching cubes 0.5, quadric decimation, Taubin 8 iterations with displacement capped at 0.75 of the smallest voxel spacing. All labeled components retained. Unlabeled images use intensity threshold preview only.",
+  "threshold": 333.25103578154403
+}

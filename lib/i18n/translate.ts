@@ -16,6 +16,53 @@ export const isLocale = (v: unknown): v is Locale =>
   locales.includes(v as Locale);
 export type Catalog = Record<string, Record<Locale, string>>;
 const catalog = messages as Catalog;
+/** Anatomical directions, clinical abbreviations, units and IDs are notation, not prose. */
+export const invariantNotation = new Set([
+  'PD',
+  'GM',
+  'CAL',
+  'MGJ',
+  'BOP',
+  'PI',
+  'GI',
+  'MOB',
+  'FUR',
+  'IMP',
+  'CR',
+  'FDI',
+  'Universal',
+  'Palmer',
+  'CBCT',
+  'CT',
+  'DICOM',
+  'NIfTI',
+  'STL',
+  'OBJ',
+  'PLY',
+  'CAD',
+  'CSV',
+  'JSON',
+  'PDF',
+  'HU',
+  'mm',
+  'cm',
+  'µm',
+  'mm³',
+  'N·cm',
+  'Ncm',
+  'rpm',
+  'MB',
+  'GB',
+  'Hz',
+  'kHz',
+  'FPS',
+]);
+const isNotation = (s: string) =>
+  /^[A-Z]$/.test(s) ||
+  invariantNotation.has(s) ||
+  /^(?:ToothFairy[1-4](?:[ ·]*[AFPS]_?\d+)?|tf[1-4]-[AFPS]_?\d+|IP-\d+|DEMO-\d+)$/.test(
+    s,
+  );
 const normalize = (s: string) => s.trim().replace(/\s+/g, ' ');
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const patterns = Object.keys(catalog)
@@ -37,7 +84,7 @@ const patterns = Object.keys(catalog)
 /** Translate display copy only. IDs, geometry, values and saved clinical data remain language-neutral. */
 export function translate(text: string, locale: Locale, depth = 0): string {
   const key = normalize(text);
-  if (!key || depth > 5) return text;
+  if (!key || depth > 5 || isNotation(key)) return text;
   let value = catalog[key]?.[locale];
   if (value === undefined) {
     for (const pattern of patterns) {
