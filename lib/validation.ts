@@ -1,3 +1,9 @@
+import {
+  validateSequenceSettings,
+  type SequenceSettings,
+} from './treatment-sequence';
+import { validateFullChart } from './voice-perio/bridge';
+import type { Chart } from './voice-perio/domain/types';
 import { allTeeth, type Implant, type Perio } from './planning';
 function number(v: unknown, min: number, max: number) {
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max)
@@ -8,6 +14,8 @@ export function validatePlan(v: any): {
   implants: Implant[];
   guide: { bore: number; thickness: number; offset: number };
   perio: Perio;
+  perioChart?: Chart;
+  sequenceSettings?: SequenceSettings;
 } {
   if (v?.schema === 'oralpilot-plan-v1')
     throw Error(
@@ -75,11 +83,21 @@ export function validatePlan(v: any): {
       throw Error('동요도 및 이개부는 정수여야 합니다.');
     perio[Number(t)] = {
       pd: r.pd.map((x: unknown) => number(x, 0, 15)),
-      recession: r.recession.map((x: unknown) => number(x, 0, 15)),
+      recession: r.recession.map((x: unknown) => number(x, -15, 15)),
       bop: [...r.bop],
       mobility: number(r.mobility, 0, 3),
       furcation: number(r.furcation, 0, 3),
     };
   }
-  return { implants, guide, perio };
+  return {
+    implants,
+    guide,
+    perio,
+    ...(v.sequenceSettings === undefined
+      ? {}
+      : { sequenceSettings: validateSequenceSettings(v.sequenceSettings) }),
+    ...(v.perioChart === undefined
+      ? {}
+      : { perioChart: validateFullChart(v.perioChart) }),
+  };
 }

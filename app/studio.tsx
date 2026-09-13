@@ -1,5 +1,12 @@
 'use client';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useReducer,
+} from 'react';
 import * as THREE from 'three';
 import {
   Activity,
@@ -69,6 +76,26 @@ import {
 } from '@/components/ui/table';
 import Scene from './scene';
 import {
+  SimulationTimeline,
+  SimulationInspector,
+} from './simulation-workspace';
+import {
+  buildSequencePlans,
+  sequenceSignature,
+  defaultSequenceSettings,
+  phaseAt,
+  type SequencePlan,
+  type SequenceSettings,
+} from '@/lib/treatment-sequence';
+import { PerioCanvas, PerioInspector, PerioReport } from './perio-workspace';
+import {
+  createPerioState,
+  fromLegacy,
+  toLegacy,
+} from '@/lib/voice-perio/bridge';
+import { reducer as perioReducer } from '@/lib/voice-perio/state/chartReducer';
+import type { Chart } from '@/lib/voice-perio/domain/types';
+import {
   allTeeth,
   buildGuide,
   demoPerio,
@@ -112,8 +139,8 @@ const steps = [
   {
     id: 'guide',
     icon: Box,
-    name: '수술 가이드',
-    sub: '슬리브 · 모델 내보내기',
+    name: '가이드 형상 검토',
+    sub: '개념 치수 · STL',
   },
   {
     id: 'simulation',
@@ -134,11 +161,29 @@ const titles: Record<string, string> = {
   anatomy: '해부학적 구조 탐색',
   perio: '치주 검사와 치료계획 연결',
   planning: '임플란트 수술계획',
-  guide: '수술 가이드 설계',
+  guide: '가이드 개념 형상 검토',
   simulation: '수술 과정을 미리 살펴보세요',
 };
 import type { NeurovascularPath } from '@/lib/surface';
 export default function Studio() {
+  const [highlightedTeeth, setHighlightedTeeth] = useState<number[]>([]);
+  const [sequenceSettings, setSequenceSettings] = useState<SequenceSettings>(
+      defaultSequenceSettings,
+    ),
+    [sequencePlans, setSequencePlans] = useState<SequencePlan[]>([]),
+    [sequenceId, setSequenceId] = useState(''),
+    [generatedSignature, setGeneratedSignature] = useState(''),
+    [analyzing, setAnalyzing] = useState(false),
+    [sequenceError, setSequenceError] = useState('');
+  const [crownOpacity, setCrownOpacity] = useState(100),
+    [rootOpacity, setRootOpacity] = useState(100),
+    [softTissueOpacity, setSoftTissueOpacity] = useState(65);
+  const [perioState, perioDispatch] = useReducer(perioReducer, undefined, () =>
+    createPerioState(demoPerio()),
+  );
+  const perio = useMemo(() => toLegacy(perioState.chart), [perioState.chart]);
+  const setPerio = (data: Perio) =>
+    perioDispatch({ type: 'replaceChart', chart: fromLegacy(data) });
   const [smoothTeeth, setSmoothTeeth] = useState(true),
     [crownPreview, setCrownPreview] = useState(true),
     [neuroXray, setNeuroXray] = useState(true),
@@ -157,6 +202,9 @@ export default function Studio() {
       tooth: true,
       canal: true,
       corridor: true,
+      gingiva: false,
+      lips: false,
+      face: false,
       pulp: false,
       sinus: false,
       upper: false,
@@ -168,13 +216,83 @@ export default function Studio() {
     [playing, setPlaying] = useState(false),
     [progress, setProgress] = useState(0),
     [speed, setSpeed] = useState(1),
-    [perio, setPerio] = useState<Perio>(demoPerio),
     [perioOrigin, setPerioOrigin] = useState('합성 검사값 · 예제'),
     [report, setReport] = useState(false),
     [sources, setSources] = useState(false),
     [notice, setNotice] = useState(''),
     [external, setExternal] = useState<THREE.BufferGeometry | null>(null),
     [externalName, setExternalName] = useState('');
+  const currentSignature = useMemo(
+    () => sequenceSignature(implants, sequenceSettings, perioState.chart),
+    [implants, sequenceSettings, perioState.chart],
+  );
+  const sequenceStale =
+    !!generatedSignature && generatedSignature !== currentSignature;
+  const activeSequence = !sequenceStale
+    ? sequencePlans.find((p) => p.id === sequenceId) || null
+    : null;
+  const sequenceFrame = phaseAt(activeSequence, progress);
+  const generateSequence = () => {
+    setPlaying(false);
+    setSequenceError('');
+    setAnalyzing(true);
+    setTimeout(() => {
+      try {
+        if (!buffer || external)
+          throw Error('등록된 해부학 예제를 불러오세요.');
+        const candidates = buildSequencePlans(
+          implants,
+          sequenceSettings,
+          perioState.chart,
+          parts,
+          buffer,
+        );
+        setSequencePlans(candidates);
+        setGeneratedSignature(currentSignature);
+        setSequenceId(candidates[0]?.id || '');
+        setProgress(0);
+        setView('perspective');
+        setLayers((l) => ({ ...l, upper: implants.some((p) => p.tooth < 30) }));
+      } catch (e) {
+        setSequenceError((e as Error).message);
+      } finally {
+        setAnalyzing(false);
+      }
+    }, 0);
+  };
+  const sequenceDemo = () => {
+    const teeth = [34, 32, 42, 44];
+    setImplants(
+      teeth.map((tooth, i) => ({
+        ...initialImplant,
+        id: `IP-${String(i + 1).padStart(2, '0')}`,
+        tooth,
+        diameter: 3.5,
+        length: 8,
+      })),
+    );
+    setSelected('IP-01');
+    setSequenceSettings({
+      scope: 'full-arch',
+      batchSize: 2,
+      needs: {
+        34: 'extraction',
+        32: 'extraction',
+        42: 'extraction',
+        44: 'extraction',
+        36: 'endo',
+      },
+    });
+    setPlaying(false);
+    setProgress(0);
+    notify(
+      '네 부위 식립과 보존 근관치료의 가상 예제로 교체했습니다. 전악 보철 지지나 임상 적합성을 검증한 배치는 아닙니다.',
+    );
+  };
+  useEffect(() => {
+    setPlaying(false);
+    setProgress(0);
+  }, [currentSignature]);
   const csvInput = useRef<HTMLInputElement>(null),
     planInput = useRef<HTMLInputElement>(null),
     serial = useRef(2);
@@ -237,11 +355,11 @@ export default function Studio() {
     };
   }, []);
   useEffect(() => {
-    if (!playing || step !== 'simulation') return;
+    if (!playing || step !== 'simulation' || !activeSequence) return;
     let last = performance.now();
     const t = setInterval(() => {
       const now = performance.now(),
-        dt = ((now - last) / 24000) * speed;
+        dt = ((now - last) / (activeSequence.phases.length * 4000)) * speed;
       last = now;
       setProgress((p) => {
         if (p + dt >= 1) {
@@ -252,7 +370,7 @@ export default function Studio() {
       });
     }, 80);
     return () => clearInterval(t);
-  }, [playing, speed, step]);
+  }, [playing, speed, step, activeSequence]);
   const update = (key: keyof Implant, value: number | null) => {
     setImplants((list) =>
       list.map((p) => (p.id === selected ? { ...p, [key]: value } : p)),
@@ -260,6 +378,15 @@ export default function Studio() {
   };
   const chooseTooth = (n: number) => {
     setTooth(n);
+    setLayers((l) => ({ ...l, tooth: true, upper: n < 30 ? true : l.upper }));
+    if (
+      (view === 'upper-occlusal' && n >= 30) ||
+      (view === 'lower-occlusal' && n < 30)
+    )
+      setView('tooth');
+    setHighlightedTeeth((list) =>
+      list.includes(n) ? list.filter((t) => t !== n) : [...list, n],
+    );
     const existing = implants.find((p) => p.tooth === n);
     if (existing) setSelected(existing.id);
   };
@@ -287,18 +414,6 @@ export default function Studio() {
     setSelected(next[0]?.id || '');
     notify('식립계획을 삭제하고 원래 치아를 표시했습니다.');
   };
-  const setPerioValue = (
-    kind: 'pd' | 'recession' | 'bop',
-    i: number,
-    value: number | boolean,
-  ) =>
-    setPerio((p) => {
-      const r = p[tooth] || emptyRecord();
-      return {
-        ...p,
-        [tooth]: { ...r, [kind]: r[kind].map((x, j) => (j === i ? value : x)) },
-      } as Perio;
-    });
   const savePlan = () => {
     download(
       JSON.stringify(
@@ -309,6 +424,8 @@ export default function Studio() {
           implants,
           guide,
           perio,
+          perioChart: perioState.chart,
+          sequenceSettings,
           perioOrigin,
           createdAt: new Date().toISOString(),
         },
@@ -365,25 +482,10 @@ export default function Studio() {
     const idx = steps.findIndex((s) => s.id === step);
     setStep(steps[Math.min(idx + 1, 5)].id);
   };
-  const simStages = [
-    '가이드 위치 확인',
-    '드릴 진입',
-    '드릴링 동작',
-    '임플란트 삽입',
-    '식립 위치 확인',
-  ];
-  const simStage =
-    progress < 0.18
-      ? 0
-      : progress < 0.38
-        ? 1
-        : progress < 0.64
-          ? 2
-          : progress < 0.84
-            ? 3
-            : 4;
   return (
-    <SidebarProvider className="oral-app">
+    <SidebarProvider
+      className={`oral-app ${step === 'perio' ? 'perio-mode' : ''}`}
+    >
       <Sidebar collapsible="none" className="nav-shell">
         <SidebarHeader className="brand">
           <span className="brand-mark">
@@ -477,9 +579,15 @@ export default function Studio() {
             </div>
             <h1>{titles[step]}</h1>
             <p>
-              {external ? externalName : 'ToothFairy3 · F_026'}
+              {external && step !== 'perio'
+                ? externalName
+                : 'ToothFairy3 · F_026'}
               <span>•</span>
-              {external ? '가져온 모델 · 정합 전' : '공개 CBCT 분할 모델'}
+              {step === 'perio'
+                ? '예제 케이스 치주 검사'
+                : external
+                  ? '가져온 모델 · 정합 전'
+                  : '공개 CBCT 분할 모델'}
               <span>•</span>세션 내 편집
             </p>
           </div>
@@ -501,159 +609,257 @@ export default function Studio() {
         {step !== 'data' && (
           <div className="workspace">
             <section className="main-workspace">
-              <div className="viewer">
-                <div className="viewer-top">
-                  <Tabs value={view} onValueChange={(v) => setView(String(v))}>
-                    <TabsList className="view-tabs">
-                      <TabsTrigger value="perspective">
-                        <Box size={14} />
-                        3D View
-                      </TabsTrigger>
-                      <TabsTrigger value="implant" disabled={!!external}>
-                        식립부 확대
-                      </TabsTrigger>
-                      <TabsTrigger value="front">정면</TabsTrigger>
-                      <TabsTrigger value="right">측면</TabsTrigger>
-                      <TabsTrigger value="top">교합면</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                  <span className="viewer-chip">
-                    <span />
-                    {external ? 'Imported surface' : 'CBCT SEGMENTATION'}
-                  </span>
-                </div>
-                <Scene
-                  smoothTeeth={smoothTeeth}
-                  crownPreview={crownPreview}
-                  neuroXray={neuroXray}
-                  neurovascularPaths={neurovascularPaths}
-                  parts={parts}
-                  buffer={buffer}
-                  implants={implants}
-                  selected={selected}
-                  layers={layers}
-                  opacity={opacity}
-                  view={view}
-                  reset={reset}
-                  mode={step}
-                  progress={progress}
-                  guide={guide}
-                  onSelect={chooseTooth}
-                  external={external}
-                />
-                {!buffer && !loadError && (
-                  <div className="model-loading">
-                    <Loader2 className="spin" />
-                    실제 3D 해부학 모델을 불러오는 중
-                  </div>
-                )}
-                {loadError && <div className="model-loading">{loadError}</div>}
-                <div className="viewer-tools">
-                  <button
-                    title="기본 시점으로"
-                    aria-label="기본 시점으로"
-                    onClick={() => {
-                      setView('perspective');
-                      setReset((x) => x + 1);
-                    }}
-                  >
-                    <RotateCcw size={18} />
-                  </button>
-                  <button
-                    title="상악 표시 전환"
-                    aria-label="상악 표시 전환"
-                    disabled={!!external}
-                    className={!layers.upper ? 'active' : ''}
-                    onClick={() =>
-                      setLayers((l) => ({ ...l, upper: !l.upper }))
-                    }
-                  >
-                    <Layers3 size={18} />
-                  </button>
-                  <button
-                    title="골 불투명도 전환"
-                    aria-label="골 불투명도 전환"
-                    disabled={!!external}
-                    onClick={() => setOpacity((o) => (o > 60 ? 32 : 100))}
-                  >
-                    <Eye size={18} />
-                  </button>
-                  <button
-                    title="전체 화면"
-                    aria-label="전체 화면"
-                    onClick={(e) => {
-                      const el = e.currentTarget.closest('.viewer');
-                      if (document.fullscreenElement)
-                        void document.exitFullscreen();
-                      else
-                        void el
-                          ?.requestFullscreen()
-                          .catch(() => notify('전체 화면을 열 수 없습니다.'));
-                    }}
-                  >
-                    <Expand size={18} />
-                  </button>
-                </div>
-                <div
-                  className="anatomy-key"
-                  style={{ display: external ? 'none' : undefined }}
-                >
-                  <span>
-                    <i style={{ background: '#e4ddcb' }} />
-                    치아 · 골
-                  </span>
-                  <span>
-                    <i style={{ background: '#fab557' }} />
-                    하치조관
-                  </span>
-                  <span>
-                    <i style={{ background: '#7edfc3' }} />
-                    임플란트
-                  </span>
-                </div>
-                {!external && current && (
-                  <div className="implant-overlay">
-                    <span className="mint-text">
-                      ◉ &nbsp; {current.id} · #{current.tooth}
+              {step === 'perio' ? (
+                <PerioCanvas state={perioState} dispatch={perioDispatch} />
+              ) : (
+                <div className="viewer">
+                  <div className="viewer-top">
+                    <Tabs
+                      value={view}
+                      onValueChange={(v) => setView(String(v))}
+                    >
+                      <TabsList className="view-tabs">
+                        {(
+                          [
+                            ['perspective', '3D View'],
+                            ['implant', '식립부 확대'],
+                            ['tooth', '선택 치아'],
+                            ['front', '정면'],
+                            ['right', '우측면'],
+                            ['left', '좌측면'],
+                            ['back', '후면'],
+                            ['top', '교합면'],
+                            ['upper-occlusal', '상악 교합'],
+                            ['lower-occlusal', '하악 교합'],
+                            ['unfolded', '상·하악 펼침'],
+                          ] as const
+                        ).map(([id, label]) => (
+                          <TabsTrigger
+                            key={id}
+                            value={id}
+                            disabled={
+                              !!external &&
+                              [
+                                'implant',
+                                'tooth',
+                                'unfolded',
+                                'upper-occlusal',
+                                'lower-occlusal',
+                              ].includes(id)
+                            }
+                          >
+                            {label}
+                          </TabsTrigger>
+                        ))}
+                      </TabsList>
+                    </Tabs>
+                    <span className="viewer-chip">
+                      <span />
+                      {external
+                        ? 'Imported surface'
+                        : view === 'unfolded'
+                          ? '분리 표시 · 원본 좌표 유지'
+                          : 'CBCT SEGMENTATION'}
                     </span>
-                    <strong>
-                      Ø {current.diameter.toFixed(1)} ×{' '}
-                      {current.length.toFixed(1)} mm
-                    </strong>
-                    <small>
-                      치아축 대비 {current.angle}° / {current.tilt}° · 가상 발치
-                      예제
-                    </small>
                   </div>
-                )}
-                <div
-                  className="view-direction"
-                  style={{ display: external ? 'none' : undefined }}
-                >
-                  <span>S</span>
-                  <div>
-                    <b>R</b>
-                    <Crosshair size={28} />
-                    <b>L</b>
+                  <Scene
+                    highlightedTeeth={highlightedTeeth}
+                    selectedTooth={tooth}
+                    sequencePlan={activeSequence}
+                    crownOpacity={crownOpacity}
+                    rootOpacity={rootOpacity}
+                    softTissueOpacity={softTissueOpacity}
+                    smoothTeeth={smoothTeeth}
+                    crownPreview={crownPreview}
+                    neuroXray={neuroXray}
+                    neurovascularPaths={neurovascularPaths}
+                    parts={parts}
+                    buffer={buffer}
+                    implants={implants}
+                    selected={selected}
+                    layers={layers}
+                    opacity={opacity}
+                    view={view}
+                    reset={reset}
+                    mode={step}
+                    progress={progress}
+                    guide={guide}
+                    onSelect={chooseTooth}
+                    external={external}
+                  />
+                  {!buffer && !loadError && (
+                    <div className="model-loading">
+                      <Loader2 className="spin" />
+                      실제 3D 해부학 모델을 불러오는 중
+                    </div>
+                  )}
+                  {loadError && (
+                    <div className="model-loading">{loadError}</div>
+                  )}
+                  <div className="viewer-tools">
+                    <details className="opacity-menu">
+                      <summary title="치관·치근·턱뼈 투명도">
+                        <SlidersHorizontal size={18} />
+                      </summary>
+                      <div className="opacity-popover">
+                        <strong>조직 투명도</strong>
+                        {[
+                          ['치관', crownOpacity, setCrownOpacity],
+                          ['치근', rootOpacity, setRootOpacity],
+                          ['턱뼈', opacity, setOpacity],
+                        ].map(([label, v, setter]) => (
+                          <label key={String(label)}>
+                            <span>
+                              {String(label)} <b>{100 - Number(v)}%</b>
+                            </span>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={100 - Number(v)}
+                              disabled={!!external}
+                              aria-label={`${label} 투명도`}
+                              onChange={(e) =>
+                                (setter as (v: number) => void)(
+                                  100 - Number(e.target.value),
+                                )
+                              }
+                            />
+                          </label>
+                        ))}
+                        <small>0% 불투명 · 100% 투명</small>
+                      </div>
+                    </details>
+                    <button
+                      title="기본 시점으로"
+                      aria-label="기본 시점으로"
+                      onClick={() => {
+                        setView('perspective');
+                        setReset((x) => x + 1);
+                      }}
+                    >
+                      <RotateCcw size={18} />
+                    </button>
+                    <button
+                      title="상악 표시 전환"
+                      aria-label="상악 표시 전환"
+                      disabled={!!external}
+                      className={!layers.upper ? 'active' : ''}
+                      onClick={() =>
+                        setLayers((l) => ({ ...l, upper: !l.upper }))
+                      }
+                    >
+                      <Layers3 size={18} />
+                    </button>
+                    <button
+                      title="골 불투명도 전환"
+                      aria-label="골 불투명도 전환"
+                      disabled={!!external}
+                      onClick={() => setOpacity((o) => (o > 60 ? 32 : 100))}
+                    >
+                      <Eye size={18} />
+                    </button>
+                    <button
+                      title="전체 화면"
+                      aria-label="전체 화면"
+                      onClick={(e) => {
+                        const el = e.currentTarget.closest('.viewer');
+                        if (document.fullscreenElement)
+                          void document.exitFullscreen();
+                        else
+                          void el
+                            ?.requestFullscreen()
+                            .catch(() => notify('전체 화면을 열 수 없습니다.'));
+                      }}
+                    >
+                      <Expand size={18} />
+                    </button>
                   </div>
-                  <span>I</span>
-                </div>
-                <div className="viewer-bottom">
-                  <span>
-                    드래그 회전 <i /> 스크롤 확대{' '}
-                    {!external && (
-                      <>
-                        <i />
-                        치아 클릭 선택
-                      </>
+                  <div
+                    className="anatomy-key"
+                    style={{ display: external ? 'none' : undefined }}
+                  >
+                    <span>
+                      <i style={{ background: '#e4ddcb' }} />
+                      치아 · 골
+                    </span>
+                    <span>
+                      <i style={{ background: '#fab557' }} />
+                      하치조관
+                    </span>
+                    {(layers.gingiva || layers.lips || layers.face) && (
+                      <span className="soft-reference-chip">
+                        연조직 참고 모형 · 실측 아님
+                      </span>
                     )}
-                  </span>
-                  <span>
-                    {external ? '방향·단위 확인 필요' : 'mm · 예제 좌표계'}
-                  </span>
+                    <span>
+                      <i style={{ background: '#7edfc3' }} />
+                      임플란트
+                    </span>
+                  </div>
+                  {!external &&
+                    current &&
+                    !['simulation', 'anatomy'].includes(step) && (
+                      <div className="implant-overlay">
+                        <span className="mint-text">
+                          ◉ &nbsp; {current.id} · #{current.tooth}
+                        </span>
+                        <strong>
+                          Ø {current.diameter.toFixed(1)} ×{' '}
+                          {current.length.toFixed(1)} mm
+                        </strong>
+                        <small>
+                          치아축 대비 {current.angle}° / {current.tilt}° · 가상
+                          발치 예제
+                        </small>
+                      </div>
+                    )}
+                  {step === 'simulation' && sequenceFrame && (
+                    <div className="simulation-overlay">
+                      <span>{sequenceFrame.phase.visit}</span>
+                      <strong>{sequenceFrame.phase.label}</strong>
+                    </div>
+                  )}
+                  <div
+                    className="view-direction"
+                    style={{
+                      display:
+                        external ||
+                        [
+                          'unfolded',
+                          'top',
+                          'upper-occlusal',
+                          'lower-occlusal',
+                        ].includes(view)
+                          ? 'none'
+                          : undefined,
+                    }}
+                  >
+                    <span>S</span>
+                    <div>
+                      <b>R</b>
+                      <Crosshair size={28} />
+                      <b>L</b>
+                    </div>
+                    <span>I</span>
+                  </div>
+                  <div className="viewer-bottom">
+                    <span>
+                      드래그 회전 <i /> 스크롤 확대{' '}
+                      {!external && (
+                        <>
+                          <i />
+                          치아 클릭 선택
+                        </>
+                      )}
+                    </span>
+                    <span>
+                      {external ? '방향·단위 확인 필요' : 'mm · 예제 좌표계'}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              {external && (
+              )}
+              {external && step !== 'perio' && (
                 <div className="inline-note">
                   가져온 표면만 표시합니다. 데모의 신경관·치주 차트·식립계획과
                   연결되지 않습니다.
@@ -662,165 +868,109 @@ export default function Studio() {
                   </button>
                 </div>
               )}
-              {external ? (
-                <div className="dental-chart">
-                  <div className="section-title">가져온 데이터 연결 상태</div>
-                  <p className="helper">
-                    표면 표시 완료 · 치아 번호 미지정 · 신경관 주석 없음 · 치주
-                    검사 미연결
-                  </p>
-                  <p className="helper">
-                    식립계획을 연결하려면 동일 환자 확인, 공간 정합 및 구조별
-                    주석이 필요합니다. 이 프로토타입의 수술계획은 공개 해부학
-                    예제에서 체험할 수 있습니다.
-                  </p>
-                </div>
-              ) : step === 'simulation' ? (
-                <div className="simulation-panel">
-                  <div className="section-title">
-                    <span>
-                      <Play size={17} />
-                      수술 시퀀스
-                    </span>
-                    <span className="muted">
-                      동작 개념 · 실제 수술 지시 아님
-                    </span>
-                  </div>
-                  <div className="timeline">
-                    <button
-                      className="play-button"
-                      aria-label={playing ? '일시 정지' : '시뮬레이션 재생'}
-                      disabled={!!external || !current}
-                      onClick={() => {
-                        if (progress >= 1) setProgress(0);
-                        setPlaying(!playing);
-                      }}
-                    >
-                      {playing ? <Pause size={21} /> : <Play size={21} />}
-                    </button>
-                    <div className="timeline-track">
-                      <Slider
-                        value={[progress * 100]}
-                        onValueChange={(v) => {
-                          setProgress((Array.isArray(v) ? v[0] : v) / 100);
-                          setPlaying(false);
-                        }}
-                        min={0}
-                        max={100}
-                        step={0.1}
-                        aria-label="시뮬레이션 진행"
-                      />
-                      <div className="time-label">
+              {step !== 'perio' && (
+                <>
+                  {external ? (
+                    <div className="dental-chart">
+                      <div className="section-title">
+                        가져온 데이터 연결 상태
+                      </div>
+                      <p className="helper">
+                        표면 표시 완료 · 치아 번호 미지정 · 신경관 주석 없음 ·
+                        치주 검사 미연결
+                      </p>
+                      <p className="helper">
+                        식립계획을 연결하려면 동일 환자 확인, 공간 정합 및
+                        구조별 주석이 필요합니다. 이 프로토타입의 수술계획은
+                        공개 해부학 예제에서 체험할 수 있습니다.
+                      </p>
+                    </div>
+                  ) : step === 'simulation' ? (
+                    <SimulationTimeline
+                      plan={activeSequence}
+                      progress={progress}
+                      setProgress={setProgress}
+                      playing={playing}
+                      setPlaying={setPlaying}
+                      speed={speed}
+                      setSpeed={setSpeed}
+                    />
+                  ) : (
+                    <div className="dental-chart">
+                      <div className="section-title">
                         <span>
-                          {String(Math.floor(progress * 24)).padStart(2, '0')} /
-                          24 s
+                          <Activity size={17} />
+                          치아 및 치주 상태
                         </span>
-                        <span>{simStages[simStage]}</span>
+                        <button
+                          className="text-button"
+                          onClick={() => setStep('perio')}
+                        >
+                          치주 차트 열기 <ArrowRight size={14} />
+                        </button>
+                      </div>
+                      <div className="tooth-row">
+                        <span className="arch-label">상악</span>
+                        {upperTeeth.map((t) => (
+                          <button
+                            key={t}
+                            onClick={() => chooseTooth(t)}
+                            className={`tooth-cell ${highlightedTeeth.includes(t) ? 'selected' : ''} ${implants.some((p) => p.tooth === t) ? 'planned' : ''}`}
+                            aria-pressed={highlightedTeeth.includes(t)}
+                            aria-label={`치아 ${t} 선택 전환`}
+                          >
+                            <span className="tooth-glyph">🦷</span>
+                            <b>{t}</b>
+                            <i
+                              className={
+                                perio[t]?.pd.some((v) => v >= 5)
+                                  ? 'concerning'
+                                  : ''
+                              }
+                            />
+                          </button>
+                        ))}
+                      </div>
+                      <div className="tooth-row lower">
+                        <span className="arch-label">하악</span>
+                        {lowerTeeth.map((t) => (
+                          <button
+                            key={t}
+                            onClick={() => chooseTooth(t)}
+                            className={`tooth-cell ${highlightedTeeth.includes(t) ? 'selected' : ''} ${implants.some((p) => p.tooth === t) ? 'planned' : ''}`}
+                            aria-pressed={highlightedTeeth.includes(t)}
+                            aria-label={`치아 ${t} 선택 전환`}
+                          >
+                            <span className="tooth-glyph">🦷</span>
+                            <b>{t}</b>
+                            <i
+                              className={
+                                perio[t]?.pd.some((v) => v >= 5)
+                                  ? 'concerning'
+                                  : ''
+                              }
+                            />
+                          </button>
+                        ))}
+                      </div>
+                      <div className="chart-legend">
+                        <span>
+                          <i />
+                          검사 입력됨
+                        </span>
+                        <span>
+                          <i className="amber" />
+                          PD ≥ 5 mm
+                        </span>
+                        <span>
+                          <i className="mint" />
+                          식립 계획
+                        </span>
+                        <em>{perioOrigin} · 클릭하여 선택</em>
                       </div>
                     </div>
-                    <button
-                      className="outline-button"
-                      onClick={() =>
-                        setSpeed((s) => (s === 1 ? 2 : s === 2 ? 0.5 : 1))
-                      }
-                    >
-                      {speed}×
-                    </button>
-                    <button
-                      className="icon-button"
-                      aria-label="시뮬레이션 처음으로"
-                      onClick={() => {
-                        setProgress(0);
-                        setPlaying(false);
-                      }}
-                    >
-                      <RotateCcw size={18} />
-                    </button>
-                  </div>
-                  <div className="sequence-steps">
-                    {simStages.map((s, i) => (
-                      <button
-                        key={s}
-                        className={simStage === i ? 'current' : ''}
-                        onClick={() => {
-                          setProgress([0, 0.18, 0.38, 0.64, 0.84][i]);
-                          setPlaying(false);
-                        }}
-                      >
-                        <span>0{i + 1}</span>
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="dental-chart">
-                  <div className="section-title">
-                    <span>
-                      <Activity size={17} />
-                      치아 및 치주 상태
-                    </span>
-                    <button
-                      className="text-button"
-                      onClick={() => setStep('perio')}
-                    >
-                      치주 차트 열기 <ArrowRight size={14} />
-                    </button>
-                  </div>
-                  <div className="tooth-row">
-                    <span className="arch-label">상악</span>
-                    {upperTeeth.map((t) => (
-                      <button
-                        key={t}
-                        onClick={() => chooseTooth(t)}
-                        className={`tooth-cell ${t === tooth ? 'selected' : ''} ${implants.some((p) => p.tooth === t) ? 'planned' : ''}`}
-                        aria-label={`치아 ${t} 선택`}
-                      >
-                        <span className="tooth-glyph">🦷</span>
-                        <b>{t}</b>
-                        <i
-                          className={
-                            perio[t]?.pd.some((v) => v >= 5) ? 'concerning' : ''
-                          }
-                        />
-                      </button>
-                    ))}
-                  </div>
-                  <div className="tooth-row lower">
-                    <span className="arch-label">하악</span>
-                    {lowerTeeth.map((t) => (
-                      <button
-                        key={t}
-                        onClick={() => chooseTooth(t)}
-                        className={`tooth-cell ${t === tooth ? 'selected' : ''} ${implants.some((p) => p.tooth === t) ? 'planned' : ''}`}
-                        aria-label={`치아 ${t} 선택`}
-                      >
-                        <span className="tooth-glyph">🦷</span>
-                        <b>{t}</b>
-                        <i
-                          className={
-                            perio[t]?.pd.some((v) => v >= 5) ? 'concerning' : ''
-                          }
-                        />
-                      </button>
-                    ))}
-                  </div>
-                  <div className="chart-legend">
-                    <span>
-                      <i />
-                      검사 입력됨
-                    </span>
-                    <span>
-                      <i className="amber" />
-                      PD ≥ 5 mm
-                    </span>
-                    <span>
-                      <i className="mint" />
-                      식립 계획
-                    </span>
-                    <em>{perioOrigin} · 클릭하여 선택</em>
-                  </div>
-                </div>
+                  )}
+                </>
               )}
               <div className="case-bottom">
                 <ShieldCheck size={15} />
@@ -834,7 +984,7 @@ export default function Studio() {
               <div className="inspector-title">
                 <SlidersHorizontal size={18} />
                 <strong>
-                  {external
+                  {external && step !== 'perio'
                     ? '가져온 표면'
                     : step === 'perio'
                       ? '치주 검사 입력'
@@ -843,12 +993,12 @@ export default function Studio() {
                         : step === 'anatomy'
                           ? '해부학 레이어'
                           : step === 'simulation'
-                            ? '시뮬레이션 계획'
+                            ? '치료 회차 · 계획안 비교'
                             : '식립 파라미터'}
                 </strong>
                 <span className="mini-badge">LIVE</span>
               </div>
-              {external ? (
+              {external && step !== 'perio' ? (
                 <div className="inspector-section">
                   <div className="section-title">표면 데이터</div>
                   <p className="helper">{externalName}</p>
@@ -941,18 +1091,77 @@ export default function Studio() {
                       </div>
                     ))}
                     <p className="helper">
-                      표면 보정은 표시용이며 원본 대비 이동은 최대 0.18
-                      mm입니다. 거리 계산에는 원본을 사용합니다. 투시 모드에서는
-                      통로가 뼈 앞에 겹쳐 보입니다.
+                      표면은 표시용으로 평활화하고 삼각형을 세분화했습니다. 거리
+                      계산에는 원본을 사용합니다. 투시 모드에서는 통로가 뼈 앞에
+                      겹쳐 보입니다.
                     </p>
+                    <Range
+                      label="치관 투명도"
+                      value={100 - crownOpacity}
+                      min={0}
+                      max={100}
+                      unit="%"
+                      onChange={(v) => setCrownOpacity(100 - v)}
+                    />
+                    <Range
+                      label="치근 투명도"
+                      value={100 - rootOpacity}
+                      min={0}
+                      max={100}
+                      unit="%"
+                      onChange={(v) => setRootOpacity(100 - v)}
+                    />
                     <Range
                       label="골 불투명도"
                       value={opacity}
-                      min={5}
+                      min={0}
                       max={100}
                       unit="%"
                       onChange={setOpacity}
                     />
+                    <div className="soft-tissue-controls">
+                      <div className="section-title">얼굴 외관 · 연조직</div>
+                      {(
+                        [
+                          ['gingiva', '잇몸'],
+                          ['lips', '입술'],
+                          ['face', '입 주변 외관'],
+                        ] as const
+                      ).map(([key, label]) => (
+                        <div className="layer-row" key={key}>
+                          <i
+                            style={{
+                              background:
+                                key === 'face' ? '#c59d8a' : '#c77a82',
+                            }}
+                          />
+                          <div>
+                            {label}
+                            <small>치아 배치 기반 참고 모형</small>
+                          </div>
+                          <Switch
+                            aria-label={label}
+                            checked={layers[key]}
+                            onCheckedChange={(v) =>
+                              setLayers((l) => ({ ...l, [key]: v }))
+                            }
+                          />
+                        </div>
+                      ))}
+                      <Range
+                        label="연조직 투명도"
+                        value={100 - softTissueOpacity}
+                        min={0}
+                        max={100}
+                        unit="%"
+                        onChange={(v) => setSoftTissueOpacity(100 - v)}
+                      />
+                      <p className="helper">
+                        실제 얼굴·잇몸 분할이 아닌 참고 외관입니다. 치은연, 입술
+                        두께, 얼굴 형태 측정과 가이드 설계에는 사용하지
+                        않습니다.
+                      </p>
+                    </div>
                   </div>
                   <div className="inspector-section">
                     <a
@@ -962,17 +1171,6 @@ export default function Studio() {
                     >
                       관 기반 통로 좌표 다운로드
                     </a>
-                    <span className="eyebrow">NOT AVAILABLE IN THIS CASE</span>
-                    {[
-                      '잇몸 · 구강 표면 스캔 필요',
-                      '혀 · 별도 연조직 영상 필요',
-                      '개별 동맥·정맥 · 해당 영상 및 주석 없음',
-                    ].map((s) => (
-                      <div className="unavailable" key={s}>
-                        <Eye size={15} />
-                        {s}
-                      </div>
-                    ))}
                     <p className="helper">
                       하치조관 중심선은 신경·혈관이 지나는 공통 통로의
                       추정입니다. 표시 굵기는 보기용이며 실제 신경·혈관 직경이
@@ -981,129 +1179,38 @@ export default function Studio() {
                     </p>
                   </div>
                 </>
+              ) : step === 'simulation' ? (
+                <SimulationInspector
+                  settings={sequenceSettings}
+                  setSettings={setSequenceSettings}
+                  implants={implants}
+                  plans={sequencePlans}
+                  selectedPlan={sequenceId}
+                  onSelect={(id) => {
+                    setSequenceId(id);
+                    setProgress(0);
+                    setPlaying(false);
+                    setView('perspective');
+                  }}
+                  onGenerate={generateSequence}
+                  analyzing={analyzing}
+                  stale={sequenceStale}
+                  error={sequenceError}
+                  onDemo={sequenceDemo}
+                />
               ) : step === 'perio' ? (
                 <>
-                  <div className="inspector-section">
-                    <div className="selected-tooth">
-                      <span>#{tooth}</span>
-                      <div>
-                        치주 검사
-                        <small>
-                          {record ? '검사값 편집' : '미입력 · 직접 입력 가능'}
-                        </small>
-                      </div>
-                    </div>
-                    <p className="helper">
-                      MB/B/DB · ML/L/DL의 6점 검사. 아래 값은 선택한 치아 및
-                      계획서에 반영됩니다.
-                    </p>
-                    <div className="perio-grid">
-                      <span>부위</span>
-                      <span>PD mm</span>
-                      <span>퇴축 mm</span>
-                      <span>BOP</span>
-                      {siteNames.map((s, i) => (
-                        <div className="perio-row" key={s}>
-                          <b>{s}</b>
-                          <input
-                            type="number"
-                            min={0}
-                            max={15}
-                            step={1}
-                            aria-label={`${tooth} ${s} PD`}
-                            value={record?.pd[i] ?? ''}
-                            onChange={(e) => {
-                              const n = Number(e.target.value);
-                              if (n >= 0 && n <= 15) setPerioValue('pd', i, n);
-                            }}
-                          />
-                          <input
-                            type="number"
-                            min={0}
-                            max={15}
-                            step={1}
-                            aria-label={`${tooth} ${s} 퇴축`}
-                            value={record?.recession[i] ?? ''}
-                            onChange={(e) => {
-                              const n = Number(e.target.value);
-                              if (n >= 0 && n <= 15)
-                                setPerioValue('recession', i, n);
-                            }}
-                          />
-                          <Switch
-                            checked={record?.bop[i] || false}
-                            onCheckedChange={(v) => setPerioValue('bop', i, v)}
-                            aria-label={`${tooth} ${s} 출혈`}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                    <div className="two-inputs">
-                      {(['mobility', 'furcation'] as const).map((key) => (
-                        <label key={key}>
-                          {key === 'mobility' ? '동요도' : '이개부 병변'}
-                          <input
-                            type="number"
-                            min={0}
-                            max={3}
-                            aria-label={
-                              key === 'mobility' ? '동요도' : '이개부 병변'
-                            }
-                            value={record?.[key] ?? ''}
-                            onChange={(e) => {
-                              const n = Number(e.target.value);
-                              if (Number.isInteger(n) && n >= 0 && n <= 3)
-                                setPerio((p) => ({
-                                  ...p,
-                                  [tooth]: {
-                                    ...(p[tooth] || emptyRecord()),
-                                    [key]: n,
-                                  },
-                                }));
-                            }}
-                          />
-                        </label>
-                      ))}
-                    </div>
-                    <div className="measurement">
-                      <span>
-                        최대 CAL <small>PD + 퇴축</small>
-                      </span>
-                      <strong>
-                        {record
-                          ? Math.max(
-                              ...record.pd.map(
-                                (n, i) => n + record.recession[i],
-                              ),
-                            )
-                          : '—'}
-                        <small> mm</small>
-                      </strong>
-                    </div>
-                  </div>
+                  <PerioInspector state={perioState} dispatch={perioDispatch} />
                   <div className="inspector-section">
                     <button
                       className="outline-button full"
                       onClick={() => csvInput.current?.click()}
                     >
-                      <Upload size={15} />
-                      치주 CSV 가져오기
-                    </button>
-                    <button
-                      className="text-button full"
-                      onClick={() =>
-                        download(
-                          perioCSV(perio),
-                          'periodontal-chart.csv',
-                          'text/csv;charset=utf-8',
-                        )
-                      }
-                    >
-                      <Download size={14} />
-                      현재 차트 / CSV 양식
+                      <Upload size={15} /> 기존 6점 CSV 가져오기
                     </button>
                     <p className="helper">
-                      CSV 연동 지원. 병원 EMR 자동 연동은 미구현입니다.
+                      전체 검사값은 계획 JSON에 보존됩니다. 기존 CSV에는 없는
+                      검사 필드는 미입력으로 둡니다.
                     </p>
                   </div>
                 </>
@@ -1115,6 +1222,7 @@ export default function Studio() {
                       <button
                         className="text-button"
                         disabled={!!external}
+                        hidden={step !== 'planning'}
                         onClick={addImplant}
                       >
                         <Plus size={14} />
@@ -1145,7 +1253,12 @@ export default function Studio() {
                         차트에서 치아를 선택하고 계획을 추가하세요.
                       </p>
                     )}
-                    <div className="selected-target">
+                    <div
+                      className="selected-target"
+                      style={{
+                        display: step === 'planning' ? undefined : 'none',
+                      }}
+                    >
                       차트 선택 <strong>#{tooth}</strong>
                       <button
                         className="text-button"
@@ -1380,7 +1493,12 @@ export default function Studio() {
                           </div>
                         </div>
                       )}
-                      <div className="inspector-section">
+                      <div
+                        className="inspector-section"
+                        style={{
+                          display: step === 'planning' ? undefined : 'none',
+                        }}
+                      >
                         <div className="section-title">
                           <span>
                             <Crosshair size={15} />
@@ -1446,7 +1564,10 @@ export default function Studio() {
                           </label>
                         )}
                       </div>
-                      <div className="inspector-section compact">
+                      <div
+                        className="inspector-section compact"
+                        hidden={step !== 'planning'}
+                      >
                         <button className="text-button danger" onClick={remove}>
                           <Trash2 size={14} />
                           선택한 식립계획 삭제
@@ -1532,7 +1653,10 @@ export default function Studio() {
             setSelected(d.implants[0]?.id || '');
             setTooth(d.implants[0]?.tooth || 46);
             setGuide(d.guide);
-            setPerio(d.perio);
+            setSequenceSettings(d.sequenceSettings || defaultSequenceSettings);
+            if (d.perioChart)
+              perioDispatch({ type: 'replaceChart', chart: d.perioChart });
+            else setPerio(d.perio);
             setPerioOrigin('계획 파일의 검사값');
             serial.current =
               Math.max(
@@ -1640,6 +1764,8 @@ export default function Studio() {
             implants={implants}
             guide={guide}
             perio={perio}
+            perioChart={perioState.chart}
+            sequencePlan={activeSequence}
             parts={parts}
             buffer={buffer}
             perioOrigin={perioOrigin}
@@ -1719,6 +1845,8 @@ function Range({
   );
 }
 function Report({
+  sequencePlan,
+  perioChart,
   implants,
   guide,
   perio,
@@ -1726,6 +1854,8 @@ function Report({
   buffer,
   perioOrigin,
 }: {
+  sequencePlan: SequencePlan | null;
+  perioChart: Chart;
   implants: Implant[];
   guide: { bore: number; thickness: number; offset: number };
   perio: Perio;
@@ -1801,32 +1931,7 @@ function Report({
       </p>
       <h3>02 · 치주 검사 연동</h3>
       <p>{perioOrigin}</p>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>치아</TableHead>
-            <TableHead>PD · MB/B/DB/ML/L/DL</TableHead>
-            <TableHead>퇴축 · 6점</TableHead>
-            <TableHead>BOP · 6점</TableHead>
-            <TableHead>동요 / 이개부</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Object.entries(perio).map(([t, r]) => (
-            <TableRow key={t}>
-              <TableCell>#{t}</TableCell>
-              <TableCell>{r.pd.join(' / ')}</TableCell>
-              <TableCell>{r.recession.join(' / ')}</TableCell>
-              <TableCell>
-                {r.bop.map((v) => (v ? '●' : '−')).join(' ')}
-              </TableCell>
-              <TableCell>
-                {r.mobility} / {r.furcation}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <PerioReport chart={perioChart} />
       <h3>03 · 가이드 개념 치수</h3>
       <p>
         통과공 Ø {guide.bore} mm · 지지판 {guide.thickness} mm · 오프셋{' '}
@@ -1836,14 +1941,32 @@ function Report({
         치아 적합면, 지지 안정성, 제작 공차, 멸균과 제조사 호환성은
         미검증입니다.
       </p>
-      <h3>04 · 애니메이션 시퀀스</h3>
-      <p>
-        가이드 확인 → 드릴 진입 → 드릴링 동작 → 임플란트 삽입 → 식립 위치 확인
-      </p>
-      <p>
-        드릴 단계·RPM·토크를 수술 프로토콜로 산출하지 않습니다. 임플란트
-        시스템의 지침과 수술 중 판단이 필요합니다.
-      </p>
+      <h3>04 · 치료·회복 시퀀스 검토</h3>
+      {sequencePlan ? (
+        <>
+          <p>
+            {sequencePlan.name} · 식립 {sequencePlan.groups.length}회차 · 날짜와
+            치유 기간 미정
+          </p>
+          <p>{sequencePlan.summary}</p>
+          <p>장점: {sequencePlan.pros.join(' / ')}</p>
+          <p>고려할 점: {sequencePlan.cons.join(' / ')}</p>
+          <ol>
+            {sequencePlan.phases.map((p) => (
+              <li key={p.id}>
+                {p.visit} · {p.label} — {p.tip}
+              </li>
+            ))}
+          </ol>
+          <p>{sequencePlan.warnings.join(' / ')}</p>
+          <p>{sequencePlan.conditions.join(' / ')}</p>
+        </>
+      ) : (
+        <p>
+          시뮬레이션을 생성하고 계획안을 선택하세요. 현재 입력과 일치하는
+          시퀀스가 없습니다.
+        </p>
+      )}
       <h3>05 · 데이터 및 미평가 항목</h3>
       <p>
         ToothFairy3 분할에서 생성된 메시 사용. 치주 값은 별도 입력이며 스캔

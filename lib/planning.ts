@@ -34,6 +34,9 @@ export type Layers = {
   sinus: boolean;
   upper: boolean;
   corridor: boolean;
+  gingiva: boolean;
+  lips: boolean;
+  face: boolean;
 };
 export const initialImplant: Implant = {
   id: 'IP-01',
@@ -286,7 +289,7 @@ export function parsePerioCSV(text: string): Perio {
       ![pd, rec, mob, fur].every(Number.isFinite) ||
       pd < 0 ||
       pd > 15 ||
-      rec < 0 ||
+      rec < -15 ||
       rec > 15 ||
       !Number.isInteger(mob) ||
       mob < 0 ||
@@ -297,7 +300,7 @@ export function parsePerioCSV(text: string): Perio {
       !['0', '1'].includes(b)
     )
       throw new Error(
-        '치아 번호·측정부위·값을 확인하세요. PD/퇴축 0–15, 동요/이개부 0–3, BOP 0/1.',
+        '치아 번호·측정부위·값을 확인하세요. PD 0–15, 치은연 −15–15, 동요/이개부 0–3, BOP 0/1.',
       );
     const key = t + s;
     if (seen.has(key)) throw new Error('동일 치아·측정부위가 중복되었습니다.');

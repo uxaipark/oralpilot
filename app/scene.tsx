@@ -6,13 +6,28 @@ import {
   buildGuide,
   buildImplant,
   implantPose,
+  initialImplant,
   toWorld,
   type Implant,
   type Layers,
   type Part,
 } from '@/lib/planning';
 import { smoothDisplaySurface, type NeurovascularPath } from '@/lib/surface';
+import { refineDentalSurface, dentalMaterial } from '@/lib/dental-display';
+import { renderTreatmentPhase, unfoldObject } from '@/lib/sequence-display';
+import {
+  phaseAt,
+  toothPhaseState,
+  type SequencePlan,
+} from '@/lib/treatment-sequence';
+import { buildReferenceSoftTissues } from '@/lib/soft-tissue';
 export interface SceneProps {
+  highlightedTeeth: number[];
+  selectedTooth: number;
+  sequencePlan: SequencePlan | null;
+  crownOpacity: number;
+  rootOpacity: number;
+  softTissueOpacity: number;
   smoothTeeth: boolean;
   crownPreview: boolean;
   neuroXray: boolean;
@@ -188,8 +203,10 @@ export default function Scene(props: SceneProps) {
           1,
         ),
       );
-      if (part.group === 'tooth' && props.smoothTeeth) smoothDisplaySurface(g);
-      else g.computeVertexNormals();
+      if (part.group === 'tooth' && props.smoothTeeth) {
+        smoothDisplaySurface(g);
+        refineDentalSurface(g);
+      } else g.computeVertexNormals();
       const colors: Record<string, number> = {
         tooth: 0xeee7d4,
         bone: 0xcbc3b3,
@@ -197,17 +214,21 @@ export default function Scene(props: SceneProps) {
         pulp: 0xeb8587,
         sinus: 0x90b3e8,
       };
-      const m = new THREE.MeshStandardMaterial({
-        color: colors[part.group] || 0xdddddd,
-        roughness: part.group === 'tooth' ? 0.32 : 0.64,
-        metalness: 0.02,
-        side: THREE.DoubleSide,
-        transparent: true,
-      });
+      const m =
+        part.group === 'tooth' && part.axes
+          ? dentalMaterial(g, part, props.crownOpacity, props.rootOpacity)
+          : new THREE.MeshStandardMaterial({
+              color: colors[part.group] || 0xdddddd,
+              roughness: part.group === 'tooth' ? 0.32 : 0.64,
+              metalness: 0.02,
+              side: THREE.DoubleSide,
+              transparent: true,
+            });
       const mesh = new THREE.Mesh(g, m);
       mesh.userData = part;
       r.anatomy.add(mesh);
     }
+    r.anatomy.add(...buildReferenceSoftTissues(props.parts));
     for (const path of props.neurovascularPaths) {
       const curve = new THREE.CurvePath<THREE.Vector3>();
       const points = path.points.map(toWorld);
@@ -241,22 +262,84 @@ export default function Scene(props: SceneProps) {
         p = mesh.userData,
         mat = mesh.material as THREE.MeshStandardMaterial;
       if (p.group === 'external') return;
+      const phase =
+        props.mode === 'simulation'
+          ? phaseAt(props.sequencePlan, props.progress)
+          : null;
+      const toothState =
+        props.sequencePlan && p.fdi
+          ? toothPhaseState(props.sequencePlan, props.progress, p.fdi)
+          : null;
+      const upperVisible =
+        props.layers.upper ||
+        ['unfolded', 'upper-occlusal'].includes(props.view);
+      const inJawView =
+        props.view === 'upper-occlusal'
+          ? p.jaw === 'maxilla'
+          : props.view === 'lower-occlusal'
+            ? p.jaw !== 'maxilla'
+            : true;
+      const phaseHidesTooth =
+        props.mode === 'simulation'
+          ? !!(
+              toothState?.extracted ||
+              toothState?.placed ||
+              (phase?.phase.kind === 'extraction' &&
+                phase.phase.teeth.includes(p.fdi))
+            )
+          : ['planning', 'guide'].includes(props.mode) &&
+            props.implants.some((i) => i.tooth === p.fdi);
       mesh.visible =
         Boolean(props.layers[p.group as keyof Layers]) &&
-        (p.jaw !== 'maxilla' || props.layers.upper) &&
-        !(
-          (p.group === 'tooth' || p.group === 'pulp') &&
-          props.implants.some((i) => i.tooth === p.fdi)
-        );
+        (p.jaw !== 'maxilla' || upperVisible) &&
+        inJawView &&
+        !(['tooth', 'pulp'].includes(p.group) && phaseHidesTooth) &&
+        !(props.view === 'unfolded' && ['face', 'lips'].includes(p.group));
+      const endo =
+        phase?.phase.kind === 'endo' && phase.phase.teeth.includes(p.fdi);
+      if (endo && p.group === 'pulp') mesh.visible = true;
+      if (p.group === 'tooth') {
+        const highlighted = props.highlightedTeeth.includes(p.fdi);
+        mat.emissive.set(highlighted ? '#2765a2' : '#000000');
+        mat.emissiveIntensity = highlighted ? 0.5 : 0;
+        mat.color.set(highlighted ? '#a7c9ef' : '#ffffff');
+      }
+      mesh.position.set(0, 0, 0);
+      mesh.quaternion.identity();
+      mesh.scale.set(1, 1, 1);
+      mesh.updateMatrix();
+      if (props.view === 'unfolded') unfoldObject(mesh, props.parts);
       mat.opacity =
         p.group === 'bone'
           ? props.opacity / 100
           : p.group === 'canal'
             ? 0.32
             : 1;
-      mat.depthTest = p.group === 'corridor' ? !props.neuroXray : true;
+      if (p.referenceOnly) {
+        mat.opacity = props.softTissueOpacity / 100;
+        mat.depthWrite = false;
+      }
+      if (p.group === 'tooth' && mat.userData.dentalAlpha) {
+        mat.userData.dentalAlpha.crown.value = endo
+          ? 0.15
+          : props.crownOpacity / 100;
+        mat.userData.dentalAlpha.root.value = endo
+          ? 0.15
+          : props.rootOpacity / 100;
+      }
+      mat.depthTest =
+        endo && p.group === 'pulp'
+          ? false
+          : p.group === 'corridor'
+            ? !props.neuroXray
+            : true;
       mat.depthWrite =
-        !['bone', 'canal', 'corridor'].includes(p.group) ||
+        (!p.referenceOnly &&
+          !(
+            p.group === 'tooth' &&
+            (props.crownOpacity < 100 || props.rootOpacity < 100 || endo)
+          ) &&
+          !['bone', 'canal', 'corridor'].includes(p.group)) ||
         (p.group === 'bone' && props.opacity > 85);
     });
   }, [
@@ -267,6 +350,15 @@ export default function Scene(props: SceneProps) {
     props.smoothTeeth,
     props.neurovascularPaths,
     props.neuroXray,
+    props.crownOpacity,
+    props.rootOpacity,
+    props.softTissueOpacity,
+    props.highlightedTeeth,
+    props.sequencePlan,
+    props.progress,
+    props.mode,
+    props.view,
+    props.parts,
     props.buffer,
     props.external,
   ]);
@@ -275,6 +367,31 @@ export default function Scene(props: SceneProps) {
     if (!r) return;
     clear(r.hardware);
     if (props.external || !props.parts.length || !props.buffer) return;
+    if (props.mode === 'anatomy') return;
+    if (props.mode === 'simulation') {
+      if (!props.sequencePlan) return;
+      const frameGroup = renderTreatmentPhase(
+        props.sequencePlan,
+        props.progress,
+        props.implants,
+        props.parts,
+        r.anatomy,
+      );
+      for (const o of [...frameGroup.children]) {
+        if (props.view === 'unfolded') unfoldObject(o, props.parts);
+        o.visible =
+          (props.view === 'upper-occlusal'
+            ? o.userData.jaw === 'maxilla'
+            : props.view === 'lower-occlusal'
+              ? o.userData.jaw !== 'maxilla'
+              : true) &&
+          (o.userData.jaw !== 'maxilla' ||
+            props.layers.upper ||
+            ['unfolded', 'upper-occlusal'].includes(props.view));
+        r.hardware.add(o);
+      }
+      return;
+    }
     for (const p of props.implants) {
       const pose = implantPose(p, props.parts),
         group = new THREE.Group();
@@ -282,34 +399,7 @@ export default function Scene(props: SceneProps) {
       group.rotation.copy(pose.rotation);
       const implant = buildImplant(p);
       group.add(implant);
-      if (props.mode === 'simulation') {
-        const t = props.progress;
-        implant.visible = t >= 0.64;
-        implant.position.y =
-          t < 0.84 ? (1 - Math.min(1, (t - 0.64) / 0.2)) * 24 : 0;
-        if (t >= 0.18 && t < 0.64) {
-          const drill = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.95, 0.7, 26, 24),
-            new THREE.MeshStandardMaterial({
-              color: 0xc5d9e6,
-              metalness: 0.85,
-              roughness: 0.2,
-            }),
-          );
-          const local = (t - 0.18) / 0.46;
-          drill.position.y = 13 - Math.sin(local * Math.PI) * p.length;
-          drill.rotation.y = t * 150;
-          group.add(drill);
-        }
-        if (t < 0.18 || t > 0.84)
-          group.add(
-            buildGuide(
-              props.guide.bore,
-              props.guide.thickness,
-              props.guide.offset,
-            ),
-          );
-      } else if (props.mode === 'guide')
+      if (props.mode === 'guide')
         group.add(
           buildGuide(
             props.guide.bore,
@@ -317,6 +407,7 @@ export default function Scene(props: SceneProps) {
             props.guide.offset,
           ),
         );
+      group.userData = { jaw: p.tooth < 30 ? 'maxilla' : 'mandible' };
       r.hardware.add(group);
       if (props.crownPreview && props.layers.tooth) {
         const original = r.anatomy.children.find(
@@ -324,14 +415,16 @@ export default function Scene(props: SceneProps) {
         ) as THREE.Mesh | undefined;
         if (
           original &&
-          (original.userData.jaw !== 'maxilla' || props.layers.upper)
+          (original.userData.jaw !== 'maxilla' ||
+            props.layers.upper ||
+            ['unfolded', 'upper-occlusal'].includes(props.view))
         ) {
           const crown = new THREE.Mesh(
             original.geometry.clone(),
             new THREE.MeshStandardMaterial({
               color: 0xc7e0ff,
               transparent: true,
-              opacity: 0.25,
+              opacity: (0.25 * props.crownOpacity) / 100,
               depthWrite: false,
               side: THREE.DoubleSide,
               clippingPlanes: [
@@ -339,9 +432,22 @@ export default function Scene(props: SceneProps) {
               ],
             }),
           );
+          crown.userData = { jaw: p.tooth < 30 ? 'maxilla' : 'mandible' };
           r.hardware.add(crown);
         }
       }
+    }
+    for (const o of r.hardware.children) {
+      o.visible =
+        (props.view === 'upper-occlusal'
+          ? o.userData.jaw === 'maxilla'
+          : props.view === 'lower-occlusal'
+            ? o.userData.jaw !== 'maxilla'
+            : true) &&
+        (o.userData.jaw !== 'maxilla' ||
+          props.layers.upper ||
+          ['unfolded', 'upper-occlusal'].includes(props.view));
+      if (props.view === 'unfolded') unfoldObject(o, props.parts);
     }
   }, [
     props.implants,
@@ -353,6 +459,9 @@ export default function Scene(props: SceneProps) {
     props.buffer,
     props.smoothTeeth,
     props.crownPreview,
+    props.sequencePlan,
+    props.view,
+    props.crownOpacity,
     props.layers,
     props.neurovascularPaths,
   ]);
@@ -363,8 +472,18 @@ export default function Scene(props: SceneProps) {
       perspective: [115, 70, 165],
       front: [0, 0, 200],
       right: [-200, 0, 0],
+      left: [200, 0, 0],
+      back: [0, 0, -200],
+      unfolded: [0, 0, 280],
+      'upper-occlusal': [0, -180, 0],
+      'lower-occlusal': [0, 180, 0],
       top: [0, 210, 0],
     };
+    r.camera.up.set(
+      0,
+      ['top', 'upper-occlusal', 'lower-occlusal'].includes(props.view) ? 0 : 1,
+      ['top', 'upper-occlusal', 'lower-occlusal'].includes(props.view) ? -1 : 0,
+    );
     r.camera.position.fromArray(poses[props.view] || poses.perspective);
     if (props.external) {
       props.external.computeBoundingBox();
@@ -373,10 +492,26 @@ export default function Scene(props: SceneProps) {
         .length();
       r.camera.position.normalize().multiplyScalar(size * 1.65);
       r.controls.target.set(0, 0, 0);
-    } else if (props.view === 'implant' && props.parts.length) {
+    } else if (
+      ['implant', 'tooth'].includes(props.view) &&
+      props.parts.length
+    ) {
       const p =
-        latest.current.implants.find((p) => p.id === props.selected) ||
-        latest.current.implants[0];
+        props.view === 'tooth'
+          ? {
+              ...initialImplant,
+              ...{
+                tooth: props.selectedTooth,
+                angle: 0,
+                tilt: 0,
+                x: 0,
+                z: 0,
+                depth: 0,
+                length: 10,
+              },
+            }
+          : latest.current.implants.find((p) => p.id === props.selected) ||
+            latest.current.implants[0];
       if (p) {
         const pose = implantPose(p, props.parts);
         r.controls.target
@@ -388,9 +523,27 @@ export default function Scene(props: SceneProps) {
           .addScaledVector(pose.up, 20)
           .addScaledVector(pose.side, 15);
       }
-    } else r.controls.target.set(0, -5, 0);
+    } else
+      r.controls.target.set(
+        0,
+        props.view === 'unfolded'
+          ? 0
+          : props.view === 'upper-occlusal'
+            ? 18
+            : props.view === 'lower-occlusal'
+              ? -12
+              : -5,
+        0,
+      );
     r.controls.update();
-  }, [props.view, props.reset, props.external, props.selected, props.parts]);
+  }, [
+    props.view,
+    props.reset,
+    props.external,
+    props.selected,
+    props.selectedTooth,
+    props.parts,
+  ]);
   return (
     <div
       ref={host}

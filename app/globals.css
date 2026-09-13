@@ -2243,3 +2243,281 @@ h1 {
   color: #79ddc3;
   background: #213e39;
 }
+.opacity-menu {
+  position: relative;
+}
+.opacity-menu summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  border: 1px solid #485762;
+  border-radius: 5px;
+  background: #28333d;
+  cursor: pointer;
+}
+.opacity-menu summary::-webkit-details-marker {
+  display: none;
+}
+.opacity-popover {
+  position: absolute;
+  right: 44px;
+  top: 0;
+  width: 200px;
+  padding: 12px;
+  background: #202b35;
+  border: 1px solid #526270;
+  border-radius: 7px;
+  box-shadow: 0 8px 28px #0007;
+  z-index: 20;
+}
+.opacity-popover strong {
+  font-size: 12px;
+  color: #e2eaf0;
+}
+.opacity-popover label {
+  display: block;
+  margin-top: 9px;
+}
+.opacity-popover label > span {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #c9d6df;
+}
+.opacity-popover input {
+  width: 100%;
+  height: 12px;
+  accent-color: #96ddca;
+}
+.opacity-popover small {
+  font-size: 10px;
+  color: #a4b3c1;
+}
+.soft-tissue-controls {
+  border-top: 1px solid #42505c;
+  margin-top: 16px;
+  padding-top: 18px;
+}
+.soft-reference-chip {
+  color: #eab2b9 !important;
+}
+.viewer-top {
+  gap: 8px;
+}
+.viewer-top > [data-slot='tabs'] {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.view-tabs {
+  max-width: 100%;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+.view-tabs [data-slot='tabs-trigger'] {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sequence-field {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  margin: 12px 0;
+}
+.sequence-field select,
+.inspector .two-inputs select {
+  border: 1px solid #495764;
+  border-radius: 5px;
+  background: #27333e;
+  color: #dce6ed;
+  padding: 8px;
+  font: inherit;
+  width: 100%;
+  min-width: 0;
+}
+.needs-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+.needs-tags button {
+  font-size: 11px;
+  background: #34434d;
+  border-radius: 4px;
+  padding: 5px;
+}
+.sequence-plan-card {
+  display: grid;
+  width: 100%;
+  text-align: left;
+  gap: 7px;
+  border: 1px solid #44525e;
+  background: #232e38;
+  border-radius: 7px;
+  padding: 12px;
+  margin: 10px 0;
+}
+.sequence-plan-card.selected {
+  border-color: #92d9c5;
+  background: #28443e;
+}
+.sequence-plan-card span,
+.sequence-plan-card small {
+  font-size: 12px;
+  color: #b1c2ce;
+}
+.sequence-plan-card strong {
+  font-size: 14px;
+  color: #e2e9ee;
+}
+.sequence-plan-card em {
+  font-size: 11px;
+  font-style: normal;
+  color: #96ddca;
+}
+.sequence-source {
+  display: block;
+  font-size: 12px;
+  margin: 9px 0;
+}
+.sequence-tip {
+  border: 1px solid #49677b;
+  background: #263b49;
+  padding: 13px;
+  border-radius: 7px;
+  margin: 14px 0;
+}
+.sequence-tip span {
+  display: block;
+  font-size: 12px;
+  color: #a9bdcc;
+}
+.sequence-tip strong {
+  display: block;
+  font-size: 16px;
+  margin: 6px 0;
+}
+.sequence-tip p {
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0;
+  color: #c6d6e2;
+}
+.simulation-panel .timeline > input {
+  flex: 1;
+  min-width: 30px;
+  accent-color: #91dbc5;
+}
+.phase-strip {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 12px 0;
+}
+.phase-strip button {
+  min-width: 170px;
+  max-width: 220px;
+  border: 1px solid #485762;
+  border-radius: 6px;
+  background: #25313a;
+  text-align: left;
+  padding: 10px;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.phase-strip small {
+  display: block;
+  color: #9eb2c2;
+  font-size: 10px;
+  margin-bottom: 5px;
+}
+.phase-strip button.active {
+  border-color: #94dec9;
+  background: #29483f;
+}
+.sequence-color-key {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  margin: 10px 0;
+}
+.plan-comparison {
+  margin-top: 14px;
+}
+.plan-comparison > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.plan-comparison h3 {
+  font-size: 16px;
+}
+.plan-comparison p,
+.plan-comparison li {
+  font-size: 13px;
+  color: #b6c6d1;
+  line-height: 1.7;
+}
+.plan-comparison ul {
+  list-style: disc;
+  padding-left: 18px;
+}
+.plan-comparison section {
+  background: #222d36;
+  padding: 12px;
+  border-radius: 7px;
+}
+.tooth-cell.selected {
+  background: #263f5b !important;
+  box-shadow: inset 0 0 0 1px #88bbed !important;
+}
+.tooth-cell.selected b {
+  color: #add0fb !important;
+}
+.simulation-overlay {
+  position: absolute;
+  left: 18px;
+  top: 67px;
+  max-width: 260px;
+  background: #17232ee8;
+  border: 1px solid #577082;
+  border-radius: 6px;
+  padding: 10px 12px;
+  pointer-events: none;
+}
+.simulation-overlay span {
+  display: block;
+  font-size: 11px;
+  color: #adc0d0;
+}
+.simulation-overlay strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  color: #e7f0f6;
+}
+.sequence-review {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #b6c7d4;
+  border-top: 1px solid #465561;
+  padding-top: 12px;
+  margin-top: 12px;
+}
+.sequence-review ul {
+  list-style: disc;
+  padding-left: 16px;
+}
+.sequence-review details {
+  color: #e6bf83;
+}
+.sequence-review summary {
+  cursor: pointer;
+  margin-top: 10px;
+}
