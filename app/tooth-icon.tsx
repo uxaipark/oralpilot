@@ -1,10 +1,12 @@
+import { useLocalize } from '@/lib/i18n/provider';
 import { toothIconShape } from '@/lib/tooth-icon';
 
 export function ToothIcon({ fdi, status }: { fdi: number; status?: string }) {
+  const localize = useLocalize();
   const shape = toothIconShape(fdi);
   const missing = status === 'missing',
     implant = status === 'implant';
-  return (
+  return localize(
     <svg
       className={`tooth-icon${missing ? ' missing' : ''}${implant ? ' restored' : ''}`}
       viewBox="0 0 36 60"
@@ -35,6 +37,6 @@ export function ToothIcon({ fdi, status }: { fdi: number; status?: string }) {
         <path className="tooth-icon-detail" d={shape.fissures} fill="none" />
       </g>
       {missing && <path className="tooth-icon-missing" d="M 7 45 L 29 15" />}
-    </svg>
+    </svg>,
   );
 }

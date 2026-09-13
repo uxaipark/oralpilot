@@ -1,3 +1,4 @@
+import './i18n.test';
 import './dropdown.test';
 import './jaw-visibility.test';
 import './cad-export.test';

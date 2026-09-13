@@ -177,13 +177,14 @@ export function useVoice(state: AppState, dispatch: (a: Action) => void) {
   // The local model is per language, so re-check whenever the language changes.
   useEffect(() => {
     let cancelled = false;
+    stop();
     onDeviceStatus(state.voice.locale).then((s) => {
       if (!cancelled) setStatus((v) => ({ ...v, onDevice: s }));
     });
     return () => {
       cancelled = true;
     };
-  }, [state.voice.locale]);
+  }, [state.voice.locale, stop]);
 
   const installModel = useCallback(async () => {
     setStatus((v) => ({ ...v, installing: true }));

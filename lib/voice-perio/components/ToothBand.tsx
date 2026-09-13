@@ -1,3 +1,4 @@
+import { useLocalize } from '@/lib/i18n/provider';
 import { memo, useMemo } from 'react';
 import type { ReactElement } from 'react';
 import type { Band } from '../domain/bands';
@@ -59,11 +60,12 @@ const Ramp = ({
 );
 
 function Defs({ k, concave }: { k: string; concave: boolean }) {
+  const localize = useLocalize();
   const lobes = useMemo(
     () => [0, 1, 2, 3].map((c) => lobeRamp(c, concave)),
     [concave],
   );
-  return (
+  return localize(
     <defs>
       <linearGradient id={`en${k}`} x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stopColor="var(--enamel-2)" />
@@ -123,7 +125,7 @@ function Defs({ k, concave }: { k: string; concave: boolean }) {
       {lobes.map((stops, c) => (
         <Ramp key={c} id={`lb${k}${c}`} horizontal stops={stops} />
       ))}
-    </defs>
+    </defs>,
   );
 }
 
@@ -151,6 +153,7 @@ const Rule = memo(function Rule({ cy, dir }: { cy: number; dir: number }) {
 
 /** Gingival margin and attachment level, with the pocket band between them. */
 function PocketGraph({ band, teeth, chart, cy, dir }: LayerProps) {
+  const localize = useLocalize();
   const runs = useMemo(() => {
     const out: Array<
       Array<{ x: number; gy: number; py: number; bop: boolean; sup: boolean }>
@@ -188,7 +191,7 @@ function PocketGraph({ band, teeth, chart, cy, dir }: LayerProps) {
     return out;
   }, [band.surf, teeth, chart, cy, dir]);
 
-  return (
+  return localize(
     <g pointerEvents="none">
       {runs.map((r, i) => {
         const gl = r
@@ -238,7 +241,7 @@ function PocketGraph({ band, teeth, chart, cy, dir }: LayerProps) {
           </g>
         );
       })}
-    </g>
+    </g>,
   );
 }
 
@@ -249,6 +252,7 @@ type LayerProps = Omit<Props, 'density' | 'dispatch'> & {
 };
 
 function FurcationMarks({ band, teeth, chart, cy, dir }: LayerProps) {
+  const localize = useLocalize();
   const marks: ReactElement[] = [];
   teeth.forEach((n, i) => {
     const t = chart[n];
@@ -277,7 +281,7 @@ function FurcationMarks({ band, teeth, chart, cy, dir }: LayerProps) {
       );
     }
   });
-  return <g pointerEvents="none">{marks}</g>;
+  return localize(<g pointerEvents="none">{marks}</g>);
 }
 
 export function ToothBand({
@@ -288,6 +292,7 @@ export function ToothBand({
   dispatch,
   density,
 }: Props) {
+  const localize = useLocalize();
   // A tablet has no right button, so a double tap does the same thing. With
   // touch-action on the row the browser stops reserving the second tap for
   // zoom and reports it as a dblclick, which is one path for mouse and touch
@@ -313,7 +318,7 @@ export function ToothBand({
   const shown = toothColumn(density) * 8;
   const k = shown / HALF_W;
 
-  return (
+  return localize(
     <svg
       width={shown}
       height={Math.round(BAND_H * k)}
@@ -404,7 +409,7 @@ export function ToothBand({
         cy={cy}
         dir={dir}
       />
-    </svg>
+    </svg>,
   );
 }
 

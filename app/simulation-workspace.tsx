@@ -1,4 +1,6 @@
 'use client';
+import { useLocalize } from '@/lib/i18n/provider';
+
 import { Dropdown, DropdownOption } from '@/components/ui/dropdown';
 import {
   displayToothNumber,
@@ -41,11 +43,12 @@ export function SimulationTimeline({
   speed,
   setSpeed,
 }: Controls) {
+  const localize = useLocalize();
   const displayText = (text: string) => displayToothText(text, numbering);
   const frame = phaseAt(plan, progress);
   const completed = plan && frame ? plan.phases.slice(0, frame.index) : [];
   const total = plan?.phases.filter((p) => p.kind === 'placement').length ?? 0;
-  return (
+  return localize(
     <div className="simulation-panel">
       <div className="section-title">
         <span>가이드·식립·크라운 시퀀스</span>
@@ -175,7 +178,7 @@ export function SimulationTimeline({
           </div>
         </>
       )}
-    </div>
+    </div>,
   );
 }
 export function SimulationInspector({
@@ -213,6 +216,7 @@ export function SimulationInspector({
   stale: boolean;
   error: string;
 }) {
+  const localize = useLocalize();
   const displayTooth = (fdi: number) => displayToothNumber(fdi, numbering);
   const displayText = (text: string) => displayToothText(text, numbering);
   const [tooth, setTooth] = useState(46);
@@ -221,7 +225,7 @@ export function SimulationInspector({
     () => (active ? sequenceDecisionKey(active, inputSignature) : ''),
     [active, inputSignature],
   );
-  return (
+  return localize(
     <>
       <div className="inspector-section">
         <div className="section-title">
@@ -534,7 +538,7 @@ export function SimulationInspector({
           </a>
         ))}
       </div>
-    </>
+    </>,
   );
 }
 
@@ -549,9 +553,10 @@ function SequenceDecisionPanel({
   replacing: boolean;
   onConfirm: (patientAgreed: boolean, clinicianAgreed: boolean) => void;
 }) {
+  const localize = useLocalize();
   const [patientAgreed, setPatientAgreed] = useState(false);
   const [clinicianAgreed, setClinicianAgreed] = useState(false);
-  return (
+  return localize(
     <section className="sequence-consent" aria-label="환자와 의사의 공동 선택">
       <strong>
         {confirmed ? '공동 선택 기록 완료' : '이 계획에 대한 동의 확인'}
@@ -601,6 +606,6 @@ function SequenceDecisionPanel({
         연구용 동의 확인 기록이며 본인 인증·서명된 의료 동의서가 아닙니다.
         식립·치주·가이드·회차 설정을 변경하면 다시 검토해야 합니다.
       </small>
-    </section>
+    </section>,
   );
 }

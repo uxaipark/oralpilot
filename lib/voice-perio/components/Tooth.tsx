@@ -1,3 +1,4 @@
+import { useLocalize } from '@/lib/i18n/provider';
 import { memo } from 'react';
 import { anatomy } from '../domain/anatomy';
 import { implantShape, toothShape } from '../domain/geometry';
@@ -26,12 +27,13 @@ const edge = {
  * while an exam is being recorded.
  */
 function ToothInner({ n, surf, up, gradKey, status, crown }: Props) {
+  const localize = useLocalize();
   const a = anatomy(n, surf);
   const transform = `translate(0,0)${up ? '' : ' scale(1,-1)'}`;
 
   if (status === 'missing') {
     const s = toothShape(n, surf);
-    return (
+    return localize(
       <g transform={transform} opacity={0.42}>
         {s.roots.map((r, i) => (
           <path
@@ -60,13 +62,13 @@ function ToothInner({ n, surf, up, gradKey, status, crown }: Props) {
         >
           ✕
         </text>
-      </g>
+      </g>,
     );
   }
 
   if (status === 'implant') {
     const s = implantShape(n, surf);
-    return (
+    return localize(
       <g transform={transform}>
         <path
           d={s.body}
@@ -106,12 +108,12 @@ function ToothInner({ n, surf, up, gradKey, status, crown }: Props) {
           <path d={s.crown} fill={`url(#spc${gradKey})`} />
           <path d={s.crown} fill={`url(#gls${gradKey})`} />
         </g>
-      </g>
+      </g>,
     );
   }
 
   const s = toothShape(n, surf);
-  return (
+  return localize(
     <g transform={transform}>
       {s.roots.map((r, i) => (
         <path
@@ -179,7 +181,7 @@ function ToothInner({ n, surf, up, gradKey, status, crown }: Props) {
           opacity={0.72}
         />
       )}
-    </g>
+    </g>,
   );
 }
 

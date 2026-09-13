@@ -1,3 +1,4 @@
+import { useLocalize } from '@/lib/i18n/provider';
 import { useMemo } from 'react';
 import type { Action } from '../state/chartReducer';
 import type { HistoryEntry, Numbering } from '../domain/types';
@@ -31,6 +32,7 @@ export function TimeMachine({
   onToggle,
   dispatch,
 }: Props) {
+  const localize = useLocalize();
   const total = history.length;
   const ahead = total - index;
   const at = index > 0 ? history[index - 1] : undefined;
@@ -46,7 +48,7 @@ export function TimeMachine({
 
   const pct = total ? (index / total) * 100 : 0;
 
-  return (
+  return localize(
     <div className={`timemachine${open ? '' : ' shut'}`}>
       <button
         className="tm-head"
@@ -163,6 +165,6 @@ export function TimeMachine({
           </>
         )}
       </div>
-    </div>
+    </div>,
   );
 }

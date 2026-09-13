@@ -1,4 +1,6 @@
 'use client';
+import { useLocalize } from '@/lib/i18n/provider';
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import {
@@ -71,6 +73,7 @@ export interface SceneProps {
   guideOnly?: boolean;
 }
 export default function Scene(props: SceneProps) {
+  const localize = useLocalize();
   const host = useRef<HTMLDivElement>(null),
     latest = useRef(props);
   latest.current = props;
@@ -177,7 +180,7 @@ export default function Scene(props: SceneProps) {
     container.appendChild(renderer.domElement);
     const scene = new THREE.Scene(),
       camera = new THREE.PerspectiveCamera(34, 1, 0.1, 2000);
-    camera.position.set(115, 70, 165);
+    camera.position.set(-145, 20, 145);
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.minDistance = 20;
@@ -713,7 +716,7 @@ export default function Scene(props: SceneProps) {
     // Read the latest target only when an explicit view request fits the camera.
     const selectedTooth = latest.current.selectedTooth;
     const poses: Record<string, number[]> = {
-      perspective: [95, 20, 180],
+      perspective: [-145, 20, 145],
       front: [0, 0, 200],
       right: [-200, 0, 0],
       left: [200, 0, 0],
@@ -805,7 +808,7 @@ export default function Scene(props: SceneProps) {
       );
     r.controls.update();
   }, [props.view, props.reset, props.external, props.parts, faceResources]);
-  return (
+  return localize(
     <div
       ref={host}
       className="scene-canvas"
@@ -828,7 +831,7 @@ export default function Scene(props: SceneProps) {
           </button>
         </div>
       )}
-    </div>
+    </div>,
   );
 }
 function clear(group: THREE.Group) {

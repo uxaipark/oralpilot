@@ -1,3 +1,4 @@
+import { useLocalize } from '@/lib/i18n/provider';
 import { Fragment, memo, useCallback, useMemo } from 'react';
 import type { ReactElement } from 'react';
 import type { AppState, Action } from '../state/chartReducer';
@@ -233,6 +234,7 @@ function DataRow({
     cursor: Cursor;
     dispatch: (a: Action) => void;
   }) {
+  const localize = useLocalize();
   const def = ROWS[row];
   const half = (list: number[]) =>
     list.map((n) => {
@@ -268,7 +270,7 @@ function DataRow({
         />
       ));
     });
-  return (
+  return localize(
     <>
       <div className="rl" title={def.hint}>
         <span>{def.label}</span>
@@ -277,7 +279,7 @@ function DataRow({
       {half(b.teeth.slice(0, 8))}
       <div className="gapcell" />
       {half(b.teeth.slice(8, 16))}
-    </>
+    </>,
   );
 }
 
@@ -329,6 +331,7 @@ function NumbersRow({
   arch: 'U' | 'L';
   shown: boolean;
 }) {
+  const localize = useLocalize();
   const half = (list: number[]) =>
     list.map((n) => {
       const t = chart[n];
@@ -353,7 +356,7 @@ function NumbersRow({
         </div>
       );
     });
-  return (
+  return localize(
     <>
       {/* Centred in the label gutter: it belongs to the whole arch, not to a row. */}
       <div className="rl mid">
@@ -375,7 +378,7 @@ function NumbersRow({
       {half(teeth.slice(0, 8))}
       <div className="gapcell" />
       {half(teeth.slice(8, 16))}
-    </>
+    </>,
   );
 }
 
@@ -390,7 +393,8 @@ function ToothRow({
   dispatch: (a: Action) => void;
   density: Density;
 }) {
-  return (
+  const localize = useLocalize();
+  return localize(
     <>
       <div className="rl" />
       <div className="toothrow">
@@ -414,7 +418,7 @@ function ToothRow({
           density={density}
         />
       </div>
-    </>
+    </>,
   );
 }
 
@@ -434,8 +438,9 @@ const BandLabel = ({ b }: { b: Band }) => (
 );
 
 function SummaryBar({ chart }: { chart: Chart }) {
+  const localize = useLocalize();
   const m = useMemo(() => computeMetrics(chart), [chart]);
-  return (
+  return localize(
     <div className="summary">
       <div>
         평균 PD <b>{m.meanPd} mm</b>
@@ -455,13 +460,14 @@ function SummaryBar({ chart }: { chart: Chart }) {
       <div className={m.p6 ? 'hot' : ''}>
         부위 ≥ 6 mm <b>{m.p6}</b>
       </div>
-    </div>
+    </div>,
   );
 }
 
 /* ---------- the chart ---------------------------------------------------- */
 
 export function PerioChart({ state, dispatch, density }: Props) {
+  const localize = useLocalize();
   const { chart, cursor, optional, teethShown, meta } = state;
 
   const entry = meta.entry;
@@ -570,7 +576,7 @@ export function PerioChart({ state, dispatch, density }: Props) {
     [cursor, dispatch, autoAdvance, entry],
   );
 
-  return (
+  return localize(
     <div className="chartwrap">
       <div className="chart" tabIndex={0} onKeyDown={onKeyDown}>
         <SummaryBar chart={chart} />
@@ -648,7 +654,7 @@ export function PerioChart({ state, dispatch, density }: Props) {
           );
         })}
       </div>
-    </div>
+    </div>,
   );
 }
 

@@ -1,4 +1,6 @@
 'use client';
+import { useLocalize } from '@/lib/i18n/provider';
+
 import { Dropdown, DropdownOption } from '@/components/ui/dropdown';
 import { useMemo, useRef, useState } from 'react';
 import { FolderSearch, Loader2, ArrowRight } from 'lucide-react';
@@ -18,6 +20,7 @@ export default function DatasetBrowser({
   onLoad: (files: File[]) => Promise<boolean>;
   disabled: boolean;
 }) {
+  const localize = useLocalize();
   const folderInput = useRef<HTMLInputElement>(null);
   const localFiles = useRef(new Map<string, File>());
   const [entries, setEntries] = useState<DatasetEntry[]>([]),
@@ -110,7 +113,7 @@ export default function DatasetBrowser({
       setLoading('');
     }
   }
-  return (
+  return localize(
     <section className="dataset-browser">
       <div className="data-section-title">
         <div>
@@ -258,6 +261,6 @@ export default function DatasetBrowser({
           </p>
         </>
       )}
-    </section>
+    </section>,
   );
 }

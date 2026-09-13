@@ -1,4 +1,6 @@
 'use client';
+import { useLocalize } from '@/lib/i18n/provider';
+
 import { FolderOpen } from 'lucide-react';
 import {
   Dialog,
@@ -15,7 +17,8 @@ export function CaseBrowser({
   onOpenChange: (open: boolean) => void;
   onDemo: () => void;
 }) {
-  return (
+  const localize = useLocalize();
+  return localize(
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="case-dialog">
         <DialogTitle>케이스 불러오기</DialogTitle>
@@ -43,6 +46,6 @@ export function CaseBrowser({
           닫기
         </button>
       </DialogContent>
-    </Dialog>
+    </Dialog>,
   );
 }

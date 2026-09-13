@@ -1,3 +1,4 @@
+import { useLocalize } from '@/lib/i18n/provider';
 import type { Action, AppState } from '../state/chartReducer';
 import type { MarkRow, NumericSiteRow } from '../domain/types';
 import { POS_NAME, surfaceName, toothLabel } from '../domain/numbering';
@@ -25,6 +26,7 @@ export function SiteInspector({
   state: AppState;
   dispatch: (a: Action) => void;
 }) {
+  const localize = useLocalize();
   const { chart, cursor, meta } = state;
   const t = chart[cursor.n];
   const o = t[cursor.surf];
@@ -74,7 +76,7 @@ export function SiteInspector({
     </div>
   );
 
-  return (
+  return localize(
     <div className="card-b">
       <div className="insp-site">
         <span className="t">{toothLabel(cursor.n, meta.numbering)}</span>
@@ -212,6 +214,6 @@ export function SiteInspector({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
   );
 }

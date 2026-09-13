@@ -1,4 +1,6 @@
 'use client';
+import { useLocalize } from '@/lib/i18n/provider';
+
 import {
   Dropdown,
   DropdownOption,
@@ -81,6 +83,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import Scene from './scene';
+import { LanguageSelector, useI18n, localeTags } from '@/lib/i18n/provider';
 import { guideDepth } from '@/lib/anatomical-guide';
 import {
   implantSelection,
@@ -201,6 +204,8 @@ import {
   clearBrowserPlan,
 } from '@/lib/browser-plan';
 export default function Studio() {
+  const { locale, t } = useI18n();
+  const localize = useLocalize();
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
   const leftToggle = useRef<HTMLButtonElement>(null);
@@ -821,7 +826,10 @@ export default function Studio() {
     const idx = steps.findIndex((s) => s.id === step);
     setStep(steps[Math.min(idx + 1, 5)].id);
   };
-  return (
+  useEffect(() => {
+    perioDispatch({ type: 'setVoice', patch: { locale: localeTags[locale] } });
+  }, [locale]);
+  return localize(
     <SidebarProvider
       className={`oral-app ${step === 'perio' ? 'perio-mode' : ''} ${leftOpen ? '' : 'left-panel-collapsed'}`}
       open={leftOpen}
@@ -859,9 +867,7 @@ export default function Studio() {
               <span className="eyebrow">WORKSPACE</span>
               <strong>임플란트 수술계획</strong>
               <span className="muted">
-                {loadedCase
-                  ? '공개 환자 케이스 · 3D 열람'
-                  : '연구용 데모 케이스'}
+                {loadedCase ? '공개 환자 케이스 · 3D 열람' : '데모 케이스'}
               </span>
               <span className="case-dot">{loadedCase?.id || 'DEMO-001'}</span>
             </div>
@@ -886,15 +892,6 @@ export default function Studio() {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
-          <div className="sidebar-note">
-            <ShieldCheck size={20} />
-            <strong>연구용</strong>
-            <p>
-              실제 해부학 데이터로 경험하는
-              <br />
-              다음 세대의 치료계획
-            </p>
-          </div>
         </SidebarContent>
         <SidebarFooter className="nav-footer">
           <button onClick={() => setSources(true)}>
@@ -919,10 +916,9 @@ export default function Studio() {
                 ? `OFJ · ${loadedCase.id.replace('Patient_', 'P')}`
                 : 'DEMO-001'}
             </strong>
-            <span className="top-separator" />
-            <span className="top-demo">연구용</span>
           </div>
           <div className="top-actions">
+            <LanguageSelector />
             <button
               className="outline-button case-open"
               onClick={() => setCaseBrowserOpen(true)}
@@ -1074,7 +1070,7 @@ export default function Studio() {
                             [
                               'perspective',
                               '3D View',
-                              '상·하악 원본 교합 위치 · 사선 전체 보기',
+                              '상·하악 원본 교합 위치 · 환자 오른쪽 45도',
                             ],
                             [
                               'front',
@@ -1650,8 +1646,6 @@ export default function Studio() {
                 </>
               )}
               <div className="case-bottom">
-                <ShieldCheck size={15} />
-                <span>연구용</span>
                 <button onClick={() => setSources(true)}>
                   구현 범위 <ChevronRight size={13} />
                 </button>
@@ -2618,9 +2612,9 @@ export default function Studio() {
         <footer className="app-footer">
           <span>
             <span className="online-dot" />
-            OralPilot Research Studio
+            OralPilot Studio
           </span>
-          <span>연구용</span>
+
           <button onClick={() => setSources(true)}>데이터 및 라이선스 ↗</button>
         </footer>
       </div>
@@ -2764,10 +2758,10 @@ export default function Studio() {
       </Dialog>
       <Dialog open={report} onOpenChange={setReport}>
         <DialogContent className="report-dialog">
-          <DialogTitle>수술계획서 · 연구용</DialogTitle>
+          <DialogTitle>수술계획서</DialogTitle>
           <DialogDescription>
             DEMO-001 · ToothFairy3 F_026 ·{' '}
-            {new Date().toLocaleDateString('ko-KR')} · 연구용
+            {new Date().toLocaleDateString(localeTags[locale])}
           </DialogDescription>
           <Report
             numbering={numbering}
@@ -2791,7 +2785,7 @@ export default function Studio() {
               onClick={() => {
                 const content = document.getElementById('plan-report');
                 if (content) {
-                  const html = `<!doctype html><html lang="ko"><meta charset="utf-8"><title>OralPilot 연구용 수술계획서</title><style>body{font:15px/1.6 sans-serif;max-width:1000px;margin:40px auto;padding:20px;color:#17242d}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccd5db;padding:10px;text-align:left}h2{margin-top:30px}small{color:#65717b}.amber-note{padding:16px;background:#fff2db}button{padding:10px 20px;margin:10px 0}@media print{button{display:none}}</style><body><button onclick="window.print()">인쇄 / PDF로 저장</button>${content.innerHTML}</body></html>`;
+                  const html = `<!doctype html><html lang="${locale}"><meta charset="utf-8"><title>OralPilot ${t('수술계획서')}</title><style>body{font:15px/1.6 sans-serif;max-width:1000px;margin:40px auto;padding:20px;color:#17242d}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccd5db;padding:10px;text-align:left}h2{margin-top:30px}small{color:#65717b}.amber-note{padding:16px;background:#fff2db}button{padding:10px 20px;margin:10px 0}@media print{button{display:none}}</style><body><button onclick="window.print()">${t('인쇄 / PDF로 저장')}</button>${content.innerHTML}</body></html>`;
                   download(html, 'OralPilot-RESEARCH-plan.html', 'text/html');
                   notify(
                     '인쇄 가능한 계획서를 다운로드했습니다. 파일을 열어 PDF로 저장할 수 있습니다.',
@@ -2805,7 +2799,7 @@ export default function Studio() {
           </div>
         </DialogContent>
       </Dialog>
-    </SidebarProvider>
+    </SidebarProvider>,
   );
 }
 function Range({
@@ -2825,7 +2819,8 @@ function Range({
   unit: string;
   onChange: (v: number) => void;
 }) {
-  return (
+  const localize = useLocalize();
+  return localize(
     <div className="range-field">
       <div>
         <label>{label}</label>
@@ -2852,7 +2847,7 @@ function Range({
           {unit}
         </span>
       </div>
-    </div>
+    </div>,
   );
 }
 function Report({
@@ -2878,18 +2873,21 @@ function Report({
   buffer: ArrayBuffer | null;
   perioOrigin: string;
 }) {
+  const { locale } = useI18n();
+  const localize = useLocalize();
   const displayTooth = (fdi: number) => displayToothNumber(fdi, numbering);
   const displayText = (text: string) => displayToothText(text, numbering);
-  return (
+  return localize(
     <div id="plan-report" className="report-content">
-      <div className="report-brand">
-        OralPilot <span>연구용</span>
-      </div>
+      <div className="report-brand">OralPilot</div>
       <h2>임플란트 수술계획서</h2>
-      <p>DEMO-001 · ToothFairy3 F_026 · {new Date().toLocaleString('ko-KR')}</p>
+      <p>
+        DEMO-001 · ToothFairy3 F_026 ·{' '}
+        {new Date().toLocaleString(localeTags[locale])}
+      </p>
       <div className="amber-note">
-        연구용. 식립 부위 치아는 시뮬레이션을 위해 가상 제거되었으며, 발치
-        적응증을 판단한 것이 아닙니다.
+        식립 부위 치아는 시뮬레이션을 위해 가상 제거되었으며, 발치 적응증을
+        판단한 것이 아닙니다.
       </div>
       <h3>01 · 식립계획 · {numberingName(numbering)}</h3>
       <Table>
@@ -2960,7 +2958,7 @@ function Report({
       <h3>04 · 치료·회복 시퀀스 검토</h3>
       <p>
         {sequenceDecision
-          ? `공동 선택 기록 · 환자 동의 확인 / 의사 동의 확인 · ${new Date(sequenceDecision.confirmedAt).toLocaleString('ko-KR')}`
+          ? `공동 선택 기록 · 환자 동의 확인 / 의사 동의 확인 · ${new Date(sequenceDecision.confirmedAt).toLocaleString(localeTags[locale])}`
           : '미확정 비교 초안 · 환자·의사의 동의 확인 후 계획을 선택하세요.'}
       </p>
       <p>
@@ -3005,6 +3003,6 @@ function Report({
         </a>{' '}
         · <a href="https://github.com/choxos/OMFAtlas">OMFAtlas 메시 출처</a>
       </p>
-    </div>
+    </div>,
   );
 }

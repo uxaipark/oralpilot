@@ -1,4 +1,6 @@
 'use client';
+import { useLocalize } from '@/lib/i18n/provider';
+
 import DatasetBrowser from './dataset-browser';
 import { useEffect, useRef, useState } from 'react';
 import type * as THREE from 'three';
@@ -32,6 +34,7 @@ export default function DataPanel({
   notify: (s: string) => void;
   onDemo: () => void;
 }) {
+  const localize = useLocalize();
   const input = useRef<HTMLInputElement>(null),
     [dragging, setDragging] = useState(false),
     [busy, setBusy] = useState(''),
@@ -155,7 +158,7 @@ export default function DataPanel({
       setBusy('');
     }
   }
-  return (
+  return localize(
     <div className="data-workspace">
       <div
         className={`upload-zone ${dragging ? 'dragging' : ''}`}
@@ -415,7 +418,7 @@ export default function DataPanel({
           </p>
         </div>
       )}
-    </div>
+    </div>,
   );
 }
 function Slice({
@@ -429,6 +432,7 @@ function Slice({
   width: number;
   center: number;
 }) {
+  const localize = useLocalize();
   const canvas = useRef<HTMLCanvasElement>(null),
     [index, setIndex] = useState(Math.floor(volume.dims[axis] / 2));
   const axes = [0, 1, 2].filter((i) => i !== axis),
@@ -475,7 +479,7 @@ function Slice({
     ctx.lineTo(cw, ch / 2);
     ctx.stroke();
   }, [volume, axis, index, width, center, cw, ch]);
-  return (
+  return localize(
     <div className="slice-panel">
       <div>
         <span>{['I', 'J', 'K'][axis]} 단면</span>
@@ -499,6 +503,6 @@ function Slice({
         step={1}
         aria-label={`${['I', 'J', 'K'][axis]} CT 단면 선택`}
       />
-    </div>
+    </div>,
   );
 }

@@ -50,6 +50,7 @@ export const LOCALES = [
   { id: 'en-GB', label: 'English (United Kingdom)' },
   { id: 'en-AU', label: 'English (Australia)' },
   { id: 'ko-KR', label: '한국어 (대한민국)' },
+  { id: 'ja-JP', label: '日本語 (日本)' },
 ];
 
 const FILLERS = /\b(uh+|um+|er+|okay|ok|so|like|please|now)\b/g;
@@ -143,7 +144,7 @@ export function normalise(
   const stages: Stage[] = [];
   // A clinician says several things in one breath. Commas and "and" are where
   // one command ends and the next begins, so they survive as segment breaks.
-  let t = koreanShorthand(raw)
+  let t = japaneseShorthand(koreanShorthand(raw))
     .toLowerCase()
     .replace(/[,;]+/g, ` ${SEGMENT} `)
     .replace(/\b(and then|and|then)\b/g, ` ${SEGMENT} `)
@@ -240,4 +241,78 @@ function koreanShorthand(raw: string): string {
     .split(/(\s+)/)
     .map((v) => digits[v] ?? v)
     .join('');
+}
+
+/** Japanese dental shorthand shares the same language-neutral dictation commands. */
+function japaneseShorthand(raw: string): string {
+  let text = raw.normalize('NFKC');
+  const digits: Record<string, number> = {
+    零: 0,
+    〇: 0,
+    一: 1,
+    二: 2,
+    三: 3,
+    四: 4,
+    五: 5,
+    六: 6,
+    七: 7,
+    八: 8,
+    九: 9,
+  };
+  const number = (word: string) => {
+    if (/^\d+$/.test(word)) return word;
+    const [tens, units] = word.split('十');
+    if (word.includes('十'))
+      return String(
+        (tens ? digits[tens] : 1) * 10 + (units ? digits[units] : 0),
+      );
+    return String(digits[word]);
+  };
+  text = text.replace(
+    /([零〇一二三四五六七八九十\d]+)\s*番(?:の歯)?/g,
+    (_, n) => `tooth ${number(n)}`,
+  );
+  const words: Record<string, string> = {
+    出血なし: 'no bleeding',
+    出血無し: 'no bleeding',
+    出血はありません: 'no bleeding',
+    上顎: 'upper ',
+    下顎: 'lower ',
+    頬側: 'buccal',
+    唇側: 'facial',
+    舌側: 'lingual',
+    口蓋側: 'palatal',
+    歯周ポケット: 'pd',
+    ポケット深さ: 'pd',
+    ポケット: 'pd',
+    歯肉退縮: 'gm',
+    歯肉辺縁: 'gm',
+    退縮: 'gm',
+    動揺度: 'mob',
+    根分岐部: 'furc',
+    歯肉炎指数: 'gi',
+    出血: 'bleeding',
+    プラーク: 'plaque',
+    歯垢: 'plaque',
+    歯石: 'calculus',
+    排膿: 'suppuration',
+    次へ: 'next',
+    次: 'next',
+    前へ: 'back',
+    戻る: 'back',
+    欠損: 'missing',
+    インプラント: 'implant',
+    クラウン: 'crown',
+    天然歯: 'present',
+  };
+  for (const [word, command] of Object.entries(words).sort(
+    (a, b) => b[0].length - a[0].length,
+  ))
+    text = text.replaceAll(word, command);
+  text = text.replace(/[、，；]/g, ',').replace(/[。]/g, '.');
+  return text.replace(/[零〇一二三四五六七八九十]+/g, (word) =>
+    word.includes('十')
+      ? number(word)
+      : [...word].map((n) => digits[n]).join(' '),
+  );
 }

@@ -1,4 +1,6 @@
 'use client';
+import { useLocalize } from '@/lib/i18n/provider';
+
 import { Dropdown, DropdownOption } from '@/components/ui/dropdown';
 import { useEffect, useRef, useState } from 'react';
 import { Mic, MicOff, Undo2, Redo2, Download } from 'lucide-react';
@@ -17,6 +19,7 @@ import { download } from '@/lib/planning';
 import './voice-perio.css';
 type Props = { state: AppState; dispatch: (a: Action) => void };
 export function PerioCanvas({ state, dispatch }: Props) {
+  const localize = useLocalize();
   const ref = useRef<HTMLDivElement>(null),
     [width, setWidth] = useState(1100);
   useEffect(() => {
@@ -26,7 +29,7 @@ export function PerioCanvas({ state, dispatch }: Props) {
     return () => observer.disconnect();
   }, []);
   const density = fitDensity(width - 28);
-  return (
+  return localize(
     <div
       className="voice-perio perio-sheet"
       ref={ref}
@@ -176,10 +179,11 @@ export function PerioCanvas({ state, dispatch }: Props) {
         합성 검사 예제 · GM 양수는 퇴축, 음수는 치관측 치은연 · CAL은 PD와 GM이
         모두 있을 때 계산 · 검사 상태는 계획 저장에 포함됩니다.
       </p>
-    </div>
+    </div>,
   );
 }
 export function PerioInspector({ state, dispatch }: Props) {
+  const localize = useLocalize();
   const voice = useVoice(state, dispatch),
     [text, setText] = useState(''),
     [value, setValue] = useState('');
@@ -192,7 +196,7 @@ export function PerioInspector({ state, dispatch }: Props) {
   };
   const row = state.cursor.row;
   const numeric = ['pd', 'gm', 'cal', 'mgj', 'furc', 'gi', 'mob'].includes(row);
-  return (
+  return localize(
     <div className="voice-perio perio-inspector">
       <section className="inspector-section">
         <h3>음성으로 입력</h3>
@@ -212,6 +216,7 @@ export function PerioInspector({ state, dispatch }: Props) {
             >
               <DropdownOption value="ko-KR">한국어</DropdownOption>
               <DropdownOption value="en-US">English</DropdownOption>
+              <DropdownOption value="ja-JP">日本語</DropdownOption>
             </Dropdown>
           </label>
           <label>
@@ -277,7 +282,13 @@ export function PerioInspector({ state, dispatch }: Props) {
             onKeyDown={(e) => {
               if (e.key === 'Enter') submit();
             }}
-            placeholder={`${toothLabel(30, state.meta.numbering)}번, 출혈, 5 4 6`}
+            placeholder={
+              state.voice.locale.startsWith('ja')
+                ? `${toothLabel(30, state.meta.numbering)}番、出血、5 4 6`
+                : state.voice.locale.startsWith('en')
+                  ? `tooth ${toothLabel(30, state.meta.numbering)}, bleeding, 5 4 6`
+                  : `${toothLabel(30, state.meta.numbering)}번, 출혈, 5 4 6`
+            }
           />
           <button onClick={submit}>입력</button>
         </div>
@@ -297,7 +308,9 @@ export function PerioInspector({ state, dispatch }: Props) {
         <div className="uttlist">
           {state.utterances.slice(0, 5).map((u) => (
             <div key={u.id} className={`utt ${u.outcome}`}>
-              <div className="u-raw">{u.raw}</div>
+              <div className="u-raw" translate="no">
+                {u.raw}
+              </div>
               <div className="u-msg">{u.message}</div>
               <small>
                 {u.outcome === 'applied'
@@ -373,7 +386,7 @@ export function PerioInspector({ state, dispatch }: Props) {
           선택값 지우기
         </button>
       </section>
-    </div>
+    </div>,
   );
 }
 export function PerioReport({
@@ -383,7 +396,8 @@ export function PerioReport({
   chart: Chart;
   numbering: Numbering;
 }) {
-  return (
+  const localize = useLocalize();
+  return localize(
     <table>
       <thead>
         <tr>
@@ -429,13 +443,14 @@ export function PerioReport({
                 <td>{t.mobility ?? '—'}</td>
                 <td>
                   {t.status}
-                  {t.crown ? ' · crown' : ''} {t.recClass} {t.note}
+                  {t.crown ? ' · crown' : ''} {t.recClass}{' '}
+                  <span translate="no">{t.note}</span>
                 </td>
               </tr>
             );
           }),
         )}
       </tbody>
-    </table>
+    </table>,
   );
 }

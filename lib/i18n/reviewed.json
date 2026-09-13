@@ -1,0 +1,1807 @@
+{
+  "상악": {
+    "ko": "상악",
+    "en": "Upper jaw",
+    "ja": "上顎"
+  },
+  "하악": {
+    "ko": "하악",
+    "en": "Lower jaw",
+    "ja": "下顎"
+  },
+  "임플란트 계획을 먼저 추가하세요.": {
+    "ko": "임플란트 계획을 먼저 추가하세요.",
+    "en": "Add implants to the plan first.",
+    "ja": "先にインプラント計画を追加してください。"
+  },
+  "ITI · 환자 선호·기능·재정적 관점을 고려한 계획": {
+    "ko": "ITI · 환자 선호·기능·재정적 관점을 고려한 계획",
+    "en": "ITI · Planning around patient preferences, function and finances",
+    "ja": "ITI・患者の希望・機能・費用を考慮した計画"
+  },
+  "Straumann · 가이드 슬리브와 드릴 깊이 제어": {
+    "ko": "Straumann · 가이드 슬리브와 드릴 깊이 제어",
+    "en": "Straumann · Guide sleeves and drilling depth control",
+    "ja": "Straumann・ガイドスリーブとドリリング深度の制御"
+  },
+  "ADI · 회복 후 지대주와 보철 연결": {
+    "ko": "ADI · 회복 후 지대주와 보철 연결",
+    "en": "ADI · Abutment and restoration connection after healing",
+    "ja": "ADI・治癒後のアバットメントと補綴装置の接続"
+  },
+  "ITI · 전악 보철의 부하 방식": {
+    "ko": "ITI · 전악 보철의 부하 방식",
+    "en": "ITI · Loading protocols for full-arch restorations",
+    "ja": "ITI・フルアーチ補綴の荷重プロトコル"
+  },
+  "EFP · 치주 치료 지침": {
+    "ko": "EFP · 치주 치료 지침",
+    "en": "EFP · Periodontal treatment guidelines",
+    "ja": "EFP・歯周治療ガイドライン"
+  },
+  "해부학 모델을 먼저 불러오세요.": {
+    "ko": "해부학 모델을 먼저 불러오세요.",
+    "en": "Load an anatomical model first.",
+    "ja": "先に解剖モデルを読み込んでください。"
+  },
+  "회차 구성값 오류": {
+    "ko": "회차 구성값 오류",
+    "en": "Invalid visit configuration",
+    "ja": "治療回数の設定が無効です"
+  },
+  "처치 부위 오류": {
+    "ko": "처치 부위 오류",
+    "en": "Invalid treatment site",
+    "ja": "処置部位が無効です"
+  },
+  "#{0}: 보존 근관치료와 같은 부위 식립계획을 동시에 지정할 수 없습니다.": {
+    "ko": "#{0}: 보존 근관치료와 같은 부위 식립계획을 동시에 지정할 수 없습니다.",
+    "en": "#{0}: Tooth-preserving root canal treatment and implant placement cannot be planned at the same site.",
+    "ja": "#{0}：同じ部位に歯の保存を目的とする根管治療とインプラント埋入を同時に指定することはできません。"
+  },
+  "전신 상태·출혈 위험·수술 내성 평가 후 실제 회차 확정": {
+    "ko": "전신 상태·출혈 위험·수술 내성 평가 후 실제 회차 확정",
+    "en": "Confirm actual visits after assessing systemic health, bleeding risk and surgical tolerance.",
+    "ja": "全身状態・出血リスク・手術への耐容性を評価したうえで、実際の治療回数を決定します。"
+  },
+  "CT 정합·골 외벽·인접 치근·신경관 관계의 임상 확인": {
+    "ko": "CT 정합·골 외벽·인접 치근·신경관 관계의 임상 확인",
+    "en": "Clinically verify CT registration, cortical boundaries, adjacent roots and nerve canal relationships.",
+    "ja": "CTの位置合わせ、骨の外壁、隣接歯根、神経管との位置関係を臨床的に確認します。"
+  },
+  "임시 보철·교합·초기 고정·부하 방식 확인 후 다음 단계 진행": {
+    "ko": "임시 보철·교합·초기 고정·부하 방식 확인 후 다음 단계 진행",
+    "en": "Review provisional restorations, occlusion, primary stability and loading before proceeding.",
+    "ja": "暫間補綴、咬合、初期固定、荷重方法を確認してから次の段階へ進みます。"
+  },
+  "인공 치아는 원본 치관 형태를 이용한 설명용 표시이며 맞춤 보철 CAD·교합 분석 결과가 아님": {
+    "ko": "인공 치아는 원본 치관 형태를 이용한 설명용 표시이며 맞춤 보철 CAD·교합 분석 결과가 아님",
+    "en": "Crowns illustrate the original tooth form; they are not custom restorative CAD or an occlusal analysis result.",
+    "ja": "人工歯は元の歯冠形態を利用した説明用表示であり、個別の補綴CADや咬合解析の結果ではありません。"
+  },
+  "Full arch의 연결형 보철·프레임·폰틱·수동 적합은 별도 설계 필요; 화면은 식립 위치별 치관 연결 개념": {
+    "ko": "Full arch의 연결형 보철·프레임·폰틱·수동 적합은 별도 설계 필요; 화면은 식립 위치별 치관 연결 개념",
+    "en": "Full-arch bridges, frameworks, pontics and passive fit require separate design; this view illustrates crowns at individual implant sites.",
+    "ja": "フルアーチの連結補綴・フレーム・ポンティック・パッシブフィットは別途設計が必要です。画面は各埋入部位の歯冠接続を示しています。"
+  },
+  "치주 검사 PD가 미입력 또는 부분 입력입니다. 미입력을 건강한 상태로 해석할 수 없습니다.": {
+    "ko": "치주 검사 PD가 미입력 또는 부분 입력입니다. 미입력을 건강한 상태로 해석할 수 없습니다.",
+    "en": "Periodontal PD values are missing or incomplete. Missing measurements do not indicate periodontal health.",
+    "ja": "歯周検査のPD値が未入力または部分入力です。未入力を健康な状態と判断することはできません。"
+  },
+  "#{0}: 해부학 이격 미평가": {
+    "ko": "#{0}: 해부학 이격 미평가",
+    "en": "#{0}: Anatomical clearance not assessed",
+    "ja": "#{0}：解剖学的な離隔距離は未評価です"
+  },
+  "#{0}: 분할 표면과 근사 이격 {1} mm — 배치 검토 필요": {
+    "ko": "#{0}: 분할 표면과 근사 이격 {1} mm — 배치 검토 필요",
+    "en": "#{0}: Approximate clearance from segmented surface: {1} mm — review placement",
+    "ja": "#{0}：分割表面との概算離隔距離 {1} mm — 配置の確認が必要です"
+  },
+  "#{0}: 현존 치아의 발치/결손 여부 미확정": {
+    "ko": "#{0}: 현존 치아의 발치/결손 여부 미확정",
+    "en": "#{0}: Extraction or absence of the existing tooth is unconfirmed",
+    "ja": "#{0}：既存歯の抜歯・欠損状態が未確定です"
+  },
+  "안전 우선형": {
+    "ko": "안전 우선형",
+    "en": "Safety-focused",
+    "ja": "安全配慮型"
+  },
+  "구역별 소범위 처치 → 회복 확인 → 다음 구역. 회차당 부담 분산에 우선순위를 둡니다.": {
+    "ko": "구역별 소범위 처치 → 회복 확인 → 다음 구역. 회차당 부담 분산에 우선순위를 둡니다.",
+    "en": "Treat a small region, review healing, then proceed to the next. This approach prioritizes spreading the burden across visits.",
+    "ja": "小範囲の処置、治癒の確認、次の部位への移行を繰り返します。各回の負担を分散することを優先します。"
+  },
+  "회차별 처치 범위를 제한해 경과를 관찰합니다.": {
+    "ko": "회차별 처치 범위를 제한해 경과를 관찰합니다.",
+    "en": "Limit the treatment area per visit and observe progress.",
+    "ja": "1回の処置範囲を限定し、経過を観察します。"
+  },
+  "앞선 회차의 회복 반응을 다음 회차에 반영할 수 있습니다.": {
+    "ko": "앞선 회차의 회복 반응을 다음 회차에 반영할 수 있습니다.",
+    "en": "Use the healing response from each visit to inform the next.",
+    "ja": "前回の治癒反応を次回の処置に反映できます。"
+  },
+  "반복 수술·가이드 준비와 내원 부담이 늘 수 있습니다.": {
+    "ko": "반복 수술·가이드 준비와 내원 부담이 늘 수 있습니다.",
+    "en": "Repeated surgery, guide preparation and visits may increase the burden.",
+    "ja": "手術・ガイド準備・通院の繰り返しによる負担が増える場合があります。"
+  },
+  "안전성 우위를 입증한 결과가 아니며 모든 안에 같은 안전 평가가 필요합니다.": {
+    "ko": "안전성 우위를 입증한 결과가 아니며 모든 안에 같은 안전 평가가 필요합니다.",
+    "en": "This does not establish superior safety. Every proposal requires the same safety assessment.",
+    "ja": "安全性の優位性を証明するものではありません。すべての案で同じ安全評価が必要です。"
+  },
+  "분할 상한은 비교 가정이며 개인별 수술 내성에 맞게 조정": {
+    "ko": "분할 상한은 비교 가정이며 개인별 수술 내성에 맞게 조정",
+    "en": "The per-visit limit is a comparison assumption; adjust it to individual surgical tolerance.",
+    "ja": "各回の上限は比較のための仮定です。患者ごとの手術への耐容性に合わせて調整します。"
+  },
+  "분할 구역마다 임시 보철·지지 상태 확인": {
+    "ko": "분할 구역마다 임시 보철·지지 상태 확인",
+    "en": "Check provisional restorations and support in each treatment region.",
+    "ja": "各処置部位の暫間補綴と支持状態を確認します。"
+  },
+  "비용 절감형": {
+    "ko": "비용 절감형",
+    "en": "Cost-conscious",
+    "ja": "費用配慮型"
+  },
+  "악궁별로 식립과 가이드 준비를 묶어 반복 준비·내원 비용의 절감 가능성을 검토합니다.": {
+    "ko": "악궁별로 식립과 가이드 준비를 묶어 반복 준비·내원 비용의 절감 가능성을 검토합니다.",
+    "en": "Group placement and guide preparation by arch to explore reducing repeated preparation and visit costs.",
+    "ja": "歯列弓ごとに埋入とガイド準備をまとめ、準備や通院にかかる費用の削減可能性を検討します。"
+  },
+  "같은 악궁의 계획 부위를 한 식립 회차에 모읍니다.": {
+    "ko": "같은 악궁의 계획 부위를 한 식립 회차에 모읍니다.",
+    "en": "Group planned sites in the same arch into one placement visit.",
+    "ja": "同じ歯列弓の計画部位を1回の埋入手術にまとめます。"
+  },
+  "소구역 분할 대비 반복 준비와 이동 부담을 줄일 여지가 있습니다.": {
+    "ko": "소구역 분할 대비 반복 준비와 이동 부담을 줄일 여지가 있습니다.",
+    "en": "Repeated preparation and travel may be reduced compared with smaller treatment groups.",
+    "ja": "小範囲に分ける場合と比べ、準備の繰り返しや移動の負担を軽減できる可能性があります。"
+  },
+  "악궁 가이드·임시 보철·골 증대 비용이 커질 수 있습니다.": {
+    "ko": "악궁 가이드·임시 보철·골 증대 비용이 커질 수 있습니다.",
+    "en": "Arch guides, provisional restorations and bone augmentation may increase costs.",
+    "ja": "歯列弓のガイド、暫間補綴、骨造成の費用が増える場合があります。"
+  },
+  "실제 총액은 견적 필요. 최소 비용을 산출하거나 보장하지 않습니다.": {
+    "ko": "실제 총액은 견적 필요. 최소 비용을 산출하거나 보장하지 않습니다.",
+    "en": "Actual total costs require quotations. This does not calculate or guarantee the lowest cost.",
+    "ja": "実際の総費用には見積もりが必要です。最低費用を算出・保証するものではありません。"
+  },
+  "가이드 제작·수정, 수술·마취, 보철, 골 증대, 재내원 견적 비교": {
+    "ko": "가이드 제작·수정, 수술·마취, 보철, 골 증대, 재내원 견적 비교",
+    "en": "Compare quotations for guide fabrication and revision, surgery, anesthesia, restorations, bone augmentation and follow-up visits.",
+    "ja": "ガイド製作・修正、手術・麻酔、補綴、骨造成、再来院の見積もりを比較します。"
+  },
+  "필수 처치·재평가는 비용을 이유로 생략하지 않음": {
+    "ko": "필수 처치·재평가는 비용을 이유로 생략하지 않음",
+    "en": "Do not omit necessary treatment or reassessment to reduce costs.",
+    "ja": "費用を理由に必要な処置や再評価を省略しません。"
+  },
+  "기간 절약형": {
+    "ko": "기간 절약형",
+    "en": "Time-conscious",
+    "ja": "通院回数配慮型"
+  },
+  "계획된 상·하악을 같은 식립 회차에 순차 처리해 식립 내원 횟수의 단축을 검토합니다.": {
+    "ko": "계획된 상·하악을 같은 식립 회차에 순차 처리해 식립 내원 횟수의 단축을 검토합니다.",
+    "en": "Treat planned upper and lower sites sequentially in one placement visit to explore reducing surgical visits.",
+    "ja": "計画した上下顎の部位を同じ埋入手術で順番に処置し、手術のための通院回数の削減を検討します。"
+  },
+  "식립 수술 회차를 하나로 구성합니다.": {
+    "ko": "식립 수술 회차를 하나로 구성합니다.",
+    "en": "Combine implant placement into one surgical visit.",
+    "ja": "インプラント埋入を1回の手術にまとめます。"
+  },
+  "상악과 하악의 가이드를 각각 장착해 계획 부위를 순차 처리합니다.": {
+    "ko": "상악과 하악의 가이드를 각각 장착해 계획 부위를 순차 처리합니다.",
+    "en": "Seat separate upper and lower guides and treat the planned sites sequentially.",
+    "ja": "上下顎のガイドをそれぞれ装着し、計画部位を順番に処置します。"
+  },
+  "한 회차의 처치 범위와 수술 부담이 집중됩니다.": {
+    "ko": "한 회차의 처치 범위와 수술 부담이 집중됩니다.",
+    "en": "Treatment extent and surgical burden are concentrated in one visit.",
+    "ja": "処置範囲と手術の負担が1回に集中します。"
+  },
+  "치유 기간·총 치료 일수는 단축을 보장하지 않으며 즉시 크라운 부하를 뜻하지 않습니다.": {
+    "ko": "치유 기간·총 치료 일수는 단축을 보장하지 않으며 즉시 크라운 부하를 뜻하지 않습니다.",
+    "en": "This does not guarantee shorter healing or total treatment time, and does not imply immediate crown loading.",
+    "ja": "治癒期間や総治療期間の短縮を保証するものではなく、クラウンへの即時荷重を意味しません。"
+  },
+  "장시간 수술 내성·마취 계획·술후 식사와 돌봄 여건 확인": {
+    "ko": "장시간 수술 내성·마취 계획·술후 식사와 돌봄 여건 확인",
+    "en": "Review tolerance for prolonged surgery, anesthesia, postoperative eating and available support.",
+    "ja": "長時間の手術への耐容性、麻酔計画、術後の食事と介助体制を確認します。"
+  },
+  "골 증대·감염·초기 고정 조건에 따라 분할안으로 변경 검토": {
+    "ko": "골 증대·감염·초기 고정 조건에 따라 분할안으로 변경 검토",
+    "en": "Consider staged treatment depending on bone augmentation, infection and primary stability.",
+    "ja": "骨造成、感染、初期固定の条件に応じて、分割した治療への変更を検討します。"
+  },
+  "상악 우선 일괄형": {
+    "ko": "상악 우선 일괄형",
+    "en": "Upper arch first",
+    "ja": "上顎先行型"
+  },
+  "상악 계획 부위를 가이드로 일괄 처리하고 회복 재평가 후 하악으로 진행합니다.": {
+    "ko": "상악 계획 부위를 가이드로 일괄 처리하고 회복 재평가 후 하악으로 진행합니다.",
+    "en": "Treat planned upper sites with a guide, reassess healing, then proceed to the lower arch.",
+    "ja": "上顎の計画部位をガイドでまとめて処置し、治癒を再評価してから下顎へ進みます。"
+  },
+  "상악의 보철 목표와 가이드 구성을 한 회차로 검토합니다.": {
+    "ko": "상악의 보철 목표와 가이드 구성을 한 회차로 검토합니다.",
+    "en": "Review upper restorative goals and guide configuration in one visit.",
+    "ja": "上顎の補綴目標とガイド構成を1回の治療として検討します。"
+  },
+  "양 악궁의 수술 부담을 회차별로 나눕니다.": {
+    "ko": "양 악궁의 수술 부담을 회차별로 나눕니다.",
+    "en": "Distribute surgery on the two arches across separate visits.",
+    "ja": "上下顎の手術負担を別々の治療回に分散します。"
+  },
+  "상악 골 증대 등이 필요하면 후속 일정이 달라질 수 있습니다.": {
+    "ko": "상악 골 증대 등이 필요하면 후속 일정이 달라질 수 있습니다.",
+    "en": "Upper bone augmentation or other requirements may change subsequent scheduling.",
+    "ja": "上顎の骨造成などが必要な場合、その後の日程が変わることがあります。"
+  },
+  "상악 우선이 모든 환자에게 유리한 순서는 아닙니다.": {
+    "ko": "상악 우선이 모든 환자에게 유리한 순서는 아닙니다.",
+    "en": "An upper-first sequence is not preferable for every patient.",
+    "ja": "上顎を先行する順序がすべての患者に有利とは限りません。"
+  },
+  "상악동·골량과 상악 임시 보철·대합 관계 확인": {
+    "ko": "상악동·골량과 상악 임시 보철·대합 관계 확인",
+    "en": "Review the maxillary sinus, bone volume, upper provisionals and opposing dentition.",
+    "ja": "上顎洞、骨量、上顎の暫間補綴、対合関係を確認します。"
+  },
+  "상악 식립 계획이 없어 현재는 하악만 구성됨": {
+    "ko": "상악 식립 계획이 없어 현재는 하악만 구성됨",
+    "en": "No upper implants are planned; only the lower arch is included.",
+    "ja": "上顎の埋入計画がないため、現在は下顎のみで構成されています。"
+  },
+  "하악 우선 일괄형": {
+    "ko": "하악 우선 일괄형",
+    "en": "Lower arch first",
+    "ja": "下顎先行型"
+  },
+  "하악 계획 부위를 가이드로 일괄 처리하고 회복 재평가 후 상악으로 진행합니다.": {
+    "ko": "하악 계획 부위를 가이드로 일괄 처리하고 회복 재평가 후 상악으로 진행합니다.",
+    "en": "Treat planned lower sites with a guide, reassess healing, then proceed to the upper arch.",
+    "ja": "下顎の計画部位をガイドでまとめて処置し、治癒を再評価してから上顎へ進みます。"
+  },
+  "하악의 보철 목표와 가이드 구성을 한 회차로 검토합니다.": {
+    "ko": "하악의 보철 목표와 가이드 구성을 한 회차로 검토합니다.",
+    "en": "Review lower restorative goals and guide configuration in one visit.",
+    "ja": "下顎の補綴目標とガイド構成を1回の治療として検討します。"
+  },
+  "하악 회복 경과를 보고 상악 회차를 조정할 수 있습니다.": {
+    "ko": "하악 회복 경과를 보고 상악 회차를 조정할 수 있습니다.",
+    "en": "Adjust the upper visit according to healing in the lower arch.",
+    "ja": "下顎の治癒経過に応じて上顎の治療回を調整できます。"
+  },
+  "하악 처치 후 식사·임시 보철 적응 부담이 생길 수 있습니다.": {
+    "ko": "하악 처치 후 식사·임시 보철 적응 부담이 생길 수 있습니다.",
+    "en": "Eating and adaptation to provisional restorations may be difficult after lower treatment.",
+    "ja": "下顎の処置後は、食事や暫間補綴への適応に負担が生じる場合があります。"
+  },
+  "하악 우선의 적합성은 신경관·골 외벽과 보철 목표 검토가 필요합니다.": {
+    "ko": "하악 우선의 적합성은 신경관·골 외벽과 보철 목표 검토가 필요합니다.",
+    "en": "A lower-first sequence requires review of the nerve canal, cortical boundaries and restorative goals.",
+    "ja": "下顎先行の適合性は、神経管、骨の外壁、補綴目標を確認して検討します。"
+  },
+  "하치조관·설측 골 외벽·하악 가이드 지지 및 고정 확인": {
+    "ko": "하치조관·설측 골 외벽·하악 가이드 지지 및 고정 확인",
+    "en": "Check the mandibular canal, lingual cortical boundary, and lower guide support and fixation.",
+    "ja": "下顎管、舌側の骨外壁、下顎ガイドの支持と固定を確認します。"
+  },
+  "하악 식립 계획이 없어 현재는 상악만 구성됨": {
+    "ko": "하악 식립 계획이 없어 현재는 상악만 구성됨",
+    "en": "No lower implants are planned; only the upper arch is included.",
+    "ja": "下顎の埋入計画がないため、現在は上顎のみで構成されています。"
+  },
+  "저작·회복 배려형": {
+    "ko": "저작·회복 배려형",
+    "en": "Chewing & recovery-focused",
+    "ja": "咀嚼・回復配慮型"
+  },
+  "우측 구역을 먼저 처치하고 재평가 후 좌측으로 진행해 반대편 사용 가능성을 검토합니다.": {
+    "ko": "우측 구역을 먼저 처치하고 재평가 후 좌측으로 진행해 반대편 사용 가능성을 검토합니다.",
+    "en": "Treat the right region first, reassess, then proceed to the left while considering use of the untreated side.",
+    "ja": "右側を先に処置し、再評価後に左側へ進みます。反対側を使用できるかを検討します。"
+  },
+  "양측을 동시에 처치하는 범위를 줄이는 비교안입니다.": {
+    "ko": "양측을 동시에 처치하는 범위를 줄이는 비교안입니다.",
+    "en": "This comparison proposal reduces the extent of simultaneous bilateral treatment.",
+    "ja": "左右を同時に処置する範囲を抑える比較案です。"
+  },
+  "구역별 발치와 회복을 후속 식립 회차에 연결합니다.": {
+    "ko": "구역별 발치와 회복을 후속 식립 회차에 연결합니다.",
+    "en": "Link extraction and healing in each region to later placement visits.",
+    "ja": "各部位の抜歯と治癒を、その後の埋入手術につなげます。"
+  },
+  "반대편의 잔존 치아·보철 상태에 따라 저작 유지가 불가능할 수 있습니다.": {
+    "ko": "반대편의 잔존 치아·보철 상태에 따라 저작 유지가 불가능할 수 있습니다.",
+    "en": "Remaining teeth and restorations on the opposite side may not support continued chewing.",
+    "ja": "反対側の残存歯や補綴装置の状態によっては、咀嚼を維持できない場合があります。"
+  },
+  "전악 결손·연결형 보철에서는 구역 분할이 부적합할 수 있습니다.": {
+    "ko": "전악 결손·연결형 보철에서는 구역 분할이 부적합할 수 있습니다.",
+    "en": "Regional staging may be unsuitable for fully edentulous arches or connected restorations.",
+    "ja": "無歯顎や連結型補綴では、部位ごとの分割が適さない場合があります。"
+  },
+  "우측 우선은 예시 순서. 증상·교합·잔존 지지에 따라 담당의가 순서 조정": {
+    "ko": "우측 우선은 예시 순서. 증상·교합·잔존 지지에 따라 담당의가 순서 조정",
+    "en": "Right-first is an example. The clinician adjusts the order based on symptoms, occlusion and remaining support.",
+    "ja": "右側先行は一例です。症状・咬合・残存支持に応じて担当医が順序を調整します。"
+  },
+  "반대편 저작 가능 여부와 임시 보철을 확인; 즉시 저작 허용을 뜻하지 않음": {
+    "ko": "반대편 저작 가능 여부와 임시 보철을 확인; 즉시 저작 허용을 뜻하지 않음",
+    "en": "Confirm chewing capacity on the opposite side and provisional support; this does not permit immediate chewing.",
+    "ja": "反対側で咀嚼できるかと暫間補綴の支持を確認します。即時の咀嚼を許可する意味ではありません。"
+  },
+  "진단·치료 조건 확인": {
+    "ko": "진단·치료 조건 확인",
+    "en": "Diagnosis & treatment review",
+    "ja": "診断・治療条件の確認"
+  },
+  "평가 회차": {
+    "ko": "평가 회차",
+    "en": "Assessment visit",
+    "ja": "評価のための受診"
+  },
+  "전신 상태, 치주 안정성, 보철 목표와 실제 영상 정합을 확인하는 단계입니다. 화면은 조건부 검토안입니다.": {
+    "ko": "전신 상태, 치주 안정성, 보철 목표와 실제 영상 정합을 확인하는 단계입니다. 화면은 조건부 검토안입니다.",
+    "en": "Review systemic health, periodontal stability, restorative goals and actual image registration. This is a conditional proposal.",
+    "ja": "全身状態、歯周組織の安定性、補綴目標、実際の画像の位置合わせを確認します。画面は条件付きの検討案です。"
+  },
+  "치주 처치 검토": {
+    "ko": "치주 처치 검토",
+    "en": "Periodontal care review",
+    "ja": "歯周治療の検討"
+  },
+  "선행 치료": {
+    "ko": "선행 치료",
+    "en": "Preliminary treatment",
+    "ja": "先行治療"
+  },
+  "제공된 차트에 깊은 PD 또는 출혈 표식이 있습니다. 치주 처치 필요성과 반응을 평가합니다. 자동 진단은 아닙니다.": {
+    "ko": "제공된 차트에 깊은 PD 또는 출혈 표식이 있습니다. 치주 처치 필요성과 반응을 평가합니다. 자동 진단은 아닙니다.",
+    "en": "The chart includes deep PD values or bleeding marks. Evaluate the need for periodontal care and its response; this is not an automated diagnosis.",
+    "ja": "チャートに深いPD値または出血の記録があります。歯周治療の必要性と反応を評価します。自動診断ではありません。"
+  },
+  "치주 상태 재평가": {
+    "ko": "치주 상태 재평가",
+    "en": "Periodontal reassessment",
+    "ja": "歯周状態の再評価"
+  },
+  "재평가 · 간격 미정": {
+    "ko": "재평가 · 간격 미정",
+    "en": "Reassessment · interval pending",
+    "ja": "再評価・間隔未定"
+  },
+  "치료 반응과 유지관리 가능성을 확인한 뒤 식립 단계 진행 여부를 판단합니다.": {
+    "ko": "치료 반응과 유지관리 가능성을 확인한 뒤 식립 단계 진행 여부를 판단합니다.",
+    "en": "Review treatment response and maintenance feasibility before deciding whether to proceed with placement.",
+    "ja": "治療反応とメインテナンスの実施可能性を確認し、埋入段階へ進むか判断します。"
+  },
+  "#{0} 근관치료 개념": {
+    "ko": "#{0} 근관치료 개념",
+    "en": "#{0} Root canal treatment concept",
+    "ja": "#{0} 根管治療の概念表示"
+  },
+  "보존 치료": {
+    "ko": "보존 치료",
+    "en": "Tooth-preserving treatment",
+    "ja": "歯の保存治療"
+  },
+  "사용자가 지정한 보존 치아의 근관치료 개념입니다. 근관 수·작업장·기구 규격을 산출하지 않습니다.": {
+    "ko": "사용자가 지정한 보존 치아의 근관치료 개념입니다. 근관 수·작업장·기구 규격을 산출하지 않습니다.",
+    "en": "Illustrates root canal treatment for a tooth designated for preservation. Canal count, working length and instrument sizes are not calculated.",
+    "ja": "保存を指定した歯の根管治療を概念的に示します。根管数、作業長、器具の規格は算出しません。"
+  },
+  "#{0} 보존 치료 반응 관찰": {
+    "ko": "#{0} 보존 치료 반응 관찰",
+    "en": "#{0} Tooth-preservation follow-up",
+    "ja": "#{0} 保存治療の反応観察"
+  },
+  "보존 치료 경과 · 기간 미정": {
+    "ko": "보존 치료 경과 · 기간 미정",
+    "en": "Tooth-preservation follow-up · interval pending",
+    "ja": "保存治療の経過観察・期間未定"
+  },
+  "표시 색은 경과 관찰 단계이며 실제 조직 회복을 예측하지 않습니다.": {
+    "ko": "표시 색은 경과 관찰 단계이며 실제 조직 회복을 예측하지 않습니다.",
+    "en": "Colors indicate follow-up stages, not predictions of actual tissue recovery.",
+    "ja": "表示色は経過観察の段階を示し、実際の組織回復を予測するものではありません。"
+  },
+  "#{0} 근관치료 경과 확인": {
+    "ko": "#{0} 근관치료 경과 확인",
+    "en": "#{0} Root canal reassessment",
+    "ja": "#{0} 根管治療の経過確認"
+  },
+  "보존 치료 재평가": {
+    "ko": "보존 치료 재평가",
+    "en": "Tooth-preservation reassessment",
+    "ja": "保存治療の再評価"
+  },
+  "증상과 근관·근단 상태의 임상 재평가 후 후속 치료를 결정합니다.": {
+    "ko": "증상과 근관·근단 상태의 임상 재평가 후 후속 치료를 결정합니다.",
+    "en": "Determine subsequent care after clinically reassessing symptoms, root canals and periapical status.",
+    "ja": "症状、根管、根尖周囲の状態を臨床的に再評価してから、その後の治療を決定します。"
+  },
+  "#{0} 가상 발치": {
+    "ko": "#{0} 가상 발치",
+    "en": "#{0} Simulated extraction",
+    "ja": "#{0} 抜歯シミュレーション"
+  },
+  "지정된 발치 또는 식립 위치의 현존 치아를 시뮬레이션에서만 제거합니다. 실제 발치 적응증과 즉시 식립 가능성은 미판정입니다.": {
+    "ko": "지정된 발치 또는 식립 위치의 현존 치아를 시뮬레이션에서만 제거합니다. 실제 발치 적응증과 즉시 식립 가능성은 미판정입니다.",
+    "en": "Existing teeth at designated extraction or implant sites are removed only in the simulation. Extraction indications and immediate placement suitability are undetermined.",
+    "ja": "指定した抜歯・埋入部位の既存歯をシミュレーション上でのみ除去します。実際の抜歯適応と即時埋入の可否は未判定です。"
+  },
+  "발치 부위 지혈·상처 관리": {
+    "ko": "발치 부위 지혈·상처 관리",
+    "en": "Hemostasis & wound care",
+    "ja": "抜歯部位の止血・創傷管理"
+  },
+  "적색은 처치 후 출혈·상처 관찰 구역의 개념 표시입니다. 실제 출혈량이나 위험 예측이 아닙니다.": {
+    "ko": "적색은 처치 후 출혈·상처 관찰 구역의 개념 표시입니다. 실제 출혈량이나 위험 예측이 아닙니다.",
+    "en": "Red conceptually marks areas monitored for bleeding or wounds after treatment. It does not predict blood loss or risk.",
+    "ja": "赤色は処置後の出血・創傷を観察する部位の概念表示です。実際の出血量やリスクを予測するものではありません。"
+  },
+  "발치 부위 회복 관찰": {
+    "ko": "발치 부위 회복 관찰",
+    "en": "Extraction site healing",
+    "ja": "抜歯部位の治癒観察"
+  },
+  "회복 · 기간 미정": {
+    "ko": "회복 · 기간 미정",
+    "en": "Healing · interval pending",
+    "ja": "治癒・期間未定"
+  },
+  "식립 시기는 발치와의 관계, 연조직·골 치유 상태를 보고 결정합니다. 화면 진행 속도는 실제 일수와 무관합니다.": {
+    "ko": "식립 시기는 발치와의 관계, 연조직·골 치유 상태를 보고 결정합니다. 화면 진행 속도는 실제 일수와 무관합니다.",
+    "en": "Placement timing depends on extraction timing and soft tissue and bone healing. Playback speed does not represent actual days.",
+    "ja": "埋入時期は抜歯との時期的関係と軟組織・骨の治癒状態に基づいて決定します。再生速度は実際の日数を表しません。"
+  },
+  "별도 선행 발치": {
+    "ko": "별도 선행 발치",
+    "en": "Separate preliminary extraction",
+    "ja": "別途の先行抜歯"
+  },
+  "식립 회차 {0} 전 · 발치": {
+    "ko": "식립 회차 {0} 전 · 발치",
+    "en": "Before placement visit {0} · extraction",
+    "ja": "埋入手術 {0} 回目前・抜歯"
+  },
+  "식립 회차 {0} · 날짜 미정": {
+    "ko": "식립 회차 {0} · 날짜 미정",
+    "en": "Placement visit {0} · date pending",
+    "ja": "埋入手術 {0} 回目・日程未定"
+  },
+  "{0} 가이드 형상 제작·슬리브 조립": {
+    "ko": "{0} 가이드 형상 제작·슬리브 조립",
+    "en": "{0} Guide fabrication & sleeve assembly",
+    "ja": "{0} ガイド製作・スリーブ組立"
+  },
+  "현재 가이드 검토 형상의 지지 쉘이 형성되고 금속 슬리브가 조립되는 개념 과정입니다. 실제 출력·후경화·멸균은 재료와 제조사 지침에 따라 별도로 수행하고 검증해야 합니다.": {
+    "ko": "현재 가이드 검토 형상의 지지 쉘이 형성되고 금속 슬리브가 조립되는 개념 과정입니다. 실제 출력·후경화·멸균은 재료와 제조사 지침에 따라 별도로 수행하고 검증해야 합니다.",
+    "en": "Illustrates formation of the guide support shell and assembly of metal sleeves. Printing, post-curing and sterilization require separate execution and verification according to material and manufacturer instructions.",
+    "ja": "ガイドの支持シェル形成と金属スリーブの組み立てを概念的に示します。実際の造形・後硬化・滅菌は材料とメーカーの指示に従い、別途実施・検証が必要です。"
+  },
+  "{0} 가이드 장착": {
+    "ko": "{0} 가이드 장착",
+    "en": "{0} Guide placement",
+    "ja": "{0} ガイド装着"
+  },
+  "계획된 가이드가 해당 악궁의 지지 위치로 내려와 안착합니다. 이동은 설명용이며 실제 삽입 경로·언더컷·조직 적합을 검증한 결과가 아닙니다.": {
+    "ko": "계획된 가이드가 해당 악궁의 지지 위치로 내려와 안착합니다. 이동은 설명용이며 실제 삽입 경로·언더컷·조직 적합을 검증한 결과가 아닙니다.",
+    "en": "The planned guide moves into its support position on the arch. The illustrative motion does not verify insertion path, undercuts or tissue fit.",
+    "ja": "計画したガイドが歯列弓の支持位置に移動して装着されます。動きは説明用であり、挿入経路・アンダーカット・組織への適合を検証するものではありません。"
+  },
+  "{0} 가이드 적합·고정 확인": {
+    "ko": "{0} 가이드 적합·고정 확인",
+    "en": "{0} Guide fit & fixation check",
+    "ja": "{0} ガイド適合・固定の確認"
+  },
+  "지지 치아와 점막, 흔들림, 드릴 통과공과 관주 접근을 확인할 단계입니다. 화면의 안착은 실제 적합 판정이 아니며 임상 확인이 필요합니다.": {
+    "ko": "지지 치아와 점막, 흔들림, 드릴 통과공과 관주 접근을 확인할 단계입니다. 화면의 안착은 실제 적합 판정이 아니며 임상 확인이 필요합니다.",
+    "en": "Check supporting teeth and mucosa, rocking, drill openings and irrigation access. Seating on screen is not a clinical fit assessment.",
+    "ja": "支持歯・粘膜、動揺、ドリル孔、注水経路を確認する段階です。画面上の装着は臨床的な適合判定ではありません。"
+  },
+  "#{0} 슬리브 유도 드릴링": {
+    "ko": "#{0} 슬리브 유도 드릴링",
+    "en": "#{0} Sleeve-guided drilling",
+    "ja": "#{0} スリーブ誘導ドリリング"
+  },
+  "금속 슬리브 중심을 따라 드릴이 회전·진입·후퇴합니다. 내경 안으로 통과하는 참고 드릴을 표시하며 회전수·드릴 단계·관주·실제 깊이 스톱은 제조사별로 확인해야 합니다.": {
+    "ko": "금속 슬리브 중심을 따라 드릴이 회전·진입·후퇴합니다. 내경 안으로 통과하는 참고 드릴을 표시하며 회전수·드릴 단계·관주·실제 깊이 스톱은 제조사별로 확인해야 합니다.",
+    "en": "The drill rotates, advances and retracts along the metal sleeve. This reference drill illustrates passage through the bore; verify speed, drill sequence, irrigation and depth stops for each manufacturer.",
+    "ja": "金属スリーブに沿ってドリルが回転・進入・後退します。内径を通過する参考表示であり、回転数・ドリルの順序・注水・深度ストップはメーカーごとに確認が必要です。"
+  },
+  "{0} 드릴 가이드 제거": {
+    "ko": "{0} 드릴 가이드 제거",
+    "en": "{0} Drill guide removal",
+    "ja": "{0} ドリルガイドの取り外し"
+  },
+  "현재 모델은 드릴 유도용 슬리브이므로 식립체를 좁은 통과공에 억지로 통과시키지 않고 가이드를 제거합니다. 가이드 유지 식립은 호환되는 전용 슬리브·운반체 설계가 필요합니다.": {
+    "ko": "현재 모델은 드릴 유도용 슬리브이므로 식립체를 좁은 통과공에 억지로 통과시키지 않고 가이드를 제거합니다. 가이드 유지 식립은 호환되는 전용 슬리브·운반체 설계가 필요합니다.",
+    "en": "This sleeve is for guided drilling. Remove the guide rather than force the implant through a narrow bore. Guided placement requires compatible sleeves and carriers.",
+    "ja": "このスリーブはドリル誘導用です。狭い孔にインプラントを無理に通さず、ガイドを取り外します。ガイドを用いた埋入には対応するスリーブとキャリアが必要です。"
+  },
+  "{0} 최종 식립부 준비·규격 확인": {
+    "ko": "{0} 최종 식립부 준비·규격 확인",
+    "en": "{0} Final site preparation & size check",
+    "ja": "{0} 最終埋入部位の準備・規格確認"
+  },
+  "가이드 제거 후 제조사별 최종 드릴 프로토콜과 형성 깊이·골벽을 확인하는 단계입니다. 화면은 실제 최종 드릴 규격이나 형성 완료를 확정하지 않습니다.": {
+    "ko": "가이드 제거 후 제조사별 최종 드릴 프로토콜과 형성 깊이·골벽을 확인하는 단계입니다. 화면은 실제 최종 드릴 규격이나 형성 완료를 확정하지 않습니다.",
+    "en": "After guide removal, review the manufacturer's final drilling protocol, prepared depth and bone walls. The screen does not confirm final drill size or completed preparation.",
+    "ja": "ガイドを外した後、メーカーの最終ドリリング手順、形成深度、骨壁を確認します。画面は最終ドリル径や形成完了を確定するものではありません。"
+  },
+  "#{0} 임플란트 식립": {
+    "ko": "#{0} 임플란트 식립",
+    "en": "#{0} Implant placement",
+    "ja": "#{0} インプラント埋入"
+  },
+  "준비된 계획 축을 따라 임플란트가 삽입됩니다. 해당 부위의 위치·각도·규격은 임플란트 계획을 그대로 사용하며 실제 초기 고정과 인접 구조는 수술 중 확인해야 합니다.": {
+    "ko": "준비된 계획 축을 따라 임플란트가 삽입됩니다. 해당 부위의 위치·각도·규격은 임플란트 계획을 그대로 사용하며 실제 초기 고정과 인접 구조는 수술 중 확인해야 합니다.",
+    "en": "The implant follows the planned axis using the position, angle and dimensions from the implant plan. Confirm primary stability and adjacent structures during surgery.",
+    "ja": "計画した位置・角度・規格を用いて、計画軸に沿ってインプラントが挿入されます。初期固定と隣接構造は実際の手術中に確認が必要です。"
+  },
+  "해당 회차 상처 관리": {
+    "ko": "해당 회차 상처 관리",
+    "en": "Wound care",
+    "ja": "創傷管理"
+  },
+  "적색 영역은 해당 회차의 처치 구역입니다. 지혈·봉합·상처 상태 관찰을 개념적으로 표시합니다.": {
+    "ko": "적색 영역은 해당 회차의 처치 구역입니다. 지혈·봉합·상처 상태 관찰을 개념적으로 표시합니다.",
+    "en": "Red marks the treatment region for this visit and conceptually illustrates hemostasis, suturing and wound observation.",
+    "ja": "赤色はその回の処置部位を示し、止血・縫合・創傷観察を概念的に表示します。"
+  },
+  "회복 경과 관찰": {
+    "ko": "회복 경과 관찰",
+    "en": "Healing assessment",
+    "ja": "治癒経過の観察"
+  },
+  "회복 {0} · 기간 미정": {
+    "ko": "회복 {0} · 기간 미정",
+    "en": "Healing {0} · interval pending",
+    "ja": "治癒 {0}・期間未定"
+  },
+  "적색→황색→청색은 관찰 단계 전환입니다. 조직이 실제로 완치되었다는 예측이나 보장은 아닙니다.": {
+    "ko": "적색→황색→청색은 관찰 단계 전환입니다. 조직이 실제로 완치되었다는 예측이나 보장은 아닙니다.",
+    "en": "Red, yellow and blue indicate observation stages. They do not predict or guarantee complete tissue healing.",
+    "ja": "赤・黄・青は観察段階の変化を示します。組織の完全な治癒を予測・保証するものではありません。"
+  },
+  "다음 단계 진행 여부 재평가": {
+    "ko": "다음 단계 진행 여부 재평가",
+    "en": "Readiness reassessment",
+    "ja": "次段階への移行を再評価"
+  },
+  "증상, 상처, 감염 소견, 보철 지지와 환자 회복 상태에 따라 다음 회차 진행 여부를 결정합니다.": {
+    "ko": "증상, 상처, 감염 소견, 보철 지지와 환자 회복 상태에 따라 다음 회차 진행 여부를 결정합니다.",
+    "en": "Decide whether to proceed based on symptoms, wounds, infection findings, restorative support and patient recovery.",
+    "ja": "症状、創傷、感染所見、補綴の支持、患者の回復状態に基づき、次の治療へ進むか判断します。"
+  },
+  "골유착·보철 진행 조건 확인": {
+    "ko": "골유착·보철 진행 조건 확인",
+    "en": "Osseointegration & restoration review",
+    "ja": "骨結合・補綴移行条件の確認"
+  },
+  "보철 전 평가 · 시기 미정": {
+    "ko": "보철 전 평가 · 시기 미정",
+    "en": "Pre-restoration assessment · timing pending",
+    "ja": "補綴前の評価・時期未定"
+  },
+  "식립 부위의 치유·안정성과 연조직 상태를 평가한 뒤 보철 단계로 진행하는 조건부 예제입니다. 골유착을 화면에서 자동 판정하지 않습니다.": {
+    "ko": "식립 부위의 치유·안정성과 연조직 상태를 평가한 뒤 보철 단계로 진행하는 조건부 예제입니다. 골유착을 화면에서 자동 판정하지 않습니다.",
+    "en": "This conditional example proceeds to restoration after assessing healing, stability and soft tissue. Osseointegration is not automatically determined on screen.",
+    "ja": "治癒・安定性・軟組織を評価した後に補綴へ進む条件付きの例です。画面上で骨結合を自動判定することはありません。"
+  },
+  "#{0} 지대주 연결": {
+    "ko": "#{0} 지대주 연결",
+    "en": "#{0} Abutment connection",
+    "ja": "#{0} アバットメント接続"
+  },
+  "보철 회차 · 지대주": {
+    "ko": "보철 회차 · 지대주",
+    "en": "Restorative visit · abutment",
+    "ja": "補綴治療・アバットメント"
+  },
+  "임플란트와 인공 치아 사이를 연결하는 지대주가 계획 축을 따라 결합됩니다. 높이·연결 방식·체결 토크는 제품과 임상 조건에 맞춰 별도 결정합니다.": {
+    "ko": "임플란트와 인공 치아 사이를 연결하는 지대주가 계획 축을 따라 결합됩니다. 높이·연결 방식·체결 토크는 제품과 임상 조건에 맞춰 별도 결정합니다.",
+    "en": "The abutment connects implant and crown along the planned axis. Height, connection and tightening torque are determined separately for the product and clinical conditions.",
+    "ja": "インプラントと歯冠をつなぐアバットメントが計画軸に沿って接続されます。高さ、接続方法、締結トルクは製品と臨床条件に合わせて別途決定します。"
+  },
+  "지대주 주변 연조직 안정화 관찰": {
+    "ko": "지대주 주변 연조직 안정화 관찰",
+    "en": "Peri-abutment soft tissue healing",
+    "ja": "アバットメント周囲の軟組織治癒"
+  },
+  "보철 준비 · 기간 미정": {
+    "ko": "보철 준비 · 기간 미정",
+    "en": "Restorative preparation · interval pending",
+    "ja": "補綴の準備・期間未定"
+  },
+  "지대주 주변 연조직의 상태와 회복을 확인하는 단계를 구분해 표시합니다. 실제 필요 회차와 대기 기간은 치료 방식에 따라 달라집니다.": {
+    "ko": "지대주 주변 연조직의 상태와 회복을 확인하는 단계를 구분해 표시합니다. 실제 필요 회차와 대기 기간은 치료 방식에 따라 달라집니다.",
+    "en": "This stage shows assessment of tissue condition and healing around the abutment. Required visits and waiting periods vary with treatment.",
+    "ja": "アバットメント周囲の軟組織の状態と治癒を確認する段階です。必要な治療回数と待機期間は治療方法によって異なります。"
+  },
+  "인상·구강스캔 및 보철 적합 검토": {
+    "ko": "인상·구강스캔 및 보철 적합 검토",
+    "en": "Impression, oral scan & restoration review",
+    "ja": "印象・口腔スキャン・補綴適合の検討"
+  },
+  "보철 제작·시적 준비": {
+    "ko": "보철 제작·시적 준비",
+    "en": "Restoration fabrication & try-in preparation",
+    "ja": "補綴装置の製作・試適準備"
+  },
+  "인상 또는 구강스캔과 교합 기록을 바탕으로 보철을 제작하고 적합을 검토하는 단계입니다. 표시할 치관은 원본 치아 형태를 활용한 참고 형상이며 제작용 보철이 아닙니다.": {
+    "ko": "인상 또는 구강스캔과 교합 기록을 바탕으로 보철을 제작하고 적합을 검토하는 단계입니다. 표시할 치관은 원본 치아 형태를 활용한 참고 형상이며 제작용 보철이 아닙니다.",
+    "en": "Fabricate and review the restoration using impressions or oral scans and bite records. The displayed crown uses the original tooth form and is not a fabrication-ready restoration.",
+    "ja": "印象または口腔スキャンと咬合記録に基づき補綴装置を製作し、適合を確認する段階です。表示する歯冠は元の歯の形態を利用した参考形状で、製作用の補綴装置ではありません。"
+  },
+  "#{0} 인공 치아 장착": {
+    "ko": "#{0} 인공 치아 장착",
+    "en": "#{0} Crown placement",
+    "ja": "#{0} クラウン装着"
+  },
+  "보철 회차 · 치관 장착": {
+    "ko": "보철 회차 · 치관 장착",
+    "en": "Restorative visit · crown placement",
+    "ja": "補綴治療・クラウン装着"
+  },
+  "인공 치아가 지대주 위로 이동해 최종 위치에 안착합니다. 장착된 치관은 다음 단계에도 유지됩니다. 고정 방식·접촉점·변연 적합은 별도 임상 확인이 필요합니다.": {
+    "ko": "인공 치아가 지대주 위로 이동해 최종 위치에 안착합니다. 장착된 치관은 다음 단계에도 유지됩니다. 고정 방식·접촉점·변연 적합은 별도 임상 확인이 필요합니다.",
+    "en": "The crown moves onto the abutment and remains seated in later stages. Fixation, contact points and marginal fit require separate clinical verification.",
+    "ja": "人工歯がアバットメント上に移動して装着され、次の段階でも維持されます。固定方法・接触点・辺縁適合は別途臨床的な確認が必要です。"
+  },
+  "인공 치아 교합·접촉·적합 검토": {
+    "ko": "인공 치아 교합·접촉·적합 검토",
+    "en": "Bite, contact & crown fit check",
+    "ja": "クラウンの咬合・接触・適合確認"
+  },
+  "보철 장착 후 확인": {
+    "ko": "보철 장착 후 확인",
+    "en": "Post-restoration review",
+    "ja": "補綴装着後の確認"
+  },
+  "장착된 인공 치아를 강조해 대합치와의 교합, 인접 접촉, 보철 적합을 검토할 위치를 표시합니다. 강조색은 실제 교합 접촉이나 합격 판정을 의미하지 않습니다.": {
+    "ko": "장착된 인공 치아를 강조해 대합치와의 교합, 인접 접촉, 보철 적합을 검토할 위치를 표시합니다. 강조색은 실제 교합 접촉이나 합격 판정을 의미하지 않습니다.",
+    "en": "Highlight the crown to indicate where to assess opposing occlusion, proximal contacts and restoration fit. Color does not establish actual contact or acceptance.",
+    "ja": "歯冠を強調し、対合歯との咬合、隣接接触、補綴適合を確認する位置を示します。強調色は実際の咬合接触や合格判定を意味しません。"
+  },
+  "인공 치아 장착 상태·유지관리": {
+    "ko": "인공 치아 장착 상태·유지관리",
+    "en": "Restoration review & maintenance",
+    "ja": "補綴装着状態の確認・メインテナンス"
+  },
+  "보철·유지관리 회차": {
+    "ko": "보철·유지관리 회차",
+    "en": "Restorative maintenance visit",
+    "ja": "補綴・メインテナンスの受診"
+  },
+  "모든 계획 위치에 임플란트·지대주·인공 치아가 연결된 참고 상태입니다. 위생관리와 정기 검진, 보철 및 주변 조직의 상태 관찰을 이어갑니다.": {
+    "ko": "모든 계획 위치에 임플란트·지대주·인공 치아가 연결된 참고 상태입니다. 위생관리와 정기 검진, 보철 및 주변 조직의 상태 관찰을 이어갑니다.",
+    "en": "All planned sites now show implants, abutments and crowns connected. Continue hygiene care, regular review and monitoring of restorations and surrounding tissues.",
+    "ja": "すべての計画部位にインプラント・アバットメント・人工歯が接続された参考状態です。清掃管理、定期検診、補綴装置と周囲組織の観察を継続します。"
+  },
+  "악궁 일괄은 계획된 부위만 포함. 연결형 전악 가이드의 강성·지지·고정은 별도 설계 검증 필요": {
+    "ko": "악궁 일괄은 계획된 부위만 포함. 연결형 전악 가이드의 강성·지지·고정은 별도 설계 검증 필요",
+    "en": "Arch-wide treatment includes planned sites only. Connected full-arch guide rigidity, support and fixation require separate design verification.",
+    "ja": "歯列弓単位の処置は計画した部位のみを含みます。連結型フルアーチガイドの剛性・支持・固定は別途設計検証が必要です。"
+  },
+  "표시 회차는 식립 수술만 계산하며 발치·치주 처치·보철·재평가 내원은 별도": {
+    "ko": "표시 회차는 식립 수술만 계산하며 발치·치주 처치·보철·재평가 내원은 별도",
+    "en": "Visit counts include placement surgery only; extraction, periodontal care, restorative and reassessment visits are separate.",
+    "ja": "表示回数は埋入手術のみです。抜歯・歯周治療・補綴・再評価の受診は別途必要です。"
+  },
+  "시퀀스 설정 오류": {
+    "ko": "시퀀스 설정 오류",
+    "en": "Invalid sequence settings",
+    "ja": "シーケンス設定が無効です"
+  },
+  "처치 선택 오류": {
+    "ko": "처치 선택 오류",
+    "en": "Invalid treatment selection",
+    "ja": "処置の選択が無効です"
+  },
+  "데이터 가져오기": {
+    "ko": "데이터 가져오기",
+    "en": "Import data",
+    "ja": "データ読込"
+  },
+  "3D 영상 탐색": {
+    "ko": "3D 영상 탐색",
+    "en": "3D image exploration",
+    "ja": "3D画像探索"
+  },
+  "치주 검사": {
+    "ko": "치주 검사",
+    "en": "Periodontal chart",
+    "ja": "歯周検査"
+  },
+  "임플란트 계획": {
+    "ko": "임플란트 계획",
+    "en": "Implant planning",
+    "ja": "インプラント計画"
+  },
+  "가이드 형상 검토": {
+    "ko": "가이드 형상 검토",
+    "en": "Surgical guide review",
+    "ja": "サージカルガイド検討"
+  },
+  "수술 시뮬레이션": {
+    "ko": "수술 시뮬레이션",
+    "en": "Surgical simulation",
+    "ja": "手術シミュレーション"
+  },
+  "임플란트 수술계획": {
+    "ko": "임플란트 수술계획",
+    "en": "Implant treatment planning",
+    "ja": "インプラント手術計画"
+  },
+  "연구용": {
+    "ko": "연구용",
+    "en": "Research",
+    "ja": "研究用"
+  },
+  "연구용 · v0.1": {
+    "ko": "연구용 · v0.1",
+    "en": "Research · v0.1",
+    "ja": "研究用・v0.1"
+  },
+  "연구용 데모 케이스": {
+    "ko": "연구용 데모 케이스",
+    "en": "Research demo case",
+    "ja": "研究用デモ症例"
+  },
+  "공개 환자 케이스 · 3D 열람": {
+    "ko": "공개 환자 케이스 · 3D 열람",
+    "en": "Public case · 3D viewing",
+    "ja": "公開症例・3D閲覧"
+  },
+  "구조 탐색 · 레이어": {
+    "ko": "구조 탐색 · 레이어",
+    "en": "Anatomy · layers",
+    "ja": "構造探索・レイヤー"
+  },
+  "위치 · 규격 · 식립축": {
+    "ko": "위치 · 규격 · 식립축",
+    "en": "Position · size · axis",
+    "ja": "位置・規格・埋入軸"
+  },
+  "개념 치수 · STL": {
+    "ko": "개념 치수 · STL",
+    "en": "Guide dimensions · STL",
+    "ja": "参考寸法・STL"
+  },
+  "단계별 3D 애니메이션": {
+    "ko": "단계별 3D 애니메이션",
+    "en": "Step-by-step 3D animation",
+    "ja": "段階別3Dアニメーション"
+  },
+  "데이터 출처와 구현 범위": {
+    "ko": "데이터 출처와 구현 범위",
+    "en": "Data sources & scope",
+    "ja": "データ出典・実装範囲"
+  },
+  "케이스": {
+    "ko": "케이스",
+    "en": "Case",
+    "ja": "症例"
+  },
+  "케이스 불러오기": {
+    "ko": "케이스 불러오기",
+    "en": "Open case",
+    "ja": "症例を開く"
+  },
+  "계획 열기": {
+    "ko": "계획 열기",
+    "en": "Open plan",
+    "ja": "計画を開く"
+  },
+  "계획서 임시공간 저장": {
+    "ko": "계획서 임시공간 저장",
+    "en": "Save to browser",
+    "ja": "ブラウザに保存"
+  },
+  "계획서 임시공간 삭제": {
+    "ko": "계획서 임시공간 삭제",
+    "en": "Clear browser save",
+    "ja": "ブラウザ保存を削除"
+  },
+  "계획서 파일저장": {
+    "ko": "계획서 파일저장",
+    "en": "Save plan file",
+    "ja": "計画ファイルを保存"
+  },
+  "계획서 보기": {
+    "ko": "계획서 보기",
+    "en": "View report",
+    "ja": "計画書を表示"
+  },
+  "계획서 다운로드": {
+    "ko": "계획서 다운로드",
+    "en": "Download report",
+    "ja": "計画書をダウンロード"
+  },
+  "인쇄 / PDF로 저장": {
+    "ko": "인쇄 / PDF로 저장",
+    "en": "Print / Save as PDF",
+    "ja": "印刷・PDF保存"
+  },
+  "수술계획서 · 연구용": {
+    "ko": "수술계획서 · 연구용",
+    "en": "Surgical plan · Research",
+    "ja": "手術計画書・研究用"
+  },
+  "임플란트 수술계획서": {
+    "ko": "임플란트 수술계획서",
+    "en": "Implant surgical plan",
+    "ja": "インプラント手術計画書"
+  },
+  "왼쪽 패널 접기": {
+    "ko": "왼쪽 패널 접기",
+    "en": "Collapse left panel",
+    "ja": "左パネルを折りたたむ"
+  },
+  "왼쪽 패널 펼치기": {
+    "ko": "왼쪽 패널 펼치기",
+    "en": "Expand left panel",
+    "ja": "左パネルを開く"
+  },
+  "오른쪽 패널 접기": {
+    "ko": "오른쪽 패널 접기",
+    "en": "Collapse right panel",
+    "ja": "右パネルを折りたたむ"
+  },
+  "오른쪽 패널 펼치기": {
+    "ko": "오른쪽 패널 펼치기",
+    "en": "Expand right panel",
+    "ja": "右パネルを開く"
+  },
+  "해부학 레이어": {
+    "ko": "해부학 레이어",
+    "en": "Anatomy layers",
+    "ja": "解剖レイヤー"
+  },
+  "표시 범위": {
+    "ko": "표시 범위",
+    "en": "Visible arches",
+    "ja": "表示する顎"
+  },
+  "조직 가시성": {
+    "ko": "조직 가시성",
+    "en": "Tissue visibility",
+    "ja": "組織の表示"
+  },
+  "표현 설정": {
+    "ko": "표현 설정",
+    "en": "Display settings",
+    "ja": "表示設定"
+  },
+  "턱뼈": {
+    "ko": "턱뼈",
+    "en": "Jawbone",
+    "ja": "顎骨"
+  },
+  "치아": {
+    "ko": "치아",
+    "en": "Teeth",
+    "ja": "歯"
+  },
+  "하치조관": {
+    "ko": "하치조관",
+    "en": "Mandibular canal",
+    "ja": "下顎管"
+  },
+  "치수강": {
+    "ko": "치수강",
+    "en": "Pulp cavity",
+    "ja": "歯髄腔"
+  },
+  "상악동 저부": {
+    "ko": "상악동 저부",
+    "en": "Maxillary sinus floor",
+    "ja": "上顎洞底"
+  },
+  "하치조관 중심선": {
+    "ko": "하치조관 중심선",
+    "en": "Canal centerline",
+    "ja": "下顎管の中心線"
+  },
+  "치아 표면 매끄럽게": {
+    "ko": "치아 표면 매끄럽게",
+    "en": "Smooth tooth surfaces",
+    "ja": "歯面を平滑化"
+  },
+  "하치조관 · 중심선 투시": {
+    "ko": "하치조관 · 중심선 투시",
+    "en": "Canal & centerline X-ray view",
+    "ja": "下顎管・中心線の透視"
+  },
+  "표현 방식 안내": {
+    "ko": "표현 방식 안내",
+    "en": "About this display",
+    "ja": "表示方法について"
+  },
+  "치관 투명도": {
+    "ko": "치관 투명도",
+    "en": "Crown transparency",
+    "ja": "歯冠の透明度"
+  },
+  "치근 투명도": {
+    "ko": "치근 투명도",
+    "en": "Root transparency",
+    "ja": "歯根の透明度"
+  },
+  "턱뼈 투명도": {
+    "ko": "턱뼈 투명도",
+    "en": "Jawbone transparency",
+    "ja": "顎骨の透明度"
+  },
+  "턱뼈 불투명도": {
+    "ko": "턱뼈 불투명도",
+    "en": "Jawbone opacity",
+    "ja": "顎骨の不透明度"
+  },
+  "연조직 투명도": {
+    "ko": "연조직 투명도",
+    "en": "Soft tissue transparency",
+    "ja": "軟組織の透明度"
+  },
+  "얼굴 외관 · 연조직": {
+    "ko": "얼굴 외관 · 연조직",
+    "en": "Face & soft tissues",
+    "ja": "顔面・軟組織"
+  },
+  "잇몸 참고 모형": {
+    "ko": "잇몸 참고 모형",
+    "en": "Gingiva reference model",
+    "ja": "歯肉の参考モデル"
+  },
+  "스캔 입술 영역": {
+    "ko": "스캔 입술 영역",
+    "en": "Scanned lip region",
+    "ja": "スキャンした口唇領域"
+  },
+  "실사 안면 마스크": {
+    "ko": "실사 안면 마스크",
+    "en": "Scanned facial mask",
+    "ja": "実写スキャン顔面マスク"
+  },
+  "실사 안면 전체 보기": {
+    "ko": "실사 안면 전체 보기",
+    "en": "View full facial scan",
+    "ja": "顔面スキャン全体を表示"
+  },
+  "관 기반 통로 좌표 다운로드": {
+    "ko": "관 기반 통로 좌표 다운로드",
+    "en": "Download canal pathway coordinates",
+    "ja": "下顎管の経路座標を保存"
+  },
+  "치주 검사 단계로": {
+    "ko": "치주 검사 단계로",
+    "en": "Go to periodontal chart",
+    "ja": "歯周検査へ"
+  },
+  "3D View": {
+    "ko": "3D View",
+    "en": "3D View",
+    "ja": "3D表示"
+  },
+  "정면 · 폐구": {
+    "ko": "정면 · 폐구",
+    "en": "Front · closed bite",
+    "ja": "正面・閉口"
+  },
+  "우측면": {
+    "ko": "우측면",
+    "en": "Right side",
+    "ja": "右側面"
+  },
+  "좌측면": {
+    "ko": "좌측면",
+    "en": "Left side",
+    "ja": "左側面"
+  },
+  "상악 교합": {
+    "ko": "상악 교합",
+    "en": "Upper occlusal",
+    "ja": "上顎咬合面"
+  },
+  "하악 교합": {
+    "ko": "하악 교합",
+    "en": "Lower occlusal",
+    "ja": "下顎咬合面"
+  },
+  "양악 펼침": {
+    "ko": "양악 펼침",
+    "en": "Both arches unfolded",
+    "ja": "上下顎展開"
+  },
+  "선택부 확대": {
+    "ko": "선택부 확대",
+    "en": "Focus selected site",
+    "ja": "選択部位を拡大"
+  },
+  "식립축 방향": {
+    "ko": "식립축 방향",
+    "en": "Along implant axis",
+    "ja": "埋入軸方向"
+  },
+  "안면 외관": {
+    "ko": "안면 외관",
+    "en": "Facial surface",
+    "ja": "顔面外観"
+  },
+  "치아 및 치주 상태": {
+    "ko": "치아 및 치주 상태",
+    "en": "Teeth & periodontal status",
+    "ja": "歯・歯周状態"
+  },
+  "치주 차트 열기": {
+    "ko": "치주 차트 열기",
+    "en": "Open periodontal chart",
+    "ja": "歯周チャートを開く"
+  },
+  "선택 해제": {
+    "ko": "선택 해제",
+    "en": "Clear selection",
+    "ja": "選択解除"
+  },
+  "치아를 클릭해 선택 위치를 바꾸세요.": {
+    "ko": "치아를 클릭해 선택 위치를 바꾸세요.",
+    "en": "Click a tooth to change the selected site.",
+    "ja": "歯をクリックして選択部位を変更します。"
+  },
+  "식립 위치 ·": {
+    "ko": "식립 위치 ·",
+    "en": "Implant site ·",
+    "ja": "埋入部位・"
+  },
+  "여러 치아 선택 후 일괄 추가 · 모두 계획된 선택은 다시 누르면 제거": {
+    "ko": "여러 치아 선택 후 일괄 추가 · 모두 계획된 선택은 다시 누르면 제거",
+    "en": "Select multiple teeth to add together. Click again to remove if all selected sites are planned.",
+    "ja": "複数の歯を選択して一括追加できます。すべて計画済みの場合は再度押すと削除します。"
+  },
+  "계획 있음": {
+    "ko": "계획 있음",
+    "en": "Planned",
+    "ja": "計画あり"
+  },
+  "미확정": {
+    "ko": "미확정",
+    "en": "Pending",
+    "ja": "未確定"
+  },
+  "미지정": {
+    "ko": "미지정",
+    "en": "Not specified",
+    "ja": "未指定"
+  },
+  "전악 6점 치주 검사": {
+    "ko": "전악 6점 치주 검사",
+    "en": "Full-mouth six-site periodontal chart",
+    "ja": "全顎6点法歯周検査"
+  },
+  "치아 존재 상태는 3D 모델 기준 · 검사값 직접 입력 · 변경 즉시 3D 반영": {
+    "ko": "치아 존재 상태는 3D 모델 기준 · 검사값 직접 입력 · 변경 즉시 3D 반영",
+    "en": "Tooth presence follows the 3D model. Enter measurements to update the 3D view immediately.",
+    "ja": "歯の存在状態は3Dモデルに基づきます。検査値を入力すると3D表示に即時反映されます。"
+  },
+  "차트 실행 취소": {
+    "ko": "차트 실행 취소",
+    "en": "Undo chart edit",
+    "ja": "チャート編集を元に戻す"
+  },
+  "차트 다시 실행": {
+    "ko": "차트 다시 실행",
+    "en": "Redo chart edit",
+    "ja": "チャート編集をやり直す"
+  },
+  "전체 검사 CSV": {
+    "ko": "전체 검사 CSV",
+    "en": "Export full chart CSV",
+    "ja": "全検査CSVを保存"
+  },
+  "치아 번호": {
+    "ko": "치아 번호",
+    "en": "Tooth numbering",
+    "ja": "歯式"
+  },
+  "측정 순서": {
+    "ko": "측정 순서",
+    "en": "Measurement order",
+    "ja": "測定順序"
+  },
+  "자동 이동": {
+    "ko": "자동 이동",
+    "en": "Auto-advance",
+    "ja": "自動移動"
+  },
+  "연속 순회": {
+    "ko": "연속 순회",
+    "en": "Continuous traversal",
+    "ja": "連続巡回"
+  },
+  "화면 순서": {
+    "ko": "화면 순서",
+    "en": "Screen order",
+    "ja": "画面順"
+  },
+  "PD / GM 각 행": {
+    "ko": "PD / GM 각 행",
+    "en": "PD / GM by row",
+    "ja": "PD・GMを行ごとに入力"
+  },
+  "PD만": {
+    "ko": "PD만",
+    "en": "PD only",
+    "ja": "PDのみ"
+  },
+  "GM → PD": {
+    "ko": "GM → PD",
+    "en": "GM → PD",
+    "ja": "GM → PD"
+  },
+  "모든 측정 행": {
+    "ko": "모든 측정 행",
+    "en": "All measurement rows",
+    "ja": "すべての測定行"
+  },
+  "치은연 · GM": {
+    "ko": "치은연 · GM",
+    "en": "Gingival margin · GM",
+    "ja": "歯肉辺縁・GM"
+  },
+  "부착수준 · CAL": {
+    "ko": "부착수준 · CAL",
+    "en": "Attachment level · CAL",
+    "ja": "付着レベル・CAL"
+  },
+  "● 출혈 · BOP": {
+    "ko": "● 출혈 · BOP",
+    "en": "● Bleeding · BOP",
+    "ja": "● プロービング時出血・BOP"
+  },
+  "숫자와 표식으로 함께 구분": {
+    "ko": "숫자와 표식으로 함께 구분",
+    "en": "Values and markers distinguish findings",
+    "ja": "数値と記号で所見を区別"
+  },
+  "음성으로 입력": {
+    "ko": "음성으로 입력",
+    "en": "Voice entry",
+    "ja": "音声入力"
+  },
+  "언어": {
+    "ko": "언어",
+    "en": "Language",
+    "ja": "言語"
+  },
+  "인식 방식": {
+    "ko": "인식 방식",
+    "en": "Recognition mode",
+    "ja": "認識方式"
+  },
+  "기기 내 인식": {
+    "ko": "기기 내 인식",
+    "en": "On-device recognition",
+    "ja": "端末内認識"
+  },
+  "브라우저 서비스": {
+    "ko": "브라우저 서비스",
+    "en": "Browser service",
+    "ja": "ブラウザサービス"
+  },
+  "마이크 시작": {
+    "ko": "마이크 시작",
+    "en": "Start microphone",
+    "ja": "マイクを開始"
+  },
+  "마이크 중지": {
+    "ko": "마이크 중지",
+    "en": "Stop microphone",
+    "ja": "マイクを停止"
+  },
+  "마이크 대기": {
+    "ko": "마이크 대기",
+    "en": "Microphone ready",
+    "ja": "マイク待機中"
+  },
+  "듣고 있습니다…": {
+    "ko": "듣고 있습니다…",
+    "en": "Listening…",
+    "ja": "音声を認識中…"
+  },
+  "입력": {
+    "ko": "입력",
+    "en": "Apply",
+    "ja": "入力"
+  },
+  "입력 예시와 표식": {
+    "ko": "입력 예시와 표식",
+    "en": "Commands & examples",
+    "ja": "入力例と記号"
+  },
+  "음성 명령 문자 입력": {
+    "ko": "음성 명령 문자 입력",
+    "en": "Type a voice command",
+    "ja": "音声コマンドを文字で入力"
+  },
+  "선택 부위 검사": {
+    "ko": "선택 부위 검사",
+    "en": "Selected site findings",
+    "ja": "選択部位の検査"
+  },
+  "확인 후 반영": {
+    "ko": "확인 후 반영",
+    "en": "Confirm & apply",
+    "ja": "確認して反映"
+  },
+  "반영됨": {
+    "ko": "반영됨",
+    "en": "Applied",
+    "ja": "反映済み"
+  },
+  "확인 대기": {
+    "ko": "확인 대기",
+    "en": "Awaiting confirmation",
+    "ja": "確認待ち"
+  },
+  "반영 안 됨": {
+    "ko": "반영 안 됨",
+    "en": "Not applied",
+    "ja": "未反映"
+  },
+  "취소": {
+    "ko": "취소",
+    "en": "Cancel",
+    "ja": "キャンセル"
+  },
+  "확인": {
+    "ko": "확인",
+    "en": "Confirm",
+    "ja": "確認"
+  },
+  "닫기": {
+    "ko": "닫기",
+    "en": "Close",
+    "ja": "閉じる"
+  },
+  "선택값 지우기": {
+    "ko": "선택값 지우기",
+    "en": "Clear selected value",
+    "ja": "選択値を消去"
+  },
+  "치주낭 · PD": {
+    "ko": "치주낭 · PD",
+    "en": "Probing depth · PD",
+    "ja": "歯周ポケット深さ・PD"
+  },
+  "부착수준": {
+    "ko": "부착수준",
+    "en": "Attachment level",
+    "ja": "付着レベル"
+  },
+  "출혈": {
+    "ko": "출혈",
+    "en": "Bleeding",
+    "ja": "出血"
+  },
+  "출혈 없음": {
+    "ko": "출혈 없음",
+    "en": "No bleeding",
+    "ja": "出血なし"
+  },
+  "치태": {
+    "ko": "치태",
+    "en": "Plaque",
+    "ja": "プラーク"
+  },
+  "치석": {
+    "ko": "치석",
+    "en": "Calculus",
+    "ja": "歯石"
+  },
+  "배농": {
+    "ko": "배농",
+    "en": "Suppuration",
+    "ja": "排膿"
+  },
+  "동요도": {
+    "ko": "동요도",
+    "en": "Mobility",
+    "ja": "動揺度"
+  },
+  "이개부": {
+    "ko": "이개부",
+    "en": "Furcation",
+    "ja": "根分岐部"
+  },
+  "치은지수": {
+    "ko": "치은지수",
+    "en": "Gingival index",
+    "ja": "歯肉炎指数"
+  },
+  "퇴축 분류": {
+    "ko": "퇴축 분류",
+    "en": "Recession classification",
+    "ja": "歯肉退縮の分類"
+  },
+  "치아 상태": {
+    "ko": "치아 상태",
+    "en": "Tooth status",
+    "ja": "歯の状態"
+  },
+  "토크 메모": {
+    "ko": "토크 메모",
+    "en": "Torque note",
+    "ja": "トルク記録"
+  },
+  "가이드 기구물만 보기": {
+    "ko": "가이드 기구물만 보기",
+    "en": "Guide only",
+    "ja": "ガイドのみ表示"
+  },
+  "해부학과 함께 보기": {
+    "ko": "해부학과 함께 보기",
+    "en": "Show with anatomy",
+    "ja": "解剖モデルと表示"
+  },
+  "기구물 화면 맞춤": {
+    "ko": "기구물 화면 맞춤",
+    "en": "Fit guide to view",
+    "ja": "ガイドを画面に合わせる"
+  },
+  "CAD 참고 패키지 내보내기 · ZIP": {
+    "ko": "CAD 참고 패키지 내보내기 · ZIP",
+    "en": "Export CAD reference · ZIP",
+    "ja": "CAD参考データ出力・ZIP"
+  },
+  "가이드 파라미터": {
+    "ko": "가이드 파라미터",
+    "en": "Guide parameters",
+    "ja": "ガイドの設定"
+  },
+  "가이드 보기": {
+    "ko": "가이드 보기",
+    "en": "Guide view",
+    "ja": "ガイド表示"
+  },
+  "드릴 통과공 내경": {
+    "ko": "드릴 통과공 내경",
+    "en": "Drill bore diameter",
+    "ja": "ドリル孔内径"
+  },
+  "지지 쉘 두께": {
+    "ko": "지지 쉘 두께",
+    "en": "Support shell thickness",
+    "ja": "支持シェル厚"
+  },
+  "플랫폼 위 오프셋": {
+    "ko": "플랫폼 위 오프셋",
+    "en": "Platform offset",
+    "ja": "プラットフォーム上のオフセット"
+  },
+  "임플란트별 드릴 깊이 · 계획 기준": {
+    "ko": "임플란트별 드릴 깊이 · 계획 기준",
+    "en": "Drilling depth by implant · planned",
+    "ja": "インプラント別の計画ドリル深度"
+  },
+  "치료 회차 · 계획안 비교": {
+    "ko": "치료 회차 · 계획안 비교",
+    "en": "Treatment visits & plan comparison",
+    "ja": "治療回数・計画案の比較"
+  },
+  "임플란트 계획으로 수술 시뮬레이션": {
+    "ko": "임플란트 계획으로 수술 시뮬레이션",
+    "en": "Simulate current implant plan",
+    "ja": "現在の埋入計画をシミュレーション"
+  },
+  "가이드·식립·크라운 시퀀스": {
+    "ko": "가이드·식립·크라운 시퀀스",
+    "en": "Guide · implant · crown sequence",
+    "ja": "ガイド・埋入・クラウンのシーケンス"
+  },
+  "상대 단계 · 실제 시간 아님": {
+    "ko": "상대 단계 · 실제 시간 아님",
+    "en": "Relative stages · not elapsed clinical time",
+    "ja": "相対的な段階・実際の治療時間ではありません"
+  },
+  "비교 미리보기 · 미확정": {
+    "ko": "비교 미리보기 · 미확정",
+    "en": "Comparison preview · pending",
+    "ja": "比較プレビュー・未確定"
+  },
+  "공동 선택 기록": {
+    "ko": "공동 선택 기록",
+    "en": "Shared decision record",
+    "ja": "共同選択の記録"
+  },
+  "장점": {
+    "ko": "장점",
+    "en": "Advantages",
+    "ja": "利点"
+  },
+  "고려할 점": {
+    "ko": "고려할 점",
+    "en": "Considerations",
+    "ja": "検討事項"
+  },
+  "보철 진행 현황": {
+    "ko": "보철 진행 현황",
+    "en": "Restorative progress",
+    "ja": "補綴の進行状況"
+  },
+  "수술 단계 탐색": {
+    "ko": "수술 단계 탐색",
+    "en": "Surgical timeline",
+    "ja": "手術段階の移動"
+  },
+  "시뮬레이션 재생": {
+    "ko": "시뮬레이션 재생",
+    "en": "Play simulation",
+    "ja": "シミュレーション再生"
+  },
+  "시뮬레이션 일시정지": {
+    "ko": "시뮬레이션 일시정지",
+    "en": "Pause simulation",
+    "ja": "シミュレーション一時停止"
+  },
+  "처음부터": {
+    "ko": "처음부터",
+    "en": "Start over",
+    "ja": "最初から"
+  },
+  "식립": {
+    "ko": "식립",
+    "en": "Placement",
+    "ja": "埋入"
+  },
+  "지대주": {
+    "ko": "지대주",
+    "en": "Abutment",
+    "ja": "アバットメント"
+  },
+  "인공 치아": {
+    "ko": "인공 치아",
+    "en": "Crown",
+    "ja": "人工歯"
+  },
+  "● 처치·상처 관찰": {
+    "ko": "● 처치·상처 관찰",
+    "en": "● Treatment & wound monitoring",
+    "ja": "● 処置・創傷観察"
+  },
+  "● 회복 관찰 중": {
+    "ko": "● 회복 관찰 중",
+    "en": "● Healing observation",
+    "ja": "● 治癒観察中"
+  },
+  "● 재평가 단계": {
+    "ko": "● 재평가 단계",
+    "en": "● Reassessment",
+    "ja": "● 再評価"
+  },
+  "재생 속도 {0}배 · 누르면 다음 속도": {
+    "ko": "재생 속도 {0}배 · 누르면 다음 속도",
+    "en": "Playback {0}× · click for next speed",
+    "ja": "再生速度 {0}倍・押すと次の速度"
+  },
+  "#{0} 임플란트 추가": {
+    "ko": "#{0} 임플란트 추가",
+    "en": "Add implant · #{0}",
+    "ja": "#{0} インプラント追加"
+  },
+  "#{0} 임플란트 제거": {
+    "ko": "#{0} 임플란트 제거",
+    "en": "Remove implant · #{0}",
+    "ja": "#{0} インプラント削除"
+  },
+  "임플란트 {0}개 추가": {
+    "ko": "임플란트 {0}개 추가",
+    "en": "Add {0} implants",
+    "ja": "インプラントを{0}本追加"
+  },
+  "임플란트 {0}개 제거": {
+    "ko": "임플란트 {0}개 제거",
+    "en": "Remove {0} implants",
+    "ja": "インプラントを{0}本削除"
+  },
+  "임플란트 추가": {
+    "ko": "임플란트 추가",
+    "en": "Add implant",
+    "ja": "インプラント追加"
+  },
+  "임플란트 제거": {
+    "ko": "임플란트 제거",
+    "en": "Remove implant",
+    "ja": "インプラント削除"
+  },
+  "임플란트 편집": {
+    "ko": "임플란트 편집",
+    "en": "Edit implant",
+    "ja": "インプラント編集"
+  },
+  "부위": {
+    "ko": "부위",
+    "en": "Site",
+    "ja": "部位"
+  },
+  "직경 × 길이": {
+    "ko": "직경 × 길이",
+    "en": "Diameter × length",
+    "ja": "直径 × 長さ"
+  },
+  "근사 이격": {
+    "ko": "근사 이격",
+    "en": "Approximate clearance",
+    "ja": "概算離隔距離"
+  },
+  "현재 임플란트 계획 ·": {
+    "ko": "현재 임플란트 계획 ·",
+    "en": "Current implant plan ·",
+    "ja": "現在のインプラント計画・"
+  },
+  "데이터셋 스캔": {
+    "ko": "데이터셋 스캔",
+    "en": "Scan datasets",
+    "ja": "データセットをスキャン"
+  },
+  "datasets 스캔": {
+    "ko": "datasets 스캔",
+    "en": "Scan datasets",
+    "ja": "datasetsをスキャン"
+  },
+  "전체": {
+    "ko": "전체",
+    "en": "All",
+    "ja": "すべて"
+  },
+  "불러오기": {
+    "ko": "불러오기",
+    "en": "Load",
+    "ja": "読込"
+  },
+  "다운로드": {
+    "ko": "다운로드",
+    "en": "Download",
+    "ja": "ダウンロード"
+  },
+  "WORKSPACE": {
+    "ko": "작업공간",
+    "en": "Workspace",
+    "ja": "ワークスペース"
+  },
+  "PLANNING WORKFLOW": {
+    "ko": "계획 워크플로",
+    "en": "Planning workflow",
+    "ja": "計画ワークフロー"
+  },
+  "VOICE DENTAL CHART": {
+    "ko": "음성 치주 차트",
+    "en": "Voice dental chart",
+    "ja": "音声歯周チャート"
+  },
+  "Time machine": {
+    "ko": "검사 이력",
+    "en": "Edit history",
+    "ja": "編集履歴"
+  },
+  "Present": {
+    "ko": "현재 치아",
+    "en": "Present",
+    "ja": "現在歯"
+  },
+  "Missing": {
+    "ko": "결손",
+    "en": "Missing",
+    "ja": "欠損歯"
+  },
+  "Implant": {
+    "ko": "임플란트",
+    "en": "Implant",
+    "ja": "インプラント"
+  },
+  "Crown": {
+    "ko": "크라운",
+    "en": "Crown",
+    "ja": "クラウン"
+  },
+  "Buccal": {
+    "ko": "협측",
+    "en": "Buccal",
+    "ja": "頬側"
+  },
+  "Lingual": {
+    "ko": "설측",
+    "en": "Lingual",
+    "ja": "舌側"
+  },
+  "Palatal": {
+    "ko": "구개측",
+    "en": "Palatal",
+    "ja": "口蓋側"
+  },
+  "Distal": {
+    "ko": "원심",
+    "en": "Distal",
+    "ja": "遠心"
+  },
+  "Mesial": {
+    "ko": "근심",
+    "en": "Mesial",
+    "ja": "近心"
+  },
+  "Mid": {
+    "ko": "중앙",
+    "en": "Mid",
+    "ja": "中央"
+  },
+  "한국어": {
+    "ko": "한국어",
+    "en": "한국어",
+    "ja": "한국어"
+  },
+  "English": {
+    "ko": "English",
+    "en": "English",
+    "ja": "English"
+  },
+  "日本語": {
+    "ko": "日本語",
+    "en": "日本語",
+    "ja": "日本語"
+  },
+  "FDI": {
+    "ko": "FDI",
+    "en": "FDI",
+    "ja": "FDI"
+  },
+  "Universal": {
+    "ko": "Universal",
+    "en": "Universal",
+    "ja": "Universal"
+  },
+  "Palmer": {
+    "ko": "Palmer",
+    "en": "Palmer",
+    "ja": "Palmer"
+  },
+  "OralPilot": {
+    "ko": "OralPilot",
+    "en": "OralPilot",
+    "ja": "OralPilot"
+  },
+  "oralpilot": {
+    "ko": "oralpilot",
+    "en": "oralpilot",
+    "ja": "oralpilot"
+  },
+  "STL": {
+    "ko": "STL",
+    "en": "STL",
+    "ja": "STL"
+  },
+  "PLY": {
+    "ko": "PLY",
+    "en": "PLY",
+    "ja": "PLY"
+  },
+  "OBJ": {
+    "ko": "OBJ",
+    "en": "OBJ",
+    "ja": "OBJ"
+  },
+  "CBCT": {
+    "ko": "CBCT",
+    "en": "CBCT",
+    "ja": "CBCT"
+  },
+  "DICOM": {
+    "ko": "DICOM",
+    "en": "DICOM",
+    "ja": "DICOM"
+  },
+  "NIfTI": {
+    "ko": "NIfTI",
+    "en": "NIfTI",
+    "ja": "NIfTI"
+  },
+  "PD": {
+    "ko": "PD",
+    "en": "PD",
+    "ja": "PD"
+  },
+  "GM": {
+    "ko": "GM",
+    "en": "GM",
+    "ja": "GM"
+  },
+  "CAL": {
+    "ko": "CAL",
+    "en": "CAL",
+    "ja": "CAL"
+  },
+  "BOP": {
+    "ko": "BOP",
+    "en": "BOP",
+    "ja": "BOP"
+  },
+  "MGJ": {
+    "ko": "MGJ",
+    "en": "MGJ",
+    "ja": "MGJ"
+  },
+  "데모 케이스": {
+    "ko": "데모 케이스",
+    "en": "Demo case",
+    "ja": "デモ症例"
+  },
+  "수술계획서": {
+    "ko": "수술계획서",
+    "en": "Surgical plan",
+    "ja": "手術計画書"
+  },
+  "표시 언어": {
+    "ko": "표시 언어",
+    "en": "Display language",
+    "ja": "表示言語"
+  },
+  "처치": {
+    "ko": "처치",
+    "en": "Treatment",
+    "ja": "処置"
+  },
+  "식립 부위 치아는 시뮬레이션을 위해 가상 제거되었으며, 발치 적응증을 판단한 것이 아닙니다.": {
+    "ko": "식립 부위 치아는 시뮬레이션을 위해 가상 제거되었으며, 발치 적응증을 판단한 것이 아닙니다.",
+    "en": "Teeth at planned implant sites are virtually removed for the simulation. This does not determine extraction indications.",
+    "ja": "埋入部位の歯はシミュレーションのために仮想的に除去されています。抜歯適応を判断したものではありません。"
+  },
+  "No furcation site here": {
+    "ko": "이 부위에는 이개부가 없습니다.",
+    "en": "No furcation site here",
+    "ja": "この部位には根分岐部がありません"
+  },
+  "MGJ is not charted on this surface": {
+    "ko": "이 면에는 MGJ를 기록하지 않습니다.",
+    "en": "MGJ is not charted on this surface",
+    "ja": "この歯面ではMGJを記録しません"
+  },
+  "상·하악 원본 교합 위치 · 환자 오른쪽 45도": {
+    "ko": "상·하악 원본 교합 위치 · 환자 오른쪽 45도",
+    "en": "Original upper/lower bite · patient’s right at 45°",
+    "ja": "上下顎の原位置・患者右側45度"
+  },
+  "present": {
+    "ko": "현재 치아",
+    "en": "Present",
+    "ja": "現在歯"
+  },
+  "missing": {
+    "ko": "결손",
+    "en": "Missing",
+    "ja": "欠損歯"
+  },
+  "implant": {
+    "ko": "임플란트",
+    "en": "Implant",
+    "ja": "インプラント"
+  },
+  "crown": {
+    "ko": "크라운",
+    "en": "Crown",
+    "ja": "クラウン"
+  }
+}

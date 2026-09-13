@@ -1,3 +1,4 @@
+import { useLocalize } from '@/lib/i18n/provider';
 import { examTooth, examSummary } from '@/lib/perio-display';
 import { SIX_SITES } from '@/lib/voice-perio/bridge';
 import { displayToothNumber } from '@/lib/tooth-numbering';
@@ -12,12 +13,13 @@ export function Perio3DSummary({
   tooth: number;
   numbering: Numbering;
 }) {
+  const localize = useLocalize();
   const t = examTooth(chart, tooth),
     s = examSummary(t);
   if (!t) return null;
   const value = (v: number | null | undefined) =>
     v == null ? '미입력' : String(v);
-  return (
+  return localize(
     <div className="live-perio-summary">
       <div className="section-title">
         <span>
@@ -127,6 +129,6 @@ export function Perio3DSummary({
         실제 치주낭·치은 경계가 아닙니다. 표식 없음은 검사 완료를 뜻하지
         않습니다.
       </small>
-    </div>
+    </div>,
   );
 }
