@@ -40,6 +40,9 @@ export default function DataPanel({
     [image, setImage] = useState(''),
     [imageName, setImageName] = useState(''),
     [kind, setKind] = useState<'volume' | 'image' | 'none'>('none'),
+    [intensityRange, setIntensityRange] = useState<[number, number]>([
+      -1000, 15000,
+    ]),
     [threshold, setThreshold] = useState(700),
     [windowWidth, setWindowWidth] = useState(2200),
     [windowCenter, setWindowCenter] = useState(600),
@@ -51,6 +54,23 @@ export default function DataPanel({
     },
     [],
   );
+  function adoptVolume(next: Volume) {
+    let min = Infinity,
+      max = -Infinity;
+    for (const value of next.data) {
+      if (!Number.isFinite(value)) continue;
+      min = Math.min(min, value);
+      max = Math.max(max, value);
+    }
+    if (!Number.isFinite(min) || !Number.isFinite(max))
+      throw Error('표시 가능한 유한 강도값이 없습니다.');
+    const span = Math.max(1, max - min);
+    setIntensityRange([min, max]);
+    setWindowWidth(span);
+    setWindowCenter((min + max) / 2);
+    setThreshold(min + (max - min) * 0.7);
+    setVolume(next);
+  }
   async function handleFiles(list: FileList | File[]): Promise<boolean> {
     const files = Array.from(list);
     if (!files.length) return false;
@@ -70,11 +90,11 @@ export default function DataPanel({
       const f = files[0],
         name = f.name.toLowerCase();
       if (dicom) {
-        setVolume(await readDicom(files));
+        adoptVolume(await readDicom(files));
         setKind('volume');
         notify(`${files.length}개 DICOM 파일의 실제 픽셀 데이터를 읽었습니다.`);
       } else if (name.endsWith('.nii') || name.endsWith('.nii.gz')) {
-        setVolume(await readNifti(f));
+        adoptVolume(await readNifti(f));
         setKind('volume');
         notify('NIfTI 볼륨을 읽었습니다. 단면과 임계값을 확인하세요.');
       } else if (/\.(stl|obj|ply)$/.test(name)) {
@@ -109,7 +129,7 @@ export default function DataPanel({
     setBusy('공개 CBCT 다운로드 및 압축 해제 중…');
     setError('');
     try {
-      setVolume(await loadSampleVolume());
+      adoptVolume(await loadSampleVolume());
       setKind('volume');
     } catch (e) {
       setError((e as Error).message);
@@ -305,7 +325,10 @@ export default function DataPanel({
           </div>
           <p className="data-note">
             {volume.note}. 단면은 영상 격자 I/J/K 방향이며 해부학적 표준면으로
-            재정렬되지 않았습니다.
+            재정렬되지 않았습니다. 강도 범위:{' '}
+            {intensityRange[0].toLocaleString()}–
+            {intensityRange[1].toLocaleString()}. 강도값을 HU로 가정하지
+            않습니다.
           </p>
           <div className="volume-controls">
             <label>
@@ -315,10 +338,14 @@ export default function DataPanel({
                 aria-label="CT Window 폭"
                 value={windowWidth}
                 min={1}
-                max={20000}
+                max={Math.max(
+                  20000,
+                  intensityRange[1] - intensityRange[0],
+                  intensityRange[1],
+                )}
                 onChange={(e) => {
                   const n = Number(e.target.value);
-                  if (n >= 1 && n <= 20000) setWindowWidth(n);
+                  if (Number.isFinite(n) && n >= 1) setWindowWidth(n);
                 }}
               />
             </label>
@@ -328,11 +355,15 @@ export default function DataPanel({
                 type="number"
                 aria-label="CT Window 중심"
                 value={windowCenter}
-                min={-10000}
-                max={20000}
+                min={Math.min(-10000, intensityRange[0])}
+                max={Math.max(
+                  20000,
+                  intensityRange[1] - intensityRange[0],
+                  intensityRange[1],
+                )}
                 onChange={(e) => {
                   const n = Number(e.target.value);
-                  if (n >= -10000 && n <= 20000) setWindowCenter(n);
+                  if (Number.isFinite(n)) setWindowCenter(n);
                 }}
               />
             </label>
@@ -355,11 +386,17 @@ export default function DataPanel({
                 type="number"
                 aria-label="표면 생성 임계값"
                 value={threshold}
-                min={-1000}
-                max={15000}
+                min={intensityRange[0]}
+                max={intensityRange[1]}
+                step="any"
                 onChange={(e) => {
                   const n = Number(e.target.value);
-                  if (n >= -1000 && n <= 15000) setThreshold(n);
+                  if (
+                    Number.isFinite(n) &&
+                    n >= intensityRange[0] &&
+                    n <= intensityRange[1]
+                  )
+                    setThreshold(n);
                 }}
               />
             </label>

@@ -199,7 +199,10 @@ export default function DatasetBrowser({
                 <span className="dataset-path">
                   <strong>{e.name}</strong>
                   {e.folder.toLowerCase().includes('head-neck-cbct-ct') && (
-                    <small>두경부 연구 영상 · 치과 정밀 식립용 아님</small>
+                    <small>
+                      두경부 연구 · 1×1×3 mm · 0–255 가공 강도 · 정밀 식립용
+                      아님
+                    </small>
                   )}
                   <small>{e.folder}</small>
                 </span>
