@@ -45,10 +45,50 @@ void test('multiple-implant comparison covers each implant exactly once and inse
   };
   const before = JSON.stringify({ implants, settings, chart, parts });
   const plans = buildSequencePlans(implants, settings, chart, parts, buffer);
-  assert.equal(plans.length, 3);
+  assert.equal(plans.length, 6);
   assert.equal(plans[0].groups.length, 4);
   assert.equal(plans[1].groups.length, 2);
   assert.equal(plans[2].groups.length, 1);
+  assert.equal(plans[3].groups.length, 2);
+  assert.equal(plans[4].groups.length, 2);
+  assert.equal(plans[5].groups.length, 2);
+  const siteOf = (id: string) => implants.find((p) => p.id === id)!.tooth;
+  assert.ok(plans[3].groups[0].every((id) => siteOf(id) < 30));
+  assert.ok(plans[4].groups[0].every((id) => siteOf(id) >= 30));
+  assert.ok(
+    plans[5].groups[0].every((id) =>
+      [1, 4].includes(Math.floor(siteOf(id) / 10)),
+    ),
+  );
+  assert.ok(plans[1].equivalentThemes.includes(plans[3].name));
+  for (const plan of plans) {
+    assert.equal(plan.metrics.placementVisits, plan.groups.length);
+    assert.equal(
+      plan.metrics.maxImplantsPerVisit,
+      Math.max(...plan.groups.map((g) => g.length)),
+    );
+    assert.equal(
+      plan.metrics.guideSetups,
+      plan.phases.filter((p) => p.kind === 'guide-seating').length,
+    );
+    for (let i = 1; i < plan.groups.length; i++) {
+      const priorId = plan.groups[i - 1].at(-1)!;
+      const priorPlace = plan.phases.findIndex(
+        (p) => p.kind === 'placement' && p.implantId === priorId,
+      );
+      const nextExtract = plan.phases.findIndex(
+        (p) =>
+          p.kind === 'extraction' &&
+          p.teeth.includes(siteOf(plan.groups[i][0])),
+      );
+      assert.ok(nextExtract > priorPlace);
+      assert.ok(
+        plan.phases
+          .slice(priorPlace, nextExtract)
+          .some((p) => p.kind === 'review'),
+      );
+    }
+  }
   for (const plan of plans) {
     assert.equal(plan.researchOnly, true);
     assert.equal(plan.phases.filter((p) => p.kind === 'placement').length, 6);
@@ -243,4 +283,35 @@ void test('simulation uses exactly the edited implant plan and regenerates witho
   const edited = [implants[0], { ...implants[2], tooth: 36, angle: 7 }];
   verify(edited);
   assert.deepEqual(implants, before);
+});
+
+void test('a single implant keeps all six perspectives without inventing visits, sites or jaw guides', async () => {
+  const { parts, buffer, chart } = await fixture();
+  const plans = buildSequencePlans(
+    [{ ...initialImplant }],
+    { scope: 'partial', batchSize: 2, needs: {} },
+    chart,
+    parts,
+    buffer,
+  );
+  assert.equal(plans.length, 6);
+  assert.equal(new Set(plans.map((p) => p.id)).size, 6);
+  for (const plan of plans) {
+    assert.deepEqual(plan.groups, [[initialImplant.id]]);
+    assert.equal(plan.equivalentThemes.length, 5);
+    assert.deepEqual(plan.metrics, {
+      placementVisits: 1,
+      maxImplantsPerVisit: 1,
+      guideSetups: 1,
+    });
+    assert.deepEqual(
+      plan.phases.find((p) => p.kind === 'guide-seating')!.teeth,
+      [initialImplant.tooth],
+    );
+  }
+  assert.ok(
+    plans
+      .find((p) => p.id === 'maxilla-first')!
+      .conditions.some((c) => c.includes('상악 식립 계획이 없어')),
+  );
 });

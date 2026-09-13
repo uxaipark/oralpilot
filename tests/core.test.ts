@@ -1,3 +1,4 @@
+import './sequence-decision.test';
 import './browser-plan.test';
 import './prosthetic-guide.test';
 import './dataset-numbering.test';

@@ -106,6 +106,11 @@ import {
   type SequencePlan,
   type SequenceSettings,
 } from '@/lib/treatment-sequence';
+import {
+  confirmSequenceDecision,
+  decisionMatches,
+  type SequenceDecision,
+} from '@/lib/sequence-decision';
 import { PerioCanvas, PerioInspector, PerioReport } from './perio-workspace';
 import {
   createPerioState,
@@ -188,6 +193,8 @@ import {
   clearBrowserPlan,
 } from '@/lib/browser-plan';
 export default function Studio() {
+  const [sequenceDecision, setSequenceDecision] =
+    useState<SequenceDecision | null>(null);
   const [highlightedTeeth, setHighlightedTeeth] = useState<number[]>([]);
   const [sequenceSettings, setSequenceSettings] = useState<SequenceSettings>(
       defaultSequenceSettings,
@@ -303,10 +310,31 @@ export default function Studio() {
     [implants, sequenceSettings, perioState.chart, guide],
   );
   const sequenceStale =
-    !!generatedSignature && generatedSignature !== currentSignature;
-  const activeSequence = !sequenceStale
-    ? sequencePlans.find((p) => p.id === sequenceId) || null
-    : null;
+    !!generatedSignature &&
+    (generatedSignature !== currentSignature || !!external);
+  const activeSequence =
+    !sequenceStale && !external
+      ? sequencePlans.find((p) => p.id === sequenceId) || null
+      : null;
+  const chosenSequence = useMemo(
+    () =>
+      !sequenceStale && !external
+        ? sequencePlans.find((p) =>
+            decisionMatches(sequenceDecision, p, currentSignature),
+          ) || null
+        : null,
+    [
+      sequenceStale,
+      external,
+      sequencePlans,
+      sequenceDecision,
+      currentSignature,
+    ],
+  );
+  const storedDecision =
+    sequenceDecision?.inputSignature === currentSignature && !external
+      ? sequenceDecision
+      : null;
   const sequenceFrame = phaseAt(activeSequence, progress);
   const generateSequence = () => {
     setPlaying(false);
@@ -325,7 +353,18 @@ export default function Studio() {
         );
         setSequencePlans(candidates);
         setGeneratedSignature(currentSignature);
-        setSequenceId(candidates[0]?.id || '');
+        setSequenceId(
+          candidates.find((p) =>
+            decisionMatches(sequenceDecision, p, currentSignature),
+          )?.id ||
+            candidates[0]?.id ||
+            '',
+        );
+        setSequenceDecision((d) =>
+          candidates.some((p) => decisionMatches(d, p, currentSignature))
+            ? d
+            : null,
+        );
         setProgress(0);
         setView('perspective');
         setLayers((l) => ({ ...l, upper: implants.some((p) => p.tooth < 30) }));
@@ -339,7 +378,10 @@ export default function Studio() {
   useEffect(() => {
     setPlaying(false);
     setProgress(0);
-  }, [currentSignature]);
+    setSequenceDecision((d) =>
+      d?.inputSignature === currentSignature && !external ? d : null,
+    );
+  }, [currentSignature, external]);
   const csvInput = useRef<HTMLInputElement>(null),
     planInput = useRef<HTMLInputElement>(null),
     serial = useRef(2);
@@ -516,6 +558,7 @@ export default function Studio() {
       toothNumbering: 'fdi',
       displayNumbering: numbering,
       sequenceSettings,
+      sequenceDecision: storedDecision,
       perioOrigin,
       createdAt: new Date().toISOString(),
     }),
@@ -527,6 +570,7 @@ export default function Studio() {
       perioState.meta,
       numbering,
       sequenceSettings,
+      storedDecision,
       perioOrigin,
     ],
   );
@@ -561,6 +605,7 @@ export default function Studio() {
     setExternalName('');
     setPlaying(false);
     setProgress(0);
+    setSequenceDecision(d.sequenceDecision || null);
     setSequencePlans([]);
     setSequenceId('');
     setGeneratedSignature('');
@@ -1273,6 +1318,10 @@ export default function Studio() {
                     <SimulationTimeline
                       numbering={numbering}
                       plan={activeSequence}
+                      confirmed={
+                        !!chosenSequence &&
+                        chosenSequence.id === activeSequence?.id
+                      }
                       progress={progress}
                       setProgress={setProgress}
                       playing={playing}
@@ -1659,6 +1708,27 @@ export default function Studio() {
                   implants={implants}
                   plans={sequencePlans}
                   selectedPlan={sequenceId}
+                  inputSignature={currentSignature}
+                  decision={storedDecision}
+                  chosenPlan={chosenSequence}
+                  onConfirm={(patient, clinician) => {
+                    if (!activeSequence || external) return;
+                    try {
+                      setSequenceDecision(
+                        confirmSequenceDecision(
+                          activeSequence,
+                          generatedSignature,
+                          currentSignature,
+                          patient,
+                          clinician,
+                        ),
+                      );
+                      notify('환자·의사 동의 확인과 계획 선택을 기록했습니다.');
+                    } catch (e) {
+                      setSequenceError((e as Error).message);
+                    }
+                  }}
+                  onWithdraw={() => setSequenceDecision(null)}
                   onSelect={(id) => {
                     setSequenceId(id);
                     setProgress(0);
@@ -2309,7 +2379,8 @@ export default function Studio() {
             guide={guide}
             perio={perio}
             perioChart={perioState.chart}
-            sequencePlan={activeSequence}
+            sequencePlan={chosenSequence || activeSequence}
+            sequenceDecision={chosenSequence ? storedDecision : null}
             parts={parts}
             buffer={buffer}
             perioOrigin={perioOrigin}
@@ -2390,6 +2461,7 @@ function Range({
 }
 function Report({
   numbering,
+  sequenceDecision,
   sequencePlan,
   perioChart,
   implants,
@@ -2401,6 +2473,7 @@ function Report({
 }: {
   numbering: Numbering;
   sequencePlan: SequencePlan | null;
+  sequenceDecision: SequenceDecision | null;
   perioChart: Chart;
   implants: Implant[];
   guide: { bore: number; thickness: number; offset: number };
@@ -2490,6 +2563,17 @@ function Report({
         미검증입니다.
       </p>
       <h3>04 · 치료·회복 시퀀스 검토</h3>
+      <p>
+        {sequenceDecision
+          ? `공동 선택 기록 · 환자 동의 확인 / 의사 동의 확인 · ${new Date(sequenceDecision.confirmedAt).toLocaleString('ko-KR')}`
+          : '미확정 비교 초안 · 환자·의사의 동의 확인 후 계획을 선택하세요.'}
+      </p>
+      <p>
+        <small>
+          동의 확인은 프로토타입 내 기록이며 본인 인증·서명된 의료 동의서가
+          아닙니다.
+        </small>
+      </p>
       {sequencePlan ? (
         <>
           <p>

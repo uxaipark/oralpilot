@@ -2862,3 +2862,65 @@ h1 {
 .top-actions .outline-button.file-save {
   display: inline-flex;
 }
+
+.sequence-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.sequence-metrics > span {
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: #1a252d;
+  font-variant-numeric: tabular-nums;
+}
+.sequence-choice-status,
+.sequence-consent {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 12px;
+  border: 1px solid #517d70;
+  border-radius: 8px;
+  background: #223b35;
+}
+.sequence-choice-status small,
+.sequence-consent small {
+  color: #b7c9c3;
+  line-height: 1.6;
+}
+.sequence-consent p {
+  margin: 0;
+}
+.sequence-consent label {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  line-height: 1.6;
+  cursor: pointer;
+}
+.sequence-consent input {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  margin-top: 3px;
+  accent-color: #92d9c5;
+}
+.sequence-visit-list {
+  padding-left: 20px;
+}
+.sequence-visit-list li {
+  margin: 12px 0;
+}
+.sequence-visit-list p {
+  margin: 4px 0;
+  overflow-wrap: anywhere;
+}
+.sequence-visit-list small {
+  color: #b1c2ce;
+}
+.sequence-tradeoffs {
+  border-top: 1px solid #44525e;
+  margin-top: 14px;
+  padding-top: 14px;
+}

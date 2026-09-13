@@ -5,7 +5,11 @@ import {
   numberingName,
 } from '@/lib/tooth-numbering';
 import type { Numbering } from '@/lib/voice-perio/domain/types';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import {
+  sequenceDecisionKey,
+  type SequenceDecision,
+} from '@/lib/sequence-decision';
 import { Play, Pause, RotateCcw, Loader2, Download } from 'lucide-react';
 import { allTeeth, download, type Implant } from '@/lib/planning';
 import {
@@ -17,6 +21,7 @@ import {
 type Controls = {
   numbering: Numbering;
   plan: SequencePlan | null;
+  confirmed: boolean;
   progress: number;
   setProgress: (n: number) => void;
   playing: boolean;
@@ -27,6 +32,7 @@ type Controls = {
 export function SimulationTimeline({
   numbering,
   plan,
+  confirmed,
   progress,
   setProgress,
   playing,
@@ -53,6 +59,10 @@ export function SimulationTimeline({
         </p>
       ) : (
         <>
+          <p className="helper">
+            {confirmed ? '공동 선택 기록' : '비교 미리보기 · 미확정'} ·{' '}
+            {plan.name}
+          </p>
           <div className="sequence-tip" role="status">
             <span>{frame!.phase.visit}</span>
             <strong>{displayText(frame!.phase.label)}</strong>
@@ -174,6 +184,11 @@ export function SimulationInspector({
   implants,
   plans,
   selectedPlan,
+  inputSignature,
+  decision,
+  chosenPlan,
+  onConfirm,
+  onWithdraw,
   onSelect,
   onGenerate,
   analyzing,
@@ -186,6 +201,11 @@ export function SimulationInspector({
   implants: Implant[];
   plans: SequencePlan[];
   selectedPlan: string;
+  inputSignature: string;
+  decision: SequenceDecision | null;
+  chosenPlan: SequencePlan | null;
+  onConfirm: (patientAgreed: boolean, clinicianAgreed: boolean) => void;
+  onWithdraw: () => void;
   onSelect: (id: string) => void;
   onGenerate: () => void;
   analyzing: boolean;
@@ -196,6 +216,10 @@ export function SimulationInspector({
   const displayText = (text: string) => displayToothText(text, numbering);
   const [tooth, setTooth] = useState(46);
   const active = plans.find((p) => p.id === selectedPlan);
+  const activeKey = useMemo(
+    () => (active ? sequenceDecisionKey(active, inputSignature) : ''),
+    [active, inputSignature],
+  );
   return (
     <>
       <div className="inspector-section">
@@ -331,23 +355,55 @@ export function SimulationInspector({
         )}
       </div>
       <div className="inspector-section">
-        <div className="section-title">회차별 계획안 비교</div>
+        <div className="section-title">6가지 테마 · 공동 의사결정</div>
         <p className="helper">
-          기하학적 이동과 회차 구성을 비교한 조건부 초안입니다. 안전한 최적안을
-          자동 확정하지 않습니다.
+          우선순위별 조건부 제안입니다. 먼저 장단점과 시뮬레이션을 비교한 뒤
+          환자·의사가 동의를 확인하고 하나의 계획을 선택합니다. 비용 견적·총
+          치료 일수는 미정입니다.
         </p>
+        {decision && (
+          <div className="sequence-choice-status" role="status">
+            <strong>
+              {chosenPlan
+                ? `공동 선택 · ${chosenPlan.name}`
+                : '저장된 선택 기록 · 재생성 후 일치 확인 필요'}
+            </strong>
+            <small>
+              환자·의사 동의 확인 기록 ·{' '}
+              {new Date(decision.confirmedAt).toLocaleString('ko-KR')}
+            </small>
+            {chosenPlan && chosenPlan.id !== selectedPlan && (
+              <button
+                className="text-button"
+                onClick={() => onSelect(chosenPlan.id)}
+              >
+                선택한 계획 보기 →
+              </button>
+            )}
+            <button className="text-button" onClick={onWithdraw}>
+              선택·동의 기록 해제
+            </button>
+          </div>
+        )}
         {plans.map((p, i) => (
           <button
             className={`sequence-plan-card ${p.id === selectedPlan && !stale ? 'selected' : ''}`}
             key={p.id}
+            aria-pressed={p.id === selectedPlan && !stale}
             disabled={stale}
             onClick={() => onSelect(p.id)}
           >
             <span>
-              검토안 {i + 1} · 식립 {p.groups.length}회차
+              제안 {i + 1} ·{' '}
+              {chosenPlan?.id === p.id ? '공동 선택됨' : '미리보기'}
             </span>
             <strong>{p.name}</strong>
             <small>{p.summary}</small>
+            <span className="sequence-metrics">
+              <span>식립 {p.metrics.placementVisits}회차</span>
+              <span>회차 최대 {p.metrics.maxImplantsPerVisit}개</span>
+              <span>가이드 장착 {p.metrics.guideSetups}회</span>
+            </span>
             <em>장단점 보기 · 재생 준비 →</em>
           </button>
         ))}
@@ -356,6 +412,59 @@ export function SimulationInspector({
         )}
         {active && !stale && (
           <div className="sequence-review">
+            <strong>{active.name} · 회차 구성</strong>
+            <ol className="sequence-visit-list">
+              {active.groups.map((group, index) => {
+                const targets = group
+                  .map((id) => implants.find((p) => p.id === id)!)
+                  .filter(Boolean);
+                return (
+                  <li key={index}>
+                    <strong>식립 {index + 1}회차</strong>
+                    {[true, false].map((upper) => {
+                      const jawTargets = targets.filter(
+                        (p) => p.tooth < 30 === upper,
+                      );
+                      return jawTargets.length ? (
+                        <p key={String(upper)}>
+                          {upper ? '상악' : '하악'} 가이드 ·{' '}
+                          {jawTargets
+                            .map((p) => `#${displayTooth(p.tooth)}`)
+                            .join(', ')}
+                        </p>
+                      ) : null;
+                    })}
+                    {index < active.groups.length - 1 && (
+                      <small>회복·재평가 후 다음 회차 · 간격 미정</small>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+            <p className="helper">
+              계획된 부위의 식립 회차입니다. 선행 처치·보철 내원은 별도이며,
+              가이드 장착 횟수는 제작물 수나 비용이 아닙니다.
+            </p>
+            {active.equivalentThemes.length > 0 && (
+              <p className="helper">
+                현재 대상에서는 {active.equivalentThemes.join(', ')}과 실행
+                순서가 같습니다. 검토 우선순위가 다릅니다.
+              </p>
+            )}
+            <div className="sequence-tradeoffs">
+              <strong>장점</strong>
+              <ul>
+                {active.pros.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+              <strong>단점·부담</strong>
+              <ul>
+                {active.cons.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </div>
             <strong>실행 전 확인 조건</strong>
             <ul>
               {active.conditions.map((c) => (
@@ -372,6 +481,13 @@ export function SimulationInspector({
                 </ul>
               </details>
             )}
+            <SequenceDecisionPanel
+              key={`${activeKey}:${chosenPlan?.id === active.id ? decision?.confirmedAt : 'draft'}`}
+              plan={active}
+              confirmed={chosenPlan?.id === active.id}
+              replacing={!!chosenPlan && chosenPlan.id !== active.id}
+              onConfirm={onConfirm}
+            />
           </div>
         )}
         {plans.length > 0 && !stale && (
@@ -386,6 +502,8 @@ export function SimulationInspector({
                     displayNumbering: numbering,
                     settings,
                     plans,
+                    decision: chosenPlan ? decision : null,
+                    previewPlanId: selectedPlan,
                   },
                   null,
                   2,
@@ -416,5 +534,72 @@ export function SimulationInspector({
         ))}
       </div>
     </>
+  );
+}
+
+function SequenceDecisionPanel({
+  plan,
+  confirmed,
+  replacing,
+  onConfirm,
+}: {
+  plan: SequencePlan;
+  confirmed: boolean;
+  replacing: boolean;
+  onConfirm: (patientAgreed: boolean, clinicianAgreed: boolean) => void;
+}) {
+  const [patientAgreed, setPatientAgreed] = useState(false);
+  const [clinicianAgreed, setClinicianAgreed] = useState(false);
+  return (
+    <section className="sequence-consent" aria-label="환자와 의사의 공동 선택">
+      <strong>
+        {confirmed ? '공동 선택 기록 완료' : '이 계획에 대한 동의 확인'}
+      </strong>
+      <p>
+        {plan.name} · 장단점과 확인 조건을 함께 검토하고 선택합니다.
+        미리보기·재생은 동의 기록 없이 가능합니다.
+      </p>
+      {confirmed ? (
+        <p role="status">환자·의사 동의 확인을 기록한 계획입니다.</p>
+      ) : (
+        <>
+          <label>
+            <input
+              type="checkbox"
+              checked={patientAgreed}
+              onChange={(e) => setPatientAgreed(e.target.checked)}
+            />
+            <span>
+              환자 · 대안, 예상 부담, 비용·기간의 미확정 사항을 설명받고 이 계획
+              선택에 동의했음을 확인합니다.
+            </span>
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={clinicianAgreed}
+              onChange={(e) => setClinicianAgreed(e.target.checked)}
+            />
+            <span>
+              의사 · 영상·치주 상태와 미확정 조건을 검토하고 이 계획 선택에
+              동의했음을 확인합니다.
+            </span>
+          </label>
+          <button
+            className="primary-button full"
+            disabled={!patientAgreed || !clinicianAgreed}
+            onClick={() => onConfirm(patientAgreed, clinicianAgreed)}
+          >
+            {replacing
+              ? '동의 확인 후 선택 계획 변경'
+              : '동의 확인 후 이 계획 선택'}
+          </button>
+        </>
+      )}
+      <small>
+        프로토타입의 동의 확인 기록이며 본인 인증·서명된 의료 동의서가 아닙니다.
+        식립·치주·가이드·회차 설정을 변경하면 다시 검토해야 합니다.
+      </small>
+    </section>
   );
 }

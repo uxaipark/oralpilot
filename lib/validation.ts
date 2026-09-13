@@ -1,4 +1,8 @@
 import {
+  validateSequenceDecision,
+  type SequenceDecision,
+} from './sequence-decision';
+import {
   validateSequenceSettings,
   type SequenceSettings,
 } from './treatment-sequence';
@@ -18,6 +22,7 @@ export function validatePlan(v: any): {
   displayNumbering?: Numbering;
   perioMeta?: ExamMeta;
   sequenceSettings?: SequenceSettings;
+  sequenceDecision?: SequenceDecision;
 } {
   if (v?.schema === 'oralpilot-plan-v1')
     throw Error(
@@ -122,6 +127,9 @@ export function validatePlan(v: any): {
     };
   }
   return {
+    ...(v.sequenceDecision == null
+      ? {}
+      : { sequenceDecision: validateSequenceDecision(v.sequenceDecision) }),
     ...(perioMeta ? { perioMeta } : {}),
     ...(v.displayNumbering === undefined
       ? {}
