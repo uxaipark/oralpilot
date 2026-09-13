@@ -40,6 +40,9 @@ export function PerioCanvas({ state, dispatch }: Props) {
         <div>
           <span className="eyebrow">VOICE DENTAL CHART</span>
           <h2>전악 6점 치주 검사</h2>
+          <p className="helper">
+            치아 존재 상태는 3D 모델 기준 · 검사값 직접 입력 · 변경 즉시 3D 반영
+          </p>
         </div>
         <div className="seg">
           <button

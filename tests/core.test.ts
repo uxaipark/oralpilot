@@ -1,3 +1,5 @@
+import './perio-display.test';
+import './face.test';
 import './sequence.test';
 import './perio.test';
 import test from 'node:test';

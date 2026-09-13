@@ -39,3 +39,12 @@ Browser derivative: `cbct-small-int16.raw.gz`, 6194340 compressed bytes, 223×22
 ## CC BY 4.0 fallback lower arch
 
 `dental.bin` + `manifest.json` filtered to `part.source === 'diaz'`. Cristian Diaz and colleagues (2024), “Data of synthetic 3D models of the human jaw, including teeth, ligaments, and bone structures.” https://data.mendeley.com/datasets/xjsx7nfhj8/1 . DOI https://doi.org/10.17632/xjsx7nfhj8.1 . Source page explicitly confirms CC BY 4.0: https://creativecommons.org/licenses/by/4.0/ . This is a published synthetic anatomical model of 14 lower teeth, cortical/cancellous alveolar bone and ligament shells, not a patient scan. Geometry assembled and packed by OMFAtlas without smoothing, scaling or moving the source components. `dental.bin` additionally carries Fang Fang Kang's immature molar model; exclude `part.source === 'fang'` unless needed, and consult the original attribution for its distinct reference.
+
+
+## Infinite exterior face scan — CC BY 3.0
+
+`face-scan/` contains the Lee Perry-Smith / Infinite-Realities head scan, distributed by three.js and Keijiro Takahashi with conversion contributions by Morgan McGuire and Guedis Cardenas. License: https://creativecommons.org/licenses/by/3.0/ . Original notice is retained in `face-scan/LICENSE.txt`; pinned acquisition URLs and SHA-256 values are in `face-scan/source.json`.
+
+Source creator's project: https://www.ir-ltd.net/2023/04/09/irs-digital-doubles/ . Changes: cropped shoulders, two limited tangent-plane subdivisions retaining UVs, browser mesh packing, physical display material, approximate lip display crop, and illustrative placement relative to dental anchors. The 4K color and displacement, 1K normal and specular images and source GLB are unmodified. The original normal map is used on the clearcoat lobe; the 4K bump map supplies the base surface detail.
+
+This scan and the ToothFairy3 dental CT are different subjects. No facial registration, skin thickness, lip support, clinical soft-tissue reconstruction or surgical suitability is established. The facial asset is excluded from quantitative anatomy and guide output. Its CC BY license is separate from the ToothFairy3 noncommercial/share-alike data license.

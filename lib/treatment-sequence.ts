@@ -111,6 +111,16 @@ export function buildSequencePlans(
     '임시 보철·교합·초기 고정·부하 방식 확인 후 다음 단계 진행',
   ];
   const warnings: string[] = [];
+  if (
+    Object.values(chart).some(
+      (t) =>
+        t.status !== 'missing' &&
+        Object.keys(t.B.pd).length + Object.keys(t.L.pd).length < 6,
+    )
+  )
+    warnings.push(
+      '치주 검사 PD가 미입력 또는 부분 입력입니다. 미입력을 건강한 상태로 해석할 수 없습니다.',
+    );
   for (const p of implants) {
     const d = vertexClearance(p, parts, buffer);
     if (d === null) warnings.push(`#${p.tooth}: 해부학 이격 미평가`);

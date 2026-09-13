@@ -138,10 +138,10 @@ void test('soft-tissue references are finite, separate from measured anatomy and
   const m = JSON.parse(await readFile('public/anatomy/manifest.json', 'utf8'));
   const before = JSON.stringify(m);
   const meshes = buildReferenceSoftTissues(m.parts);
-  assert.equal(meshes.length, 4);
+  assert.equal(meshes.length, 2);
   assert.deepEqual(
     meshes.map((m) => m.userData.group),
-    ['gingiva', 'gingiva', 'lips', 'face'],
+    ['gingiva', 'gingiva'],
   );
   for (const m of meshes) {
     assert.equal(m.userData.referenceOnly, true);

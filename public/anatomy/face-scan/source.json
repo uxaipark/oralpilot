@@ -1,0 +1,51 @@
+{
+  "author": "Lee Perry-Smith / Infinite-Realities",
+  "license": "CC BY 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+  "source": "https://www.ir-ltd.net/2023/04/09/irs-digital-doubles/",
+  "distributors": [
+    "three.js",
+    "Morgan McGuire",
+    "Guedis Cardenas",
+    "Keijiro Takahashi"
+  ],
+  "sameSubjectAsDentalCT": false,
+  "files": [
+    {
+      "file": "head.glb",
+      "url": "https://raw.githubusercontent.com/mrdoob/three.js/4500a366ccfd5a59aa2ed296c386fa42bb4edb8c/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb",
+      "bytes": 404976,
+      "sha256": "402b8a8ac9f03232e6d64b5962929703a069daf99d3c49ac8eb0e48bedc9c576"
+    },
+    {
+      "file": "normal.jpg",
+      "url": "https://raw.githubusercontent.com/mrdoob/three.js/4500a366ccfd5a59aa2ed296c386fa42bb4edb8c/examples/models/gltf/LeePerrySmith/Infinite-Level_02_Tangent_SmoothUV.jpg",
+      "bytes": 146793,
+      "sha256": "36925e51ad9b324b94e8faf4692da1b4132809f2762bb8d5bd549ffd215d4ca6"
+    },
+    {
+      "file": "displacement.jpg",
+      "url": "https://raw.githubusercontent.com/mrdoob/three.js/4500a366ccfd5a59aa2ed296c386fa42bb4edb8c/examples/models/gltf/LeePerrySmith/Infinite-Level_02_Disp_NoSmoothUV-4096.jpg",
+      "bytes": 752389,
+      "sha256": "937dea3ab1adea4624c9743ea0653fcb022235e6dcdebfb6e739b93f9d2a5cef"
+    },
+    {
+      "file": "specular.jpg",
+      "url": "https://raw.githubusercontent.com/mrdoob/three.js/4500a366ccfd5a59aa2ed296c386fa42bb4edb8c/examples/models/gltf/LeePerrySmith/Map-SPEC.jpg",
+      "bytes": 682006,
+      "sha256": "cbb96b60e355b804d9b6c7338372d13ec8cc7adf664f50a00a3d32c66afd293a"
+    },
+    {
+      "file": "color.jpg",
+      "url": "https://raw.githubusercontent.com/keijiro/InfiniteScan/150b6c46ebb6a011b93ed2e0fee9b612df78281b/Assets/InfiniteScan/Textures/lambertian.jpg",
+      "bytes": 8975275,
+      "sha256": "4fc7297835e2081cb914d1a8507fc837687102eed7bd3c6bed25b72960a09e08"
+    },
+    {
+      "file": "LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/keijiro/InfiniteScan/150b6c46ebb6a011b93ed2e0fee9b612df78281b/Assets/InfiniteScan/License.txt",
+      "bytes": 1747,
+      "sha256": "19640b8bbcc488694b24798a8fb7de9e111007bcaef8512ff830a4270c9bc927"
+    }
+  ]
+}

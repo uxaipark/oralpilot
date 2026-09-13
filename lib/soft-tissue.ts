@@ -66,41 +66,5 @@ export function buildReferenceSoftTissues(parts: Part[]): THREE.Mesh[] {
     };
     result.push(mesh);
   }
-  const anterior = [11, 21, 31, 41]
-    .map(tooth)
-    .filter((p): p is Part => !!p?.axes);
-  if (anterior.length < 4) return result;
-  const points = anterior.map(center),
-    mid = points
-      .reduce((a, p) => a.add(p), new THREE.Vector3())
-      .multiplyScalar(0.25),
-    front = Math.max(...points.map((p) => p.z)) + 5;
-  const lip = surface(128, 16, (u, v) => {
-    const t = u * Math.PI * 2,
-      ring = v * Math.PI * 2,
-      thickness = 2.5 + 1.1 * Math.abs(Math.sin(t));
-    return new THREE.Vector3(
-      mid.x + (28 + Math.cos(ring) * thickness) * Math.cos(t),
-      mid.y + (10 + Math.cos(ring) * thickness) * Math.sin(t),
-      front + Math.sin(ring) * thickness - 2 * Math.abs(Math.cos(t)),
-    );
-  });
-  const lips = new THREE.Mesh(lip, material('#ac606f'));
-  lips.userData = { group: 'lips', referenceOnly: true };
-  result.push(lips);
-  const face = surface(112, 24, (u, v) => {
-    const t = u * Math.PI * 2,
-      rx = 31 + v * 25,
-      ry = 13 + v * 29,
-      z = front - 2 - v * v * 16;
-    return new THREE.Vector3(
-      mid.x + rx * Math.cos(t),
-      mid.y + ry * Math.sin(t),
-      z,
-    );
-  });
-  const skin = new THREE.Mesh(face, material('#c59d8a'));
-  skin.userData = { group: 'face', referenceOnly: true };
-  result.push(skin);
   return result;
 }

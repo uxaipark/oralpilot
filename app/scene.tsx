@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import {
   buildGuide,
   buildImplant,
@@ -21,7 +22,21 @@ import {
   type SequencePlan,
 } from '@/lib/treatment-sequence';
 import { buildReferenceSoftTissues } from '@/lib/soft-tissue';
+import type { Chart } from '@/lib/voice-perio/domain/types';
+import {
+  examTooth,
+  buildPerioMarkers,
+  buildPositionGuide,
+} from '@/lib/perio-display';
+import {
+  buildScannedFace,
+  loadFaceResources,
+  disposeFaceResources,
+  faceDisplayMatrix,
+  type FaceResources,
+} from '@/lib/face-scan';
 export interface SceneProps {
+  perioChart: Chart;
   highlightedTeeth: number[];
   selectedTooth: number;
   sequencePlan: SequencePlan | null;
@@ -51,11 +66,55 @@ export default function Scene(props: SceneProps) {
     latest = useRef(props);
   latest.current = props;
   const [error, setError] = useState('');
+  const axisCameraKey =
+    props.view === 'axis'
+      ? JSON.stringify(
+          props.implants.find((p) => p.tooth === props.selectedTooth),
+        )
+      : '';
+  const [faceResources, setFaceResources] = useState<FaceResources | null>(
+    null,
+  );
+  const [faceLoading, setFaceLoading] = useState(false),
+    [faceError, setFaceError] = useState(''),
+    [faceAttempt, setFaceAttempt] = useState(0);
+  const needsFace = !props.external && (props.layers.face || props.layers.lips);
+  useEffect(() => {
+    if (!needsFace || faceResources) return;
+    let cancelled = false;
+    setFaceLoading(true);
+    setFaceError('');
+    loadFaceResources()
+      .then((r) => {
+        if (cancelled) disposeFaceResources(r);
+        else {
+          setFaceResources(r);
+          setFaceLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFaceError('안면 스캔을 불러오지 못했습니다.');
+          setFaceLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [needsFace, faceResources, faceAttempt]);
+  useEffect(
+    () => () => {
+      if (faceResources) disposeFaceResources(faceResources);
+    },
+    [faceResources],
+  );
   const runtime = useRef<{
     camera: THREE.PerspectiveCamera;
     controls: OrbitControls;
     anatomy: THREE.Group;
     hardware: THREE.Group;
+    annotations: THREE.Group;
+    environment: THREE.Texture;
   } | null>(null);
   useEffect(() => {
     if (!host.current) return;
@@ -93,14 +152,27 @@ export default function Scene(props: SceneProps) {
     fill.position.set(-100, 30, -50);
     scene.add(fill);
     const anatomy = new THREE.Group(),
-      hardware = new THREE.Group();
-    scene.add(anatomy, hardware);
+      hardware = new THREE.Group(),
+      annotations = new THREE.Group();
+    const room = new RoomEnvironment(),
+      pmrem = new THREE.PMREMGenerator(renderer);
+    const environment = pmrem.fromScene(room, 0.04);
+    room.dispose();
+    pmrem.dispose();
+    scene.add(anatomy, hardware, annotations);
     const grid = new THREE.GridHelper(220, 22, 0x34404a, 0x252e36);
     grid.position.y = -42;
     grid.material.transparent = true;
     grid.material.opacity = 0.5;
     scene.add(grid);
-    runtime.current = { camera, controls, anatomy, hardware };
+    runtime.current = {
+      camera,
+      controls,
+      anatomy,
+      hardware,
+      annotations,
+      environment: environment.texture,
+    };
     const resize = () => {
       const { width, height } = container.getBoundingClientRect();
       renderer.setSize(width, height);
@@ -151,8 +223,10 @@ export default function Scene(props: SceneProps) {
       renderer.domElement.removeEventListener('pointerup', onUp);
       clear(anatomy);
       clear(hardware);
+      clear(annotations);
       grid.geometry.dispose();
       grid.material.dispose();
+      environment.dispose();
       renderer.dispose();
       renderer.domElement.remove();
       runtime.current = null;
@@ -229,6 +303,10 @@ export default function Scene(props: SceneProps) {
       r.anatomy.add(mesh);
     }
     r.anatomy.add(...buildReferenceSoftTissues(props.parts));
+    if (faceResources)
+      r.anatomy.add(
+        ...buildScannedFace(faceResources, props.parts, r.environment),
+      );
     for (const path of props.neurovascularPaths) {
       const sourcePart = props.parts.find(
         (part) => part.id === path.sourcePart,
@@ -261,6 +339,7 @@ export default function Scene(props: SceneProps) {
     props.external,
     props.smoothTeeth,
     props.neurovascularPaths,
+    faceResources,
   ]);
   useEffect(() => {
     const r = runtime.current;
@@ -278,9 +357,17 @@ export default function Scene(props: SceneProps) {
         props.sequencePlan && p.fdi
           ? toothPhaseState(props.sequencePlan, props.progress, p.fdi)
           : null;
+      const exam = p.fdi ? examTooth(props.perioChart, p.fdi) : undefined;
+      const planningFocus =
+        props.mode === 'planning' &&
+        p.fdi === props.selectedTooth &&
+        props.highlightedTeeth.includes(p.fdi);
+      const plannedTooth =
+        props.mode === 'planning' &&
+        props.implants.some((i) => i.tooth === p.fdi);
       const upperVisible =
         props.layers.upper ||
-        ['unfolded', 'upper-occlusal'].includes(props.view);
+        ['unfolded', 'upper-occlusal', 'front'].includes(props.view);
       const inJawView =
         props.view === 'upper-occlusal'
           ? p.jaw === 'maxilla'
@@ -295,14 +382,24 @@ export default function Scene(props: SceneProps) {
               (phase?.phase.kind === 'extraction' &&
                 phase.phase.teeth.includes(p.fdi))
             )
-          : ['planning', 'guide'].includes(props.mode) &&
+          : props.mode === 'guide' &&
             props.implants.some((i) => i.tooth === p.fdi);
       mesh.visible =
         Boolean(props.layers[p.group as keyof Layers]) &&
         (p.jaw !== 'maxilla' || upperVisible) &&
         inJawView &&
         !(['tooth', 'pulp'].includes(p.group) && phaseHidesTooth) &&
-        !(props.view === 'unfolded' && ['face', 'lips'].includes(p.group));
+        !(
+          ['tooth', 'pulp'].includes(p.group) &&
+          exam &&
+          exam.status !== 'present'
+        ) &&
+        !(
+          ['unfolded', 'top', 'upper-occlusal', 'lower-occlusal'].includes(
+            props.view,
+          ) && ['face', 'lips'].includes(p.group)
+        ) &&
+        !(p.group === 'lips' && props.layers.face);
       const endo =
         phase?.phase.kind === 'endo' && phase.phase.teeth.includes(p.fdi);
       if (endo && p.group === 'pulp') mesh.visible = true;
@@ -328,24 +425,32 @@ export default function Scene(props: SceneProps) {
         mat.depthWrite = false;
       }
       if (p.group === 'tooth' && mat.userData.dentalAlpha) {
+        const alphaCap = planningFocus ? 0.25 : plannedTooth ? 0.4 : 1;
         mat.userData.dentalAlpha.crown.value = endo
           ? 0.15
-          : props.crownOpacity / 100;
+          : Math.min(props.crownOpacity / 100, alphaCap);
         mat.userData.dentalAlpha.root.value = endo
           ? 0.15
-          : props.rootOpacity / 100;
+          : Math.min(props.rootOpacity / 100, alphaCap);
+        mat.userData.dentalAlpha.restoration.value = exam?.crown ? 0.65 : 0;
       }
       mat.depthTest =
         endo && p.group === 'pulp'
           ? false
           : p.group === 'corridor'
-            ? !props.neuroXray
+            ? !props.neuroXray ||
+              (props.layers.face && props.softTissueOpacity >= 95)
             : true;
       mat.depthWrite =
+        (p.referenceOnly && props.softTissueOpacity >= 99) ||
         (!p.referenceOnly &&
           !(
             p.group === 'tooth' &&
-            (props.crownOpacity < 100 || props.rootOpacity < 100 || endo)
+            (props.crownOpacity < 100 ||
+              props.rootOpacity < 100 ||
+              endo ||
+              planningFocus ||
+              plannedTooth)
           ) &&
           !['bone', 'canal', 'corridor'].includes(p.group)) ||
         (p.group === 'bone' && props.opacity > 85);
@@ -369,6 +474,9 @@ export default function Scene(props: SceneProps) {
     props.parts,
     props.buffer,
     props.external,
+    faceResources,
+    props.perioChart,
+    props.selectedTooth,
   ]);
   useEffect(() => {
     const r = runtime.current;
@@ -395,7 +503,7 @@ export default function Scene(props: SceneProps) {
               : true) &&
           (o.userData.jaw !== 'maxilla' ||
             props.layers.upper ||
-            ['unfolded', 'upper-occlusal'].includes(props.view));
+            ['unfolded', 'upper-occlusal', 'front'].includes(props.view));
         r.hardware.add(o);
       }
       return;
@@ -417,7 +525,12 @@ export default function Scene(props: SceneProps) {
         );
       group.userData = { jaw: p.tooth < 30 ? 'maxilla' : 'mandible' };
       r.hardware.add(group);
-      if (props.crownPreview && props.layers.tooth) {
+      if (
+        props.mode === 'guide' &&
+        props.crownPreview &&
+        props.layers.tooth &&
+        examTooth(props.perioChart, p.tooth)?.status === 'present'
+      ) {
         const original = r.anatomy.children.find(
           (o) => o.userData.group === 'tooth' && o.userData.fdi === p.tooth,
         ) as THREE.Mesh | undefined;
@@ -425,7 +538,7 @@ export default function Scene(props: SceneProps) {
           original &&
           (original.userData.jaw !== 'maxilla' ||
             props.layers.upper ||
-            ['unfolded', 'upper-occlusal'].includes(props.view))
+            ['unfolded', 'upper-occlusal', 'front'].includes(props.view))
         ) {
           const crown = new THREE.Mesh(
             original.geometry.clone(),
@@ -454,7 +567,7 @@ export default function Scene(props: SceneProps) {
             : true) &&
         (o.userData.jaw !== 'maxilla' ||
           props.layers.upper ||
-          ['unfolded', 'upper-occlusal'].includes(props.view));
+          ['unfolded', 'upper-occlusal', 'front'].includes(props.view));
       if (props.view === 'unfolded') unfoldObject(o, props.parts);
     }
   }, [
@@ -472,20 +585,76 @@ export default function Scene(props: SceneProps) {
     props.crownOpacity,
     props.layers,
     props.neurovascularPaths,
+    props.perioChart,
+  ]);
+  useEffect(() => {
+    const r = runtime.current;
+    if (!r) return;
+    clear(r.annotations);
+    if (
+      props.external ||
+      !props.buffer ||
+      !props.parts.length ||
+      !['anatomy', 'planning'].includes(props.mode) ||
+      props.view === 'face'
+    )
+      return;
+    const objects = buildPerioMarkers(props.parts, props.perioChart);
+    if (
+      props.mode === 'planning' &&
+      props.highlightedTeeth.includes(props.selectedTooth)
+    ) {
+      const plan = props.implants.find(
+        (p) => p.tooth === props.selectedTooth,
+      ) || { ...initialImplant, tooth: props.selectedTooth };
+      objects.push(buildPositionGuide(plan, props.parts));
+    }
+    for (const o of objects) {
+      const jaw = o.userData.jaw;
+      if (
+        props.mode === 'planning' &&
+        props.implants.some((p) => p.tooth === o.userData.fdi)
+      ) {
+        o.children.forEach((child) => {
+          if (child.userData.existingImplantSymbol) child.visible = false;
+        });
+      }
+      o.visible =
+        (o.userData.kind !== 'perio' || props.layers.tooth) &&
+        (jaw !== 'maxilla' ||
+          props.layers.upper ||
+          ['unfolded', 'upper-occlusal', 'front'].includes(props.view)) &&
+        (props.view === 'upper-occlusal'
+          ? jaw === 'maxilla'
+          : props.view === 'lower-occlusal'
+            ? jaw === 'mandible'
+            : true);
+      if (props.view === 'unfolded') unfoldObject(o, props.parts);
+      r.annotations.add(o);
+    }
+  }, [
+    props.perioChart,
+    props.parts,
+    props.buffer,
+    props.external,
+    props.mode,
+    props.view,
+    props.layers,
+    props.selectedTooth,
+    props.highlightedTeeth,
+    props.implants,
   ]);
   useEffect(() => {
     const r = runtime.current;
     if (!r) return;
     const poses: Record<string, number[]> = {
-      perspective: [115, 70, 165],
+      perspective: [95, 20, 180],
       front: [0, 0, 200],
       right: [-200, 0, 0],
       left: [200, 0, 0],
-      back: [0, 0, -200],
       unfolded: [0, 0, 280],
       'upper-occlusal': [0, -180, 0],
       'lower-occlusal': [0, 180, 0],
-      top: [0, 210, 0],
     };
     r.camera.up.set(
       0,
@@ -500,36 +669,44 @@ export default function Scene(props: SceneProps) {
         .length();
       r.camera.position.normalize().multiplyScalar(size * 1.65);
       r.controls.target.set(0, 0, 0);
-    } else if (
-      ['implant', 'tooth'].includes(props.view) &&
-      props.parts.length
-    ) {
-      const p =
-        props.view === 'tooth'
-          ? {
-              ...initialImplant,
-              ...{
-                tooth: props.selectedTooth,
-                angle: 0,
-                tilt: 0,
-                x: 0,
-                z: 0,
-                depth: 0,
-                length: 10,
-              },
-            }
-          : latest.current.implants.find((p) => p.id === props.selected) ||
-            latest.current.implants[0];
+    } else if (props.view === 'face' && faceResources && props.parts.length) {
+      const box = faceResources.geometry
+        .boundingBox!.clone()
+        .applyMatrix4(faceDisplayMatrix(props.parts, faceResources.metadata));
+      const size = box.getSize(new THREE.Vector3());
+      const distance =
+        (Math.max(size.y, size.x / r.camera.aspect) /
+          (2 * Math.tan(THREE.MathUtils.degToRad(r.camera.fov / 2)))) *
+        1.15;
+      box.getCenter(r.controls.target);
+      r.camera.position
+        .copy(r.controls.target)
+        .add(
+          new THREE.Vector3(0.08, 0.025, 1)
+            .normalize()
+            .multiplyScalar(distance),
+        );
+    } else if (['focus', 'axis'].includes(props.view) && props.parts.length) {
+      const p = latest.current.implants.find(
+        (p) => p.tooth === props.selectedTooth,
+      ) || { ...initialImplant, tooth: props.selectedTooth };
       if (p) {
         const pose = implantPose(p, props.parts);
         r.controls.target
           .copy(pose.point)
           .addScaledVector(pose.direction, p.length / 3);
-        r.camera.position
-          .copy(r.controls.target)
-          .addScaledVector(pose.out, 65)
-          .addScaledVector(pose.up, 20)
-          .addScaledVector(pose.side, 15);
+        if (props.view === 'axis') {
+          r.camera.up.copy(pose.out);
+          r.camera.position
+            .copy(r.controls.target)
+            .addScaledVector(pose.direction, -85);
+        } else {
+          r.camera.position
+            .copy(r.controls.target)
+            .addScaledVector(pose.out, 65)
+            .addScaledVector(pose.up, 20)
+            .addScaledVector(pose.side, 15);
+        }
       }
     } else
       r.controls.target.set(
@@ -551,6 +728,8 @@ export default function Scene(props: SceneProps) {
     props.selected,
     props.selectedTooth,
     props.parts,
+    faceResources,
+    axisCameraKey,
   ]);
   return (
     <div
@@ -564,6 +743,17 @@ export default function Scene(props: SceneProps) {
       }
     >
       {error && <p className="scene-error">{error}</p>}
+      {needsFace && faceLoading && (
+        <p className="face-load-status">고해상도 안면 스캔 불러오는 중…</p>
+      )}
+      {needsFace && faceError && (
+        <div className="face-load-status">
+          {faceError}{' '}
+          <button onClick={() => setFaceAttempt((n) => n + 1)}>
+            다시 불러오기
+          </button>
+        </div>
+      )}
     </div>
   );
 }

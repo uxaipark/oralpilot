@@ -104,11 +104,13 @@ export function dentalMaterial(
   const alpha = {
     crown: { value: crownAlpha / 100 },
     root: { value: rootAlpha / 100 },
+    restoration: { value: 0 },
   };
   m.userData.dentalAlpha = alpha;
   m.onBeforeCompile = (shader) => {
     shader.uniforms.crownAlpha = alpha.crown;
     shader.uniforms.rootAlpha = alpha.root;
+    shader.uniforms.restorationTint = alpha.restoration;
     shader.vertexShader =
       'attribute float crownWeight; varying float vCrownWeight;\n' +
       shader.vertexShader;
@@ -117,13 +119,13 @@ export function dentalMaterial(
       '#include <begin_vertex>\nvCrownWeight=crownWeight;',
     );
     shader.fragmentShader =
-      'uniform float crownAlpha; uniform float rootAlpha; varying float vCrownWeight;\n' +
+      'uniform float crownAlpha; uniform float rootAlpha; uniform float restorationTint; varying float vCrownWeight;\n' +
       shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace(
       '#include <color_fragment>',
-      '#include <color_fragment>\ndiffuseColor.a *= mix(rootAlpha,crownAlpha,vCrownWeight);',
+      '#include <color_fragment>\ndiffuseColor.a *= mix(rootAlpha,crownAlpha,vCrownWeight);\ndiffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.48,0.72,0.90), restorationTint*vCrownWeight);',
     );
   };
-  m.customProgramCacheKey = () => 'oralpilot-enamel-root-alpha-v1';
+  m.customProgramCacheKey = () => 'oralpilot-enamel-root-alpha-v2';
   return m;
 }

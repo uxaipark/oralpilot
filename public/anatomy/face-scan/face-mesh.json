@@ -1,0 +1,33 @@
+{
+  "schema": "oralpilot-face-display-v1",
+  "vertices": 129616,
+  "triangles": 256304,
+  "positionOffset": 0,
+  "normalOffset": 1555392,
+  "uvOffset": 3110784,
+  "indexOffset": 4147712,
+  "bytes": 7223360,
+  "sha256": "827c3d301c75800f4ccb8a1be0e5b43532c7ab73ef732faa2598dd5f2481a6fe",
+  "sourceSha256": "402b8a8ac9f03232e6d64b5962929703a069daf99d3c49ac8eb0e48bedc9c576",
+  "bounds": [
+    [
+      -1.8983396291732788,
+      -1.3946599960327148,
+      -1.9898017644882202
+    ],
+    [
+      1.7244168519973755,
+      3.9779481887817383,
+      2.5919132232666016
+    ]
+  ],
+  "mouthReference": [
+    -0.09,
+    0.42,
+    2.28
+  ],
+  "displayScale": 45,
+  "processing": "Neck crop at source y=-1.4; two tangent-plane edge refinements, <=0.005 source unit correction per pass. UV seams retained. No dental registration.",
+  "sameSubjectAsDentalCT": false,
+  "referenceOnly": true
+}
