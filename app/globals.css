@@ -3670,9 +3670,11 @@ html:not([lang='ko']) .top-menu button {
 /* Compact desktop application menubar. */
 .topbar { height: 39px; min-height: 39px; padding: 0 12px; gap: 8px; }
 .topbar .top-menu { gap: 0; }
-.topbar .top-menu-trigger { min-height: 33px; height: 33px; padding: 0 9px; gap: 4px; font-size: 12px; border: 0; border-radius: 3px; background: transparent; color: #c8d3d9; }
+.top-menu-separator { width:1px; height:15px; margin:0 4px; flex:0 0 1px; background:#52616a; }
+.perio-mode .top-menu-separator { background:#afc1d2; }
+.topbar .top-menu-trigger { min-height: 33px; height: 33px; padding: 0 9px; gap: 4px; font-size: 12px; border: 0; border-radius: 3px; background: transparent; color: #c8d3d9; transition:background-color 120ms ease,color 120ms ease; }
 .topbar .top-menu-trigger > svg { display: none; }
-.topbar .top-menu-trigger:hover, .topbar .top-menu-trigger[data-popup-open] { background: #33414a; color: #f0f5f6; }
+.topbar .top-menu-trigger:hover:not(:disabled), .topbar .top-menu-trigger:focus-visible, .topbar .top-menu-trigger[data-popup-open], .topbar .top-menu-trigger[data-open] { background: #40575d; color: #f0f5f6; }
 .topbar .breadcrumb, .topbar .breadcrumb strong { font-size: 11px; }
 .topbar .language-selector { gap: 4px; }
 .topbar .language-selector > svg { width: 12px; height: 12px; }
@@ -3684,7 +3686,7 @@ html:not([lang='ko']) .top-menu button {
 .studio-demo-menu { min-width: 250px; }
 .studio-demo-menu small { margin-top: 2px; font-size: 11px; line-height: 1.35; }
 .perio-mode .topbar .top-menu-trigger { color: #36536f; background: transparent; }
-.perio-mode .topbar .top-menu-trigger:hover, .perio-mode .topbar .top-menu-trigger[data-popup-open] { background: #dce9f7; color: #175b99; }
+.perio-mode .topbar .top-menu-trigger:hover:not(:disabled), .perio-mode .topbar .top-menu-trigger:focus-visible, .perio-mode .topbar .top-menu-trigger[data-popup-open], .perio-mode .topbar .top-menu-trigger[data-open] { background: #cfe2f5; color: #175b99; }
 @media (max-width: 640px) { .topbar { height: 39px; padding: 0 8px; } .topbar .top-menu-trigger { padding: 0 8px; } }
 
 .auto-implant-panel { background: #1c302a; border-bottom-color: #3b5d50; }

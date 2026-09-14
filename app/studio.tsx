@@ -1700,6 +1700,7 @@ export default function Studio() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <span className="top-menu-separator" aria-hidden="true" />
               <DropdownMenu>
                 <DropdownMenuTrigger
                   className="top-menu-trigger"
@@ -1720,6 +1721,7 @@ export default function Studio() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <span className="top-menu-separator" aria-hidden="true" />
               <DropdownMenu>
                 <DropdownMenuTrigger
                   className="top-menu-trigger"
