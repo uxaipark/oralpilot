@@ -1,5 +1,5 @@
 'use client';
-import { SequenceTimeDisplay, PhaseDuration } from './sequence-time-display';
+import { SequenceTimingDetails, PhaseDuration } from './sequence-time-display';
 import {
   ProposalEstimateMetrics,
   ProposalEstimateBreakdown,
@@ -82,7 +82,7 @@ export function SimulationTimeline({
             <strong>{displayText(frame!.phase.label)}</strong>
             <p>{displayText(frame!.phase.tip)}</p>
           </div>
-          <SequenceTimeDisplay
+          <SequenceTimingDetails
             plan={plan}
             progress={progress}
             playing={playing}

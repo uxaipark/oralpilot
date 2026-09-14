@@ -4,6 +4,7 @@ import {
   proposalEstimate,
   type EstimateFees,
 } from '@/lib/proposal-estimates';
+import { SequenceTimeDisplay } from './sequence-time-display';
 import { durationText } from '@/lib/sequence-timing';
 import { implantSizing } from '@/lib/implant-sizing';
 import { inferVirtualDentition } from '@/lib/virtual-dentition';
@@ -2232,6 +2233,13 @@ export default function Studio() {
                           {displayText(sequenceFrame.phase.label)}
                         </strong>
                       </div>
+                    )}
+                    {step === 'simulation' && activeSequence && !external && (
+                      <SequenceTimeDisplay
+                        plan={activeSequence}
+                        progress={progress}
+                        playing={autoDemo.run ? autoDemo.running : playing}
+                      />
                     )}
                     <div
                       className="view-direction"

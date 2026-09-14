@@ -283,7 +283,7 @@ export function scheduleFrame(entries: ScheduleEntry[], progress: number) {
     index,
     local,
     day,
-    activeMinutes: entry.activeStart + entry.activeMinutes * activeFraction,
+    activeMinutes: entry.activeMinutes * activeFraction,
     active: entry.activeMinutes > 0 && local < split,
     waiting: entry.waitDays > 0 && local >= split,
     turn:

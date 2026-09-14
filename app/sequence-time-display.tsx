@@ -24,34 +24,27 @@ export function SequenceTimeDisplay({
   plan,
   progress,
   playing,
-  speed,
 }: {
   plan: SequencePlan;
   progress: number;
   playing: boolean;
-  speed: number;
 }) {
   const localize = useLocalize();
   const entries = useMemo(() => sequenceSchedule(plan), [plan]);
   const frame = scheduleFrame(entries, progress);
   if (!frame) return null;
-  const day = Math.floor(frame.day + 1e-7),
-    phase = plan.phases[frame.index];
+  const day = Math.floor(frame.day + 1e-7);
   const turning = frame.waiting && progress < 1;
-  const text =
-    progress >= 1
-      ? '계획 종료'
-      : !playing
-        ? '일시정지'
-        : frame.waiting
-          ? '회복·대기 중'
-          : '시술 진행 중';
   return localize(
     <div
       className={`sequence-time-visual ${frame.waiting ? 'is-waiting' : 'is-procedure'} ${playing ? 'is-playing' : ''}`}
       aria-label="수술 시간과 경과 일수"
     >
-      <div className="sequence-clock" aria-hidden="true">
+      <div
+        key={frame.entry.phaseId}
+        className="sequence-clock"
+        aria-hidden="true"
+      >
         <svg viewBox="0 0 120 120">
           <circle className="clock-rim" cx="60" cy="60" r="57" />
           <circle className="clock-face" cx="60" cy="60" r="52" />
@@ -98,7 +91,7 @@ export function SequenceTimeDisplay({
           </g>
           <circle className="clock-pin" cx="60" cy="60" r="3" />
         </svg>
-        <small>누적 작업 시간</small>
+        <small>현재 단계 경과</small>
         <strong>{`${Math.floor(frame.activeMinutes / 60)}h ${String(Math.floor(frame.activeMinutes % 60)).padStart(2, '0')}m`}</strong>
       </div>
       <div
@@ -128,29 +121,59 @@ export function SequenceTimeDisplay({
         </div>
         <div className="calendar-foot">{`D+${day}`}</div>
       </div>
-      <div className="sequence-time-caption">
-        <span className="time-state">
-          <i />
-          {text}
-          <b>{speed}×</b>
-        </span>
-        <strong>{`예상 경과 ${day}일`}</strong>
-        <PhaseDuration phase={phase} />
-        <p>범위의 대표값으로 재생 · 실제 예약일과 다름</p>
-        <details className="timing-sources">
-          <summary>시간 산정 근거</summary>
-          <p>{phase.timing?.note}</p>
-          {TIMING_SOURCES.filter((s) =>
-            phase.timing?.sources.includes(s.key),
-          ).map((s) => (
-            <a key={s.key} href={s.url} target="_blank" rel="noreferrer">
-              {s.title} ↗
-            </a>
-          ))}
-          <p>골이식·합병증·추가 내원·예약 대기는 별도입니다.</p>
-        </details>
-      </div>
+      <span className="sr-only">{`현재 단계 경과 ${Math.floor(frame.activeMinutes)}분`}</span>
       <span className="sr-only">{`예상 경과 ${day}일`}</span>
+    </div>,
+  );
+}
+
+export function SequenceTimingDetails({
+  plan,
+  progress,
+  playing,
+  speed,
+}: {
+  plan: SequencePlan;
+  progress: number;
+  playing: boolean;
+  speed: number;
+}) {
+  const localize = useLocalize();
+  const entries = useMemo(() => sequenceSchedule(plan), [plan]);
+  const frame = scheduleFrame(entries, progress);
+  if (!frame) return null;
+  const day = Math.floor(frame.day + 1e-7),
+    phase = plan.phases[frame.index];
+  const text =
+    progress >= 1
+      ? '계획 종료'
+      : !playing
+        ? '일시정지'
+        : frame.waiting
+          ? '회복·대기 중'
+          : '시술 진행 중';
+  return localize(
+    <div className={`sequence-time-caption ${playing ? 'is-playing' : ''}`}>
+      <span className="time-state">
+        <i />
+        {text}
+        <b>{speed}×</b>
+      </span>
+      <strong>{`예상 경과 ${day}일`}</strong>
+      <PhaseDuration phase={phase} />
+      <p>범위의 대표값으로 재생 · 실제 예약일과 다름</p>
+      <details className="timing-sources">
+        <summary>시간 산정 근거</summary>
+        <p>{phase.timing?.note}</p>
+        {TIMING_SOURCES.filter((s) =>
+          phase.timing?.sources.includes(s.key),
+        ).map((s) => (
+          <a key={s.key} href={s.url} target="_blank" rel="noreferrer">
+            {s.title} ↗
+          </a>
+        ))}
+        <p>골이식·합병증·추가 내원·예약 대기는 별도입니다.</p>
+      </details>
     </div>,
   );
 }

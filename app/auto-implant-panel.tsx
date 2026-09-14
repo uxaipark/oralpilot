@@ -1,5 +1,8 @@
 'use client';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+// Vite's ?worker&url module supplies a URL default export at build time.
+// oxlint-disable-next-line import/default
+import analysisWorkerUrl from '@/lib/auto-implant-plan.worker.ts?worker&url';
 import { Sparkles, Loader2, RotateCcw, X } from 'lucide-react';
 import { useLocalize } from '@/lib/i18n/provider';
 import {
@@ -55,10 +58,8 @@ export function AutoImplantPanel({
     worker.current?.terminate();
     setJob({ signature, busy: true, done: 0, total: candidateCount });
     try {
-      const task = new Worker(
-        new URL('../lib/auto-implant-plan.worker.ts', import.meta.url),
-        { type: 'module' },
-      );
+      // Explicit Vite asset import avoids SSR rewriting import.meta.url to file://.
+      const task = new Worker(analysisWorkerUrl, { type: 'module' });
       worker.current = task;
       const finish = () => {
         task.terminate();
@@ -114,13 +115,17 @@ export function AutoImplantPanel({
         finish();
       };
       task.postMessage(input);
-    } catch {
+    } catch (error) {
+      worker.current?.terminate();
+      worker.current = null;
+      console.error('Automatic planning worker could not start', error);
       setJob({
         signature,
         busy: false,
         done: 0,
         total: 0,
-        error: '이 브라우저에서 분석 작업을 시작하지 못했습니다.',
+        error:
+          '분석 파일을 실행하지 못했습니다. 페이지를 새로고침한 뒤 다시 시도하세요.',
       });
     }
   };

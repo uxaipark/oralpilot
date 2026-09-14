@@ -111,6 +111,19 @@ void test('one playhead drives procedure clock, wait calendar, end state and exa
   assert.equal(scheduleFrame(s, 0)!.day, 0);
   assert.equal(scheduleFrame(s, NaN)!.day, 0);
 });
+void test('clock resets for each step while the calendar retains elapsed days', () => {
+  const s = sequenceSchedule(plans[0]);
+  for (let i = 1; i < s.length; i++) {
+    const start = scheduleFrame(s, i / s.length)!;
+    assert.ok(Math.abs(start.activeMinutes) < 1e-8);
+    assert.equal(start.day, s[i].startDay);
+    const end = scheduleFrame(s, (i + 0.999999) / s.length)!;
+    assert.ok(end.activeMinutes <= s[i].activeMinutes + 1e-8);
+    if (!s[i].activeMinutes) assert.equal(end.activeMinutes, 0);
+  }
+  const end = scheduleFrame(s, 1)!;
+  assert.equal(end.activeMinutes, s.at(-1)!.activeMinutes);
+});
 void test('visit counts include prerequisite, two endodontic appointments and prosthetic care but exclude laboratory work', () => {
   const phase = (
     id: string,
@@ -177,6 +190,8 @@ void test('duration, estimate and new phase copy localizes in English and Japane
     '인공 치아 기공·제작 대기',
     '예상 기본비용',
     '시간 산정 근거',
+    '현재 단계 경과',
+    '현재 단계 경과 12분',
   ];
   for (const text of texts)
     for (const locale of ['en', 'ja'] as const)
