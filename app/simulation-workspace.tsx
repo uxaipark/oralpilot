@@ -15,7 +15,7 @@ import {
   numberingName,
 } from '@/lib/tooth-numbering';
 import type { Numbering } from '@/lib/voice-perio/domain/types';
-import { useState } from 'react';
+import { useState, useRef, useLayoutEffect } from 'react';
 import { Popover } from '@base-ui/react/popover';
 import {
   sequenceDecisionKey,
@@ -56,6 +56,36 @@ export function SimulationTimeline({
   const localize = useLocalize();
   const displayText = (text: string) => displayToothText(text, numbering);
   const frame = phaseAt(plan, progress);
+  const stripRef = useRef<HTMLDivElement>(null);
+  const activeIndex = frame?.index;
+  useLayoutEffect(() => {
+    const strip = stripRef.current;
+    if (!strip || activeIndex === undefined) return;
+    const centerActiveCard = () => {
+      const card = strip.children[activeIndex] as HTMLElement | undefined;
+      if (!card) return;
+      const left =
+        strip.scrollLeft +
+        card.getBoundingClientRect().left -
+        strip.getBoundingClientRect().left -
+        (strip.clientWidth - card.offsetWidth) / 2;
+      strip.scrollTo({
+        left: Math.max(
+          0,
+          Math.min(left, strip.scrollWidth - strip.clientWidth),
+        ),
+        behavior:
+          playing &&
+          !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            ? 'smooth'
+            : 'instant',
+      });
+    };
+    centerActiveCard();
+    const observer = new ResizeObserver(centerActiveCard);
+    observer.observe(strip);
+    return () => observer.disconnect();
+  }, [activeIndex, plan?.id, playing, localize]);
   const completed = plan && frame ? plan.phases.slice(0, frame.index) : [];
   const total = plan?.phases.filter((p) => p.kind === 'placement').length ?? 0;
   return localize(
@@ -73,21 +103,6 @@ export function SimulationTimeline({
         </p>
       ) : (
         <>
-          <p className="helper">
-            {confirmed ? '공동 선택 기록' : '비교 미리보기 · 미확정'} ·{' '}
-            {plan.name}
-          </p>
-          <div className="sequence-tip" role="status">
-            <span>{frame!.phase.visit}</span>
-            <strong>{displayText(frame!.phase.label)}</strong>
-            <p>{displayText(frame!.phase.tip)}</p>
-          </div>
-          <SequenceTimingDetails
-            plan={plan}
-            progress={progress}
-            playing={playing}
-            speed={speed}
-          />
           <div className="timeline">
             <button
               disabled={controlled}
@@ -106,6 +121,8 @@ export function SimulationTimeline({
               type="range"
               min="0"
               max="1000"
+              step="any"
+              aria-valuetext={`${frame!.index + 1} / ${plan.phases.length} · ${displayText(frame!.phase.label)}`}
               value={progress * 1000}
               onChange={(e) => {
                 setProgress(Number(e.target.value) / 1000);
@@ -137,6 +154,21 @@ export function SimulationTimeline({
               <RotateCcw size={17} />
             </button>
           </div>
+          <p className="helper">
+            {confirmed ? '공동 선택 기록' : '비교 미리보기 · 미확정'} ·{' '}
+            {plan.name}
+          </p>
+          <div className="sequence-tip" role="status">
+            <span>{frame!.phase.visit}</span>
+            <strong>{displayText(frame!.phase.label)}</strong>
+            <p>{displayText(frame!.phase.tip)}</p>
+          </div>
+          <SequenceTimingDetails
+            plan={plan}
+            progress={progress}
+            playing={playing}
+            speed={speed}
+          />
           <div className="sequence-color-key" aria-label="보철 진행 현황">
             <span>
               식립 {completed.filter((p) => p.kind === 'placement').length}/
@@ -157,12 +189,13 @@ export function SimulationTimeline({
             <span style={{ color: '#dfb45f' }}>● 회복 관찰 중</span>
             <span style={{ color: '#74b4e6' }}>● 재평가 단계</span>
           </div>
-          <div className="phase-strip">
+          <div className="phase-strip" ref={stripRef}>
             {plan.phases.map((p, i) => (
               <button
                 disabled={controlled}
                 key={p.id}
                 className={i === frame!.index ? 'active' : ''}
+                aria-current={i === frame!.index ? 'step' : undefined}
                 onClick={() => {
                   setPlaying(false);
                   setProgress(i / plan.phases.length);

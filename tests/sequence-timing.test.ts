@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { calendarLeaves, calendarPaperStrips } from '../lib/calendar-motion';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
@@ -111,18 +112,49 @@ void test('one playhead drives procedure clock, wait calendar, end state and exa
   assert.equal(scheduleFrame(s, 0)!.day, 0);
   assert.equal(scheduleFrame(s, NaN)!.day, 0);
 });
-void test('clock resets for each step while the calendar retains elapsed days', () => {
-  const s = sequenceSchedule(plans[0]);
-  for (let i = 1; i < s.length; i++) {
-    const start = scheduleFrame(s, i / s.length)!;
-    assert.ok(Math.abs(start.activeMinutes) < 1e-8);
-    assert.equal(start.day, s[i].startDay);
-    const end = scheduleFrame(s, (i + 0.999999) / s.length)!;
-    assert.ok(end.activeMinutes <= s[i].activeMinutes + 1e-8);
-    if (!s[i].activeMinutes) assert.equal(end.activeMinutes, 0);
-  }
-  const end = scheduleFrame(s, 1)!;
-  assert.equal(end.activeMinutes, s.at(-1)!.activeMinutes);
+void test('clock accumulates same-day procedures, resets on calendar changes and rewinds exactly', () => {
+  const phase = (id: string, minutes: number, days = 0): TreatmentPhase => ({
+    id,
+    kind: days ? 'healing' : 'drilling',
+    visit: id,
+    teeth: [],
+    label: '',
+    tip: '',
+    timing: {
+      activeMinutes: [minutes, minutes],
+      waitDays: [days, days],
+      basis: 'estimate',
+      note: '',
+      sources: [],
+    },
+  });
+  const plan = {
+    phases: [
+      phase('a', 20),
+      phase('b', 30),
+      phase('wait', 0, 2),
+      phase('c', 10),
+      phase('d', 40),
+      phase('mixed', 10, 2),
+    ],
+  } as SequencePlan;
+  const s = sequenceSchedule(plan);
+  const at = (step: number, fraction = 0) =>
+    scheduleFrame(s, (step + fraction) / s.length)!;
+  assert.equal(at(0, 0.5).activeMinutes, 10);
+  assert.equal(at(1).activeMinutes, 20);
+  assert.equal(at(1, 0.5).activeMinutes, 35);
+  assert.equal(at(2).activeMinutes, 50);
+  assert.equal(at(2, 0.25).activeMinutes, 50); // Same day during waiting.
+  assert.equal(at(2, 0.5).day, 1);
+  assert.equal(at(2, 0.5).activeMinutes, 0); // New day, no procedure yet.
+  assert.equal(at(3).day, 2);
+  assert.equal(at(3).activeMinutes, 0);
+  assert.equal(at(4, 0.5).activeMinutes, 30);
+  assert.ok(Math.abs(at(5, 0.15).activeMinutes - 55) < 1e-8);
+  assert.equal(at(5, 0.8).activeMinutes, 0); // Mixed phase must not carry time across days.
+  assert.equal(scheduleFrame(s, 1)!.activeMinutes, 0);
+  assert.equal(at(1, 0.5).activeMinutes, 35); // Rewind does not retain a later day's total.
 });
 void test('visit counts include prerequisite, two endodontic appointments and prosthetic care but exclude laboratory work', () => {
   const phase = (
@@ -190,8 +222,8 @@ void test('duration, estimate and new phase copy localizes in English and Japane
     '인공 치아 기공·제작 대기',
     '예상 기본비용',
     '시간 산정 근거',
-    '현재 단계 경과',
-    '현재 단계 경과 12분',
+    '당일 누적 치료 시간',
+    '당일 누적 치료 시간 12분',
   ];
   for (const text of texts)
     for (const locale of ['en', 'ja'] as const)
@@ -221,4 +253,25 @@ void test('estimate fee validation preserves unquoted values and rejects invalid
     validatePlan({ ...doc, estimateFees: undefined }).estimateFees,
     undefined,
   );
+});
+
+void test('calendar sheets overlap continuously and bend along a connected paper curve', () => {
+  const previous = calendarLeaves(12, 1, true).find((p) => p.day === 13)!;
+  const next = calendarLeaves(13, 0, true).find((p) => p.day === 13)!;
+  assert.ok(Math.abs(previous.progress - next.progress) < 1e-8);
+  assert.ok(
+    calendarLeaves(12, 0.9, true).filter((p) => p.progress > 0).length === 2,
+  );
+  assert.deepEqual(calendarLeaves(12, 0.8, false), [
+    { day: 12, progress: 0, order: 2 },
+  ]);
+  const flat = calendarPaperStrips(0);
+  assert.ok(flat.every((p, i) => p.y === i * 8 && p.z === 0));
+  const curled = calendarPaperStrips(0.5);
+  assert.ok(curled.at(-1)!.angle > curled[0].angle + 80);
+  for (let i = 1; i < curled.length; i++) {
+    const a = curled[i - 1],
+      b = curled[i];
+    assert.ok(Math.abs(Math.hypot(b.y - a.y, b.z - a.z) - 8) < 1e-8);
+  }
 });

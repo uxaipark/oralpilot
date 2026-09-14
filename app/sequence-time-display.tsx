@@ -1,5 +1,6 @@
 'use client';
 import { useMemo, type CSSProperties } from 'react';
+import { calendarLeaves, calendarPaperStrips } from '@/lib/calendar-motion';
 import { useLocalize } from '@/lib/i18n/provider';
 import {
   sequenceSchedule,
@@ -40,11 +41,7 @@ export function SequenceTimeDisplay({
       className={`sequence-time-visual ${frame.waiting ? 'is-waiting' : 'is-procedure'} ${playing ? 'is-playing' : ''}`}
       aria-label="수술 시간과 경과 일수"
     >
-      <div
-        key={frame.entry.phaseId}
-        className="sequence-clock"
-        aria-hidden="true"
-      >
+      <div key={day} className="sequence-clock" aria-hidden="true">
         <svg viewBox="0 0 120 120">
           <circle className="clock-rim" cx="60" cy="60" r="57" />
           <circle className="clock-face" cx="60" cy="60" r="52" />
@@ -91,38 +88,73 @@ export function SequenceTimeDisplay({
           </g>
           <circle className="clock-pin" cx="60" cy="60" r="3" />
         </svg>
-        <small>현재 단계 경과</small>
+        <small>당일 누적 치료 시간</small>
         <strong>{`${Math.floor(frame.activeMinutes / 60)}h ${String(Math.floor(frame.activeMinutes % 60)).padStart(2, '0')}m`}</strong>
       </div>
-      <div
-        className="sequence-calendar"
-        aria-hidden="true"
-        style={{ '--tear': turning ? frame.turn : 0 } as CSSProperties}
-      >
+      <div className="sequence-calendar" aria-hidden="true">
         <span className="calendar-binding left" />
         <span className="calendar-binding right" />
-        <div className="calendar-sheet calendar-back">
-          <span>경과 일수</span>
-          <strong>{turning ? day + 1 : day}</strong>
-          <small>DAY</small>
-        </div>
-        <div
-          key={day}
-          className="calendar-sheet calendar-front"
-          style={{
-            transition: playing
-              ? 'transform 80ms linear, opacity 80ms linear'
-              : 'none',
-          }}
-        >
-          <span>경과 일수</span>
-          <strong>{day}</strong>
-          <small>DAY</small>
+        <div className="calendar-pages">
+          {calendarLeaves(day, frame.turn, turning).map((leaf) => (
+            <CalendarLeaf key={leaf.day} {...leaf} playing={playing} />
+          ))}
         </div>
         <div className="calendar-foot">{`D+${day}`}</div>
       </div>
-      <span className="sr-only">{`현재 단계 경과 ${Math.floor(frame.activeMinutes)}분`}</span>
+      <span className="sr-only">{`당일 누적 치료 시간 ${Math.floor(frame.activeMinutes)}분`}</span>
       <span className="sr-only">{`예상 경과 ${day}일`}</span>
+    </div>,
+  );
+}
+
+function CalendarLeaf({
+  day,
+  progress,
+  order,
+  playing,
+}: {
+  day: number;
+  progress: number;
+  order: number;
+  playing: boolean;
+}) {
+  const localize = useLocalize();
+  return localize(
+    <div
+      className="calendar-leaf"
+      style={
+        {
+          '--curl': progress,
+          '--paper-transition': playing ? '80ms linear' : '0ms',
+          zIndex: order,
+        } as CSSProperties
+      }
+    >
+      {calendarPaperStrips(progress).map((strip, i) => (
+        <div
+          key={i}
+          className="calendar-paper-strip"
+          style={
+            {
+              transform: `translate3d(0, ${strip.y}px, ${strip.z}px) rotateX(${strip.angle}deg)`,
+              '--paper-shade': Math.min(0.3, Math.abs(strip.angle) / 400),
+              '--flat-y': `${strip.offset}px`,
+            } as CSSProperties
+          }
+        >
+          <div className="calendar-paper-front">
+            <div
+              className="calendar-paper-print"
+              style={{ top: -strip.offset }}
+            >
+              <span>경과 일수</span>
+              <strong>{day}</strong>
+              <small>DAY</small>
+            </div>
+          </div>
+          <div className="calendar-paper-back" />
+        </div>
+      ))}
     </div>,
   );
 }

@@ -3709,7 +3709,7 @@ html:not([lang='ko']) .top-menu button {
 .virtual-dentition-legend { position:absolute; left:12px; bottom:12px; z-index:2; border:1px solid #8bceda50; background:#193642df; color:#def9ff; padding:4px 8px; border-radius:5px; font-size:10px; pointer-events:none; }
 
 /* Procedure time and calendar time share the surgical playhead. */
-.sequence-time-visual { position:absolute; left:14px; bottom:52px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:12px; width:108px; padding:10px; border:1px solid #3c514f80; border-radius:10px; background:#1b292fd9; backdrop-filter:blur(8px); pointer-events:none; }
+.sequence-time-visual { position:absolute; left:14px; top:50%; transform:translateY(-50%); z-index:2; display:flex; flex-direction:column; align-items:center; gap:12px; width:108px; padding:10px; border:1px solid #3c514f80; border-radius:10px; background:#1b292fd9; backdrop-filter:blur(8px); pointer-events:none; }
 .viewer-stage:has(.sequence-time-visual) .simulation-overlay { left:138px; max-width:min(260px,calc(100% - 208px)); }
 .sequence-clock { text-align:center; }
 .sequence-clock svg { display:block; width:86px; filter:drop-shadow(0 6px 8px #0003); }
@@ -3725,12 +3725,16 @@ html:not([lang='ko']) .top-menu button {
 .sequence-clock small { display:block; margin-top:6px; font-size:10px; color:#87a39b; }
 .sequence-clock strong { display:block; font-size:12px; font-weight:500; color:#c5ded3; font-variant-numeric:tabular-nums; }
 .sequence-calendar { position:relative; width:86px; height:124px; perspective:500px; isolation:isolate; }
-.calendar-sheet { position:absolute; inset:8px 0 20px; border-radius:5px 5px 7px 7px; background:linear-gradient(135deg,#f4f3e9,#dedfd5); color:#253b35; text-align:center; box-shadow:0 3px 0 #b4bcb0,0 5px 0 #8a9b8c,0 10px 20px #0003; overflow:hidden; }
-.calendar-sheet > span { display:block; padding:8px 3px 4px; background:#668e7e; color:#f2faf4; font-size:9px; letter-spacing:.08em; }
-.calendar-sheet > strong { display:block; margin-top:5px; font-size:38px; line-height:1.2; letter-spacing:-.06em; font-weight:500; font-variant-numeric:tabular-nums; }
-.calendar-sheet > small { font-size:9px; letter-spacing:.17em; color:#658070; }
-.calendar-front { transform-origin:center 8px; transform:translateY(calc(var(--tear)*-16px)) rotateX(calc(var(--tear)*-115deg)) rotateZ(calc(var(--tear)*-7deg)); opacity:calc(1 - var(--tear)*.8); backface-visibility:hidden; z-index:2; }
-.calendar-front:after { content:''; position:absolute; inset:0; background:linear-gradient(0deg,#233d3a40,transparent); opacity:var(--tear); pointer-events:none; }
+.calendar-pages { position:absolute; inset:8px 0 20px; perspective:360px; perspective-origin:50% 20%; border-radius:5px; background:#c5cbbd; box-shadow:0 3px 0 #a4b09f,0 5px 0 #7f9283,0 10px 20px #0003; }
+.calendar-leaf { position:absolute; inset:0; transform-style:preserve-3d; transform:translateY(calc(var(--curl)*var(--curl)*-34px)) rotateZ(calc(var(--curl)*-6deg)); opacity:clamp(0,calc((1 - var(--curl))*3.4),1); transition:transform var(--paper-transition),opacity var(--paper-transition); }
+.calendar-paper-strip { position:absolute; top:0; left:0; width:100%; height:8px; transform-origin:50% 0; transform-style:preserve-3d; transition:transform var(--paper-transition); }
+.calendar-paper-front,.calendar-paper-back { position:absolute; inset:0 0 -.4px; overflow:hidden; backface-visibility:hidden; }
+.calendar-paper-front:after { content:''; position:absolute; inset:0; background:linear-gradient(0deg,#233b32,transparent); opacity:var(--paper-shade); }
+.calendar-paper-back { transform:rotateY(180deg); background:linear-gradient(90deg,#d8dbc9,#f4f2df 40%,#ced5c4); }
+.calendar-paper-print { position:absolute; left:0; width:100%; height:96px; background:linear-gradient(135deg,#f4f3e9,#dedfd5); color:#253b35; text-align:center; border-radius:5px 5px 7px 7px; }
+.calendar-paper-print > span { display:block; padding:8px 3px 4px; background:#668e7e; color:#f2faf4; font-size:9px; letter-spacing:.08em; }
+.calendar-paper-print > strong { display:block; margin-top:5px; font-size:38px; line-height:1.2; letter-spacing:-.06em; font-weight:500; font-variant-numeric:tabular-nums; }
+.calendar-paper-print > small { font-size:9px; letter-spacing:.17em; color:#658070; }
 .calendar-binding { position:absolute; top:2px; width:5px; height:16px; background:linear-gradient(90deg,#6d8b7f,#c4d5c9,#496155); border-radius:5px; z-index:3; box-shadow:0 1px 2px #0008; }
 .calendar-binding.left { left:22px; }.calendar-binding.right { right:22px; }
 .calendar-foot { position:absolute; bottom:0; width:100%; color:#b4c9bd; text-align:center; font-size:11px; font-variant-numeric:tabular-nums; }
@@ -3743,4 +3747,4 @@ html:not([lang='ko']) .top-menu button {
 .estimate-fee-settings { padding:10px 0; font-size:11px; color:#b3c3b7; }.estimate-fee-settings summary { cursor:pointer; }.estimate-fee-settings p { line-height:1.6; color:#94a99a; }.estimate-fee-settings label { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:8px 0; }.estimate-fee-settings input { width:105px; min-width:0; padding:6px; border:1px solid #4c6356; background:#1a2b23; color:#d5e8d9; border-radius:4px; font-size:12px; }.estimate-fee-settings a { display:block; margin-top:10px; color:#a7d5b9; }
 @media(max-width:700px){.sequence-time-caption > strong{font-size:15px;}}
 @media(max-width:470px){.proposal-estimate-metrics{grid-template-columns:1fr 1fr;}.proposal-estimate-breakdown .proposal-estimate-metrics b{font-size:14px;}}
-@media(prefers-reduced-motion:reduce){.clock-hand{transition:none!important;}.calendar-front{transform:none;opacity:1;}.calendar-front:after{display:none;}}
+@media(prefers-reduced-motion:reduce){.clock-hand{transition:none!important;}.calendar-leaf,.calendar-paper-strip{transition:none!important;}.calendar-leaf{transform:none;opacity:1;}.calendar-paper-strip{transform:translateY(var(--flat-y))!important;}.calendar-paper-front:after{display:none;}}

@@ -278,12 +278,21 @@ export function scheduleFrame(entries: ScheduleEntry[], progress: number) {
   const waitingFraction =
     entry.waitDays > 0 ? Math.max(0, (local - split) / (1 - split)) : 0;
   const day = entry.startDay + entry.waitDays * waitingFraction;
+  const calendarDay = Math.floor(day + 1e-7);
+  // Accumulate procedures on this calendar day only, including partial progress.
+  // Waiting advances the calendar, never the procedure clock.
+  let activeMinutes = 0;
+  for (let i = 0; i <= index; i++) {
+    if (Math.floor(entries[i].startDay + 1e-7) === calendarDay)
+      activeMinutes +=
+        entries[i].activeMinutes * (i === index ? activeFraction : 1);
+  }
   return {
     entry,
     index,
     local,
     day,
-    activeMinutes: entry.activeMinutes * activeFraction,
+    activeMinutes,
     active: entry.activeMinutes > 0 && local < split,
     waiting: entry.waitDays > 0 && local >= split,
     turn:

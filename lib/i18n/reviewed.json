@@ -3849,19 +3849,19 @@
     "en": "Fees must be non-negative whole KRW amounts.",
     "ja": "単価は0以上のウォン単位の整数で入力してください。"
   },
-  "현재 단계 경과": {
-    "ko": "현재 단계 경과",
-    "en": "Current step elapsed",
-    "ja": "現在のステップの経過時間"
-  },
-  "현재 단계 경과 {0}분": {
-    "ko": "현재 단계 경과 {0}분",
-    "en": "Current step elapsed: {0} min",
-    "ja": "現在のステップの経過時間：{0}分"
-  },
   "분석 파일을 실행하지 못했습니다. 페이지를 새로고침한 뒤 다시 시도하세요.": {
     "ko": "분석 파일을 실행하지 못했습니다. 페이지를 새로고침한 뒤 다시 시도하세요.",
     "en": "The analysis file could not run. Refresh the page and retry.",
     "ja": "解析ファイルを実行できませんでした。ページを再読み込みしてから再試行してください。"
+  },
+  "당일 누적 치료 시간": {
+    "ko": "당일 누적 치료 시간",
+    "en": "Today's treatment time",
+    "ja": "当日の累積治療時間"
+  },
+  "당일 누적 치료 시간 {0}분": {
+    "ko": "당일 누적 치료 시간 {0}분",
+    "en": "Today's treatment time: {0} min",
+    "ja": "当日の累積治療時間：{0}分"
   }
 }
