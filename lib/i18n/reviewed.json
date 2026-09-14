@@ -2933,5 +2933,35 @@
     "ko": "다른 케이스가 선택되어 계획 불러오기를 취소했습니다.",
     "en": "Plan loading was cancelled because another case was selected.",
     "ja": "別のケースが選択されたため、計画の読み込みを中止しました。"
+  },
+  "데모": {
+    "ko": "데모",
+    "en": "Demo",
+    "ja": "デモ"
+  },
+  "계획서": {
+    "ko": "계획서",
+    "en": "Plan",
+    "ja": "計画書"
+  },
+  "주 메뉴": {
+    "ko": "주 메뉴",
+    "en": "Main menu",
+    "ja": "メインメニュー"
+  },
+  "치주 검사·차트 작성": {
+    "ko": "치주 검사·차트 작성",
+    "en": "Periodontal exam & charting",
+    "ja": "歯周検査・チャート入力"
+  },
+  "임플란트 수술 설계": {
+    "ko": "임플란트 수술 설계",
+    "en": "Implant surgery planning",
+    "ja": "インプラント手術設計"
+  },
+  "계획 → 가이드 형상 검토 → 수술 시뮬레이션": {
+    "ko": "계획 → 가이드 형상 검토 → 수술 시뮬레이션",
+    "en": "Plan → Guide review → Surgical simulation",
+    "ja": "計画 → ガイド形状の確認 → 手術シミュレーション"
   }
 }

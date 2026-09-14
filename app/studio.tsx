@@ -10,8 +10,19 @@ import {
   loadToothFairyCase,
   type ToothFairyCatalog,
 } from '@/lib/toothfairy-cases';
+import {
+  createDefaultDemoImplants,
+  DEFAULT_DEMO_TEETH,
+} from '@/lib/default-demo';
 import { browserPlanKey, BROWSER_ACTIVE_CASE_KEY } from '@/lib/browser-plan';
 
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { useLocalize } from '@/lib/i18n/provider';
 
 import {
@@ -39,6 +50,7 @@ import {
   Box,
   Check,
   ChevronRight,
+  ChevronDown,
   CircleHelp,
   Crosshair,
   Download,
@@ -231,6 +243,9 @@ export default function Studio() {
   const [cadExporting, setCadExporting] = useState(false);
   const [cadError, setCadError] = useState('');
   const [caseBrowserOpen, setCaseBrowserOpen] = useState(false);
+  const [demoPreview, setDemoPreview] = useState(false);
+  const prepareDemo = useRef(true);
+  const [demoRevision, setDemoRevision] = useState(0);
   const [caseVisibility, setCaseVisibility] = useState(defaultCaseVisibility);
   const [sequenceDecision, setSequenceDecision] =
     useState<SequenceDecision | null>(null);
@@ -270,7 +285,9 @@ export default function Studio() {
     [parts, setParts] = useState<Part[]>([]),
     [buffer, setBuffer] = useState<ArrayBuffer | null>(null),
     [loadError, setLoadError] = useState('');
-  const [implants, setImplants] = useState<Implant[]>([{ ...initialImplant }]),
+  const [implants, setImplants] = useState<Implant[]>(
+      createDefaultDemoImplants,
+    ),
     [selected, setSelected] = useState('IP-01'),
     [tooth, setTooth] = useState(46),
     [layers, setLayers] = useState<Layers>({
@@ -516,7 +533,7 @@ export default function Studio() {
   }, [currentSignature, external]);
   const csvInput = useRef<HTMLInputElement>(null),
     planInput = useRef<HTMLInputElement>(null),
-    serial = useRef(2);
+    serial = useRef(DEFAULT_DEMO_TEETH.length + 1);
   useEffect(
     () => () => {
       external?.dispose();
@@ -759,6 +776,7 @@ export default function Studio() {
   const localAutosave = useRef(false),
     localHydrated = useRef(false);
   const applyPlan = (d: ReturnType<typeof validatePlan>, origin: string) => {
+    prepareDemo.current = false;
     if (d.perioMeta) perioDispatch({ type: 'setMeta', patch: d.perioMeta });
     if (d.displayNumbering)
       perioDispatch({
@@ -805,7 +823,8 @@ export default function Studio() {
     caseRevision.current += 1;
     setAnalyzing(false);
     setSequenceError('');
-    if (!external) casePlans.current.set(anatomyId, validatePlan(planDocument));
+    if (!external && !demoPreview)
+      casePlans.current.set(anatomyId, validatePlan(planDocument));
     localAutosave.current = false;
     faceViewSnapshot.current = null;
   };
@@ -901,6 +920,7 @@ export default function Studio() {
       if (revision !== caseRevision.current)
         throw Error('다른 케이스가 선택되어 계획 불러오기를 취소했습니다.');
       rememberPlan();
+      setDemoPreview(false);
       installAnatomy(model);
       applyPlan(document, origin);
       setStep(document.implants.length ? 'planning' : 'anatomy');
@@ -937,6 +957,7 @@ export default function Studio() {
       !localReady ||
       !localSaved ||
       !localAutosave.current ||
+      demoPreview ||
       external ||
       caseLoading
     )
@@ -956,6 +977,7 @@ export default function Studio() {
   }, [planDocument, localReady, localSaved]);
   useEffect(() => {
     const changed = (event: StorageEvent) => {
+      if (demoPreview) return;
       if (
         event.storageArea !== window.localStorage ||
         (event.key !== browserPlanKey(anatomyId) && event.key !== null)
@@ -971,14 +993,15 @@ export default function Studio() {
     };
     window.addEventListener('storage', changed);
     return () => window.removeEventListener('storage', changed);
-  }, [anatomyId]);
+  }, [anatomyId, demoPreview]);
   useEffect(() => {
     if (!localReady || caseLoading) return;
     const exists =
+      !demoPreview &&
       window.localStorage.getItem(browserPlanKey(anatomyId)) !== null;
     setLocalSaved(exists);
     localAutosave.current = exists && !external;
-  }, [anatomyId, external, localReady, caseLoading]);
+  }, [anatomyId, external, localReady, caseLoading, demoPreview]);
   const toggleBrowserSave = () => {
     try {
       if (localSaved) {
@@ -991,6 +1014,7 @@ export default function Studio() {
         );
       } else {
         writeBrowserPlan(window.localStorage, planDocument);
+        setDemoPreview(false);
         localAutosave.current = true;
         setLocalSaved(true);
         setLocalError('');
@@ -1060,12 +1084,13 @@ export default function Studio() {
   }
   const restoreDemo = () => {
     const saved =
-      (!external && anatomyId === REFERENCE_ANATOMY
+      (!external && !demoPreview && anatomyId === REFERENCE_ANATOMY
         ? validatePlan(planDocument)
         : null) ||
       casePlans.current.get(REFERENCE_ANATOMY) ||
       readBrowserPlan(window.localStorage, REFERENCE_ANATOMY);
     rememberPlan();
+    setDemoPreview(false);
     installAnatomy(null);
     if (saved) applyPlan(saved, '레퍼런스에 저장된 검사값');
     else
@@ -1073,7 +1098,7 @@ export default function Studio() {
         validatePlan({
           ...planDocument,
           anatomy: REFERENCE_ANATOMY,
-          implants: [{ ...initialImplant }],
+          implants: createDefaultDemoImplants(),
           perio: {},
           perioChart: chartFromAnatomy(anatomyManifest.parts),
           sequenceSettings: defaultSequenceSettings,
@@ -1083,10 +1108,73 @@ export default function Studio() {
       );
     notify('공개 해부학 모델과 데모 계획으로 돌아왔습니다.');
   };
+  const openDefaultDemo = (start: 'anatomy' | 'perio' | 'planning') => {
+    rememberPlan();
+    installAnatomy(null);
+    applyPlan(
+      validatePlan({
+        ...planDocument,
+        anatomy: REFERENCE_ANATOMY,
+        implants: createDefaultDemoImplants(),
+        guide: { bore: 2.2, thickness: 2, offset: 3 },
+        perio: {},
+        perioChart: chartFromAnatomy(anatomyManifest.parts),
+        perioMeta: { ...createPerioState({}).meta, numbering },
+        sequenceSettings: defaultSequenceSettings,
+        sequenceDecision: null,
+      }),
+      '모델 기반 치아 상태 · 검사값 직접 입력',
+    );
+    setDemoPreview(true);
+    localAutosave.current = false;
+    setLocalSaved(false);
+    setLocalError('');
+    prepareDemo.current = true;
+    setDemoRevision((n) => n + 1);
+    setStep(start);
+  };
+  useEffect(() => {
+    if (
+      !prepareDemo.current ||
+      !localReady ||
+      caseLoading ||
+      external ||
+      clinicalCase ||
+      !buffer ||
+      !simulationAccess
+    )
+      return;
+    prepareDemo.current = false;
+    try {
+      const proposals = buildSequencePlans(
+        implants,
+        sequenceSettings,
+        perioState.chart,
+        parts,
+        buffer,
+      );
+      setSequencePlans(proposals);
+      setSequenceId(proposals[0]?.id || '');
+      setGeneratedSignature(currentSignature);
+    } catch (error) {
+      setSequenceError((error as Error).message);
+    }
+  }, [
+    localReady,
+    caseLoading,
+    external,
+    clinicalCase,
+    buffer,
+    simulationAccess,
+    currentSignature,
+    demoPreview,
+    demoRevision,
+  ]);
   const acceptGeometry = (g: THREE.BufferGeometry, name: string) => {
     const model = planningAnatomyFromGeometry(g);
     const nextPlan = model ? casePlanFor(model) : null;
     rememberPlan();
+    setDemoPreview(false);
     if (model && nextPlan) {
       cacheCase(model);
       installAnatomy(model);
@@ -1204,52 +1292,97 @@ export default function Studio() {
             </strong>
           </div>
           <div className="top-actions">
+            <nav className="top-menu" aria-label="주 메뉴">
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className="top-menu-trigger demo-menu-trigger"
+                  disabled={caseLoading || !referenceData.current}
+                >
+                  <Play size={15} /> 데모 <ChevronDown size={13} />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="studio-top-menu studio-demo-menu"
+                  align="start"
+                  sideOffset={8}
+                >
+                  <DropdownMenuItem onClick={() => openDefaultDemo('anatomy')}>
+                    <ScanLine size={17} /> <span>3D 영상 탐색</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => openDefaultDemo('perio')}>
+                    <Activity size={17} /> <span>치주 검사·차트 작성</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => openDefaultDemo('planning')}>
+                    <Crosshair size={17} />
+                    <span>
+                      임플란트 수술 설계
+                      <small>계획 → 가이드 형상 검토 → 수술 시뮬레이션</small>
+                    </span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className="top-menu-trigger"
+                  disabled={caseLoading}
+                >
+                  <FolderInput size={16} /> 케이스 <ChevronDown size={13} />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="studio-top-menu"
+                  align="start"
+                  sideOffset={8}
+                >
+                  <DropdownMenuItem onClick={() => setCaseBrowserOpen(true)}>
+                    <FolderInput size={16} /> 케이스 불러오기
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStep('data')}>
+                    <Upload size={16} /> 데이터 가져오기
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className="top-menu-trigger"
+                  disabled={caseLoading}
+                >
+                  <FileText size={16} /> 계획서 <ChevronDown size={13} />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="studio-top-menu"
+                  align="start"
+                  sideOffset={8}
+                >
+                  <DropdownMenuItem onClick={() => planInput.current?.click()}>
+                    <FolderInput size={16} /> 계획 열기
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={toggleBrowserSave}
+                    disabled={!localReady || !!external || caseLoading}
+                    title={localError || undefined}
+                  >
+                    {localSaved ? <Trash2 size={16} /> : <Save size={16} />}
+                    {localSaved
+                      ? '계획서 임시공간 삭제'
+                      : '계획서 임시공간 저장'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={savePlan}
+                    disabled={!!external || caseLoading}
+                  >
+                    <ArrowDownToLine size={16} /> 계획서 파일저장
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setReport(true)}
+                    disabled={!!external || caseLoading}
+                  >
+                    <FileText size={16} /> 계획서 보기
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </nav>
             <LanguageSelector />
-            <button
-              className="outline-button case-open"
-              disabled={caseLoading}
-              onClick={() => setCaseBrowserOpen(true)}
-            >
-              <FolderInput size={16} /> 케이스 불러오기
-            </button>
-            <button
-              className="quiet-button"
-              disabled={caseLoading}
-              onClick={() => planInput.current?.click()}
-            >
-              <Upload size={15} />
-              계획 열기
-            </button>
-            <button
-              className="outline-button browser-save"
-              onClick={toggleBrowserSave}
-              disabled={!localReady || !!external || caseLoading}
-              title={
-                localError ||
-                (localSaved
-                  ? '현재 계획은 유지하고 이 브라우저의 계획서 임시공간만 삭제합니다.'
-                  : '계획과 치주 검사를 이 브라우저의 임시공간에 저장하고 이후 변경을 자동 저장합니다. 영상 원본은 제외합니다.')
-              }
-            >
-              {localSaved ? <Trash2 size={15} /> : <Save size={15} />}
-              {localSaved ? '계획서 임시공간 삭제' : '계획서 임시공간 저장'}
-            </button>
-            <button
-              className="outline-button file-save"
-              onClick={savePlan}
-              disabled={!!external || caseLoading}
-            >
-              <ArrowDownToLine size={15} />
-              계획서 파일저장
-            </button>
-            <button
-              className="primary-button"
-              onClick={() => setReport(true)}
-              disabled={!!external || caseLoading}
-            >
-              <FileText size={16} />
-              계획서 보기
-            </button>
           </div>
         </header>
         <div className="page-heading compact-heading" aria-busy={caseLoading}>

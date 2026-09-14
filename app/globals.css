@@ -3354,3 +3354,99 @@ html:not([lang="ko"]) .view-tabs { flex-wrap:wrap; }
 .case-report { font-size: 12px; margin-top: 12px; }
 .case-report p { white-space: pre-wrap; line-height: 1.65; margin-top: 10px; color: #b1c2ce; }
 @media(max-width: 520px) { .case-filters { grid-template-columns: 1fr; } }
+
+/* Compact application menus: actions stay grouped instead of filling the header. */
+.top-menu {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.top-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #c8d3d9;
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.top-menu-trigger:hover,
+.top-menu-trigger[data-popup-open] {
+  background: #25313a;
+  border-color: #354550;
+  color: #edf6f2;
+}
+.top-menu-trigger:focus-visible {
+  outline: 2px solid #8bdbc0;
+  outline-offset: 2px;
+}
+.top-menu-trigger:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.demo-menu-trigger {
+  color: #a7e4d0;
+  background: #203b34;
+  border-color: #34574c;
+}
+.studio-top-menu {
+  width: max-content;
+  min-width: 224px;
+  max-width: calc(100vw - 24px);
+  padding: 6px;
+  border: 1px solid #3b4d57;
+  background: #1c2830;
+  color: #dce8e9;
+  box-shadow: 0 12px 36px #0006;
+}
+.studio-top-menu [data-slot='dropdown-menu-item'] {
+  gap: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.studio-top-menu [data-slot='dropdown-menu-item'][data-highlighted],
+.studio-top-menu [data-slot='dropdown-menu-item']:focus {
+  background: #2b4148;
+  color: #edfaf5;
+}
+.studio-top-menu [data-slot='dropdown-menu-separator'] {
+  margin: 5px 6px;
+  background: #3b4b54;
+}
+html:not([lang='ko']) .top-menu button {
+  white-space: nowrap;
+}
+@media (max-width: 700px) {
+  .top-menu {
+    gap: 2px;
+  }
+  .top-menu-trigger {
+    padding: 0 8px;
+    font-size: 12px;
+  }
+  .top-menu-trigger > svg:first-child {
+    display: none;
+  }
+}
+
+.studio-demo-menu {
+  min-width: 300px;
+}
+.studio-demo-menu [data-slot='dropdown-menu-item'] {
+  align-items: center;
+}
+.studio-demo-menu small {
+  display: block;
+  margin-top: 4px;
+  color: #95abae;
+  font-size: 12px;
+  line-height: 1.5;
+}
