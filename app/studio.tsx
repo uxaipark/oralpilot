@@ -1,4 +1,5 @@
 'use client';
+import { CreatorDialog } from './creator-dialog';
 import { useDemoPlayback } from '@/lib/use-demo-playback';
 import { demoStages, demoPerioActions } from '@/lib/demo-playback';
 
@@ -397,6 +398,7 @@ export default function Studio() {
     ),
     [report, setReport] = useState(false),
     [sources, setSources] = useState(false),
+    [creatorOpen, setCreatorOpen] = useState(false),
     [notice, setNotice] = useState(''),
     [external, setExternal] = useState<THREE.BufferGeometry | null>(null),
     [externalName, setExternalName] = useState('');
@@ -3522,7 +3524,17 @@ export default function Studio() {
             OralPilot Studio
           </span>
 
-          <button onClick={() => setSources(true)}>데이터 및 라이선스 ↗</button>
+          <div className="footer-links">
+            <button
+              className="creator-trigger"
+              onClick={() => setCreatorOpen(true)}
+            >
+              About the creator
+            </button>
+            <button onClick={() => setSources(true)}>
+              데이터 및 라이선스 ↗
+            </button>
+          </div>
         </footer>
       </div>
       <CaseBrowser
@@ -3581,6 +3593,11 @@ export default function Studio() {
           }
           e.target.value = '';
         }}
+      />
+      <CreatorDialog
+        open={creatorOpen}
+        onOpenChange={setCreatorOpen}
+        light={step === 'perio'}
       />
       <Dialog open={sources} onOpenChange={setSources}>
         <DialogContent className="wide-dialog">

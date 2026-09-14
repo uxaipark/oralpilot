@@ -1,4 +1,8 @@
 'use client';
+import {
+  osteotomiesAt,
+  updateOsteotomyMaterial,
+} from '@/lib/osteotomy-display';
 import { useLocalize } from '@/lib/i18n/provider';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -433,10 +437,24 @@ export default function Scene(props: SceneProps) {
   useEffect(() => {
     const r = runtime.current;
     if (!r) return;
+    const holes = osteotomiesAt(
+      props.mode === 'simulation' ? props.sequencePlan : null,
+      props.progress,
+      props.implants,
+      props.parts,
+      props.guide,
+    );
     r.anatomy.children.forEach((o) => {
       const mesh = o as THREE.Mesh,
         p = mesh.userData,
         mat = mesh.material as THREE.MeshStandardMaterial;
+      if (['bone', 'gingiva'].includes(p.group))
+        updateOsteotomyMaterial(
+          mat,
+          holes.filter(
+            (h) => (h.implant.tooth < 30 ? 'maxilla' : 'mandible') === p.jaw,
+          ),
+        );
       if (p.group === 'external') {
         if (p.caseKind) {
           const visible = props.caseVisibility || defaultCaseVisibility;
@@ -556,6 +574,7 @@ export default function Scene(props: SceneProps) {
     });
   }, [
     props.layers,
+    props.guide,
     props.opacity,
     props.implants,
     props.selected,

@@ -1,3 +1,4 @@
+import './osteotomy.test';
 import './demo-playback.test';
 import './default-demo.test';
 import './case-planning.test';

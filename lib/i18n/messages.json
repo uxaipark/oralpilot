@@ -5393,5 +5393,60 @@
     "ko": "데모 종료",
     "en": "Exit demo",
     "ja": "デモを終了"
+  },
+  "About the creator": {
+    "ko": "About the creator",
+    "en": "About the creator",
+    "ja": "About the creator"
+  },
+  "· OralPilot 제작자": {
+    "ko": "· OralPilot 제작자",
+    "en": "· Creator of OralPilot",
+    "ja": "· OralPilotの制作者"
+  },
+  "AI 아이디어를 직접 경험할 수 있는 제품으로.": {
+    "ko": "AI 아이디어를 직접 경험할 수 있는 제품으로.",
+    "en": "Turning AI ideas into products you can experience.",
+    "ja": "AIのアイデアを、体験できるプロダクトへ。"
+  },
+  "AI 기술과 소프트웨어로 실제 문제를 해결하는 제품을 만듭니다. 문제 정의와 시스템 설계, 빠른 실험과 검증을 통해 아이디어를 구체화합니다.": {
+    "ko": "AI 기술과 소프트웨어로 실제 문제를 해결하는 제품을 만듭니다. 문제 정의와 시스템 설계, 빠른 실험과 검증을 통해 아이디어를 구체화합니다.",
+    "en": "I build products that address real problems through AI and software. My work brings together problem definition, system design, rapid experimentation and validation.",
+    "ja": "AIとソフトウェアで実際の課題を解決するプロダクトを作っています。課題の定義、システム設計、迅速な実験と検証を通じて、アイデアを具体化します。"
+  },
+  "관심 분야": {
+    "ko": "관심 분야",
+    "en": "Areas of interest",
+    "ja": "関心分野"
+  },
+  "AI 엔지니어링": {
+    "ko": "AI 엔지니어링",
+    "en": "AI engineering",
+    "ja": "AIエンジニアリング"
+  },
+  "제품 개발": {
+    "ko": "제품 개발",
+    "en": "Product development",
+    "ja": "プロダクト開発"
+  },
+  "디지털 트윈": {
+    "ko": "디지털 트윈",
+    "en": "Digital twins",
+    "ja": "デジタルツイン"
+  },
+  "3D 구강 구조와 치주 검사, 임플란트 계획과 수술 시뮬레이션을 하나의 작업 공간으로 연결하는 프로젝트입니다.": {
+    "ko": "3D 구강 구조와 치주 검사, 임플란트 계획과 수술 시뮬레이션을 하나의 작업 공간으로 연결하는 프로젝트입니다.",
+    "en": "A project connecting 3D oral anatomy, periodontal charting, implant planning and surgical simulation in one workspace.",
+    "ja": "3D口腔構造、歯周検査、インプラント計画、手術シミュレーションを一つのワークスペースにつなぐプロジェクトです。"
+  },
+  "LinkedIn에서 연결하기": {
+    "ko": "LinkedIn에서 연결하기",
+    "en": "Connect on LinkedIn",
+    "ja": "LinkedInでつながる"
+  },
+  "슬리브를 따라 가는 드릴로 골의 초기 천공을 형성합니다. 드릴이 지나간 입구와 깊이는 후퇴 후에도 남습니다. 이후 확장 드릴의 순서·규격·관주·깊이 스톱은 선택한 시스템의 지침에 따릅니다.": {
+    "ko": "슬리브를 따라 가는 드릴로 골의 초기 천공을 형성합니다. 드릴이 지나간 입구와 깊이는 후퇴 후에도 남습니다. 이후 확장 드릴의 순서·규격·관주·깊이 스톱은 선택한 시스템의 지침에 따릅니다.",
+    "en": "A narrow drill follows the sleeve to form the pilot osteotomy in bone. The opening and reached depth remain visible after withdrawal. Subsequent enlargement, drill sizes, irrigation and depth stops follow the selected system’s instructions.",
+    "ja": "細いドリルをスリーブに沿わせ、骨に初期の孔を形成します。ドリルを抜いた後も入口と到達した深さが表示されます。その後の拡大、ドリル径、注水、深度ストップは選択したシステムの手順に従います。"
   }
 }

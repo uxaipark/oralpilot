@@ -1,3 +1,8 @@
+import {
+  pilotDrillMotion,
+  osteotomiesAt,
+  buildOsteotomy,
+} from './osteotomy-display';
 import { renderGuideStage } from './guide-sequence-display';
 import { GUIDE_SLEEVE_HEIGHT, type GuideSettings } from './anatomical-guide';
 import * as THREE from 'three';
@@ -127,19 +132,14 @@ export function renderTreatmentPhase(
       const settings = options.guide ?? { bore: 2.2, thickness: 2, offset: 3 };
       const depth = implants.find((p) => p.tooth === tooth)?.length || 10;
       const sleeveTop = settings.offset + GUIDE_SLEEVE_HEIGHT;
-      const start = guided ? sleeveTop + 7 : 0;
+      const motion = pilotDrillMotion(frame.local, depth, settings, guided);
       const tipY =
         kind === 'endo'
           ? -(3 + Math.sin(frame.local * Math.PI * 5) * 3)
-          : start - Math.sin(frame.local * Math.PI) * (start + depth);
+          : motion.tipY;
       const length =
         kind === 'endo' ? 18 : Math.max(26, sleeveTop + depth + 10);
-      const radius =
-        kind === 'endo'
-          ? 0.25
-          : guided
-            ? Math.min(1, settings.bore / 2 - 0.15)
-            : 0.9;
+      const radius = kind === 'endo' ? 0.25 : motion.radius;
       const instrument = new THREE.Group();
       instrument.userData = {
         component: guided ? 'guided-drill' : 'treatment-instrument',
@@ -182,6 +182,17 @@ export function renderTreatmentPhase(
       instrument.quaternion.copy(pose.quaternion);
       group.add(tag(instrument, tooth));
     }
+  }
+
+  for (const hole of osteotomiesAt(
+    plan,
+    progress,
+    implants,
+    parts,
+    options.guide ?? { bore: 2.2, thickness: 2, offset: 3 },
+  )) {
+    const cavity = buildOsteotomy(hole, anatomy);
+    if (cavity) group.add(cavity);
   }
 
   const sites = [
