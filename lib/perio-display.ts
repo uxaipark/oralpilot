@@ -13,10 +13,12 @@ import {
   toothLabel,
 } from './voice-perio/domain/numbering';
 import type { Chart, Tooth } from './voice-perio/domain/types';
-export function chartFromAnatomy(parts: Pick<Part, 'group' | 'fdi'>[]): Chart {
+export function chartFromAnatomy(
+  parts: Pick<Part, 'group' | 'fdi' | 'inferred'>[],
+): Chart {
   const chart = fromLegacy({});
   const present = new Set(
-    parts.filter((p) => p.group === 'tooth').map((p) => p.fdi),
+    parts.filter((p) => p.group === 'tooth' && !p.inferred).map((p) => p.fdi),
   );
   for (const n of ALL_TEETH)
     chart[n].status = present.has(Number(toothLabel(n, 'fdi')))

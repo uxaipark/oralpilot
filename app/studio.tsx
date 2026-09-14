@@ -1,4 +1,14 @@
 'use client';
+import {
+  DEFAULT_ESTIMATE_FEES,
+  proposalEstimate,
+  type EstimateFees,
+} from '@/lib/proposal-estimates';
+import { durationText } from '@/lib/sequence-timing';
+import { implantSizing } from '@/lib/implant-sizing';
+import { inferVirtualDentition } from '@/lib/virtual-dentition';
+import { IMPLANT_DIAMETERS, IMPLANT_LENGTHS } from '@/lib/implant-catalog';
+import { AutoImplantPanel } from './auto-implant-panel';
 import { CreatorDialog } from './creator-dialog';
 import { useDemoPlayback } from '@/lib/use-demo-playback';
 import { demoStages, demoPerioActions } from '@/lib/demo-playback';
@@ -303,6 +313,7 @@ export default function Studio() {
       chart: chartFromAnatomy(anatomyManifest.parts),
     }),
   );
+  const [estimateFees, setEstimateFees] = useState(DEFAULT_ESTIMATE_FEES);
   const numbering = perioState.meta.numbering;
   const displayTooth = (fdi: number) => displayToothNumber(fdi, numbering);
   const displayText = (text: string) => displayToothText(text, numbering);
@@ -451,7 +462,9 @@ export default function Studio() {
             ? capability.planning.reason
             : guideAccess.reason;
   const faceAvailable = [11, 21, 31, 41].every((n) =>
-    parts.some((p) => p.group === 'tooth' && p.fdi === n && p.axes),
+    parts.some(
+      (p) => p.group === 'tooth' && !p.inferred && p.fdi === n && p.axes,
+    ),
   );
   const hasToothAxis = (n: number) =>
     parts.some((p) => p.group === 'tooth' && p.fdi === n && p.axes);
@@ -594,6 +607,11 @@ export default function Studio() {
     },
   );
   const current = implants.find((p) => p.id === selected);
+  const currentSizing = useMemo(
+    () =>
+      buffer && current ? implantSizing(current.tooth, parts, buffer) : null,
+    [current?.tooth, parts, buffer],
+  );
   const clearance = useMemo(
     () =>
       current && buffer && !external
@@ -634,6 +652,14 @@ export default function Studio() {
             buffer: b,
             paths: (paths as { paths: NeurovascularPath[] }).paths,
           };
+          if (activeAnatomy.current) {
+            const display = inferVirtualDentition(
+              activeAnatomy.current,
+              referenceData.current,
+            );
+            setParts(display.parts);
+            setBuffer(display.buffer);
+          }
           if (!activeAnatomy.current) {
             setParts((m as { parts: Part[] }).parts);
             setBuffer(b);
@@ -739,6 +765,7 @@ export default function Studio() {
       implants,
       implantTargets,
       serial.current,
+      (n) => implantSizing(n, parts, buffer).targetDiameter,
     );
     serial.current = result.serial;
     setImplants(result.plans);
@@ -773,6 +800,7 @@ export default function Studio() {
   const planDocument = useMemo(
     () => ({
       schema: 'oralpilot-plan-v2',
+      estimateFees,
       researchOnly: true,
       anatomy: anatomyId,
       ...(clinicalCase ? { caseSource: clinicalCase.source } : {}),
@@ -793,6 +821,7 @@ export default function Studio() {
     }),
     [
       anatomyId,
+      estimateFees,
       clinicalCase,
       implants,
       guide,
@@ -813,6 +842,7 @@ export default function Studio() {
     localHydrated = useRef(false);
   const applyPlan = (d: ReturnType<typeof validatePlan>, origin: string) => {
     prepareDemo.current = false;
+    setEstimateFees(d.estimateFees ?? DEFAULT_ESTIMATE_FEES);
     if (d.perioMeta) perioDispatch({ type: 'setMeta', patch: d.perioMeta });
     if (d.displayNumbering)
       perioDispatch({
@@ -870,8 +900,12 @@ export default function Studio() {
     setLoadError('');
     const data = model || referenceData.current;
     if (data) {
-      setParts(data.parts);
-      setBuffer(data.buffer);
+      const display =
+        model && referenceData.current
+          ? inferVirtualDentition(data, referenceData.current)
+          : data;
+      setParts(display.parts);
+      setBuffer(display.buffer);
     }
     setNeurovascularPaths(model ? [] : referenceData.current?.paths || []);
     setExternal(null);
@@ -946,7 +980,29 @@ export default function Studio() {
         }
         if (!model || model.source.sha256 !== document.caseSource?.sha256)
           throw Error('계획 파일과 케이스 원본이 일치하지 않습니다.');
-        const access = caseCapabilities(model.parts);
+        if (!referenceData.current) {
+          const [manifest, bytes, paths] = await Promise.all([
+            fetch('/anatomy/manifest.json').then((r) => {
+              if (!r.ok) throw Error('해부학 기준 불러오기 실패');
+              return r.json();
+            }),
+            fetch('/anatomy/toothfairy.bin').then((r) => {
+              if (!r.ok) throw Error('해부학 기준 불러오기 실패');
+              return r.arrayBuffer();
+            }),
+            fetch('/anatomy/neurovascular-paths.json').then((r) => {
+              if (!r.ok) throw Error('해부학 기준 불러오기 실패');
+              return r.json();
+            }),
+          ]);
+          referenceData.current = {
+            parts: (manifest as { parts: Part[] }).parts,
+            buffer: bytes,
+            paths: (paths as { paths: NeurovascularPath[] }).paths,
+          };
+        }
+        const display = inferVirtualDentition(model, referenceData.current);
+        const access = caseCapabilities(display.parts);
         if (document.implants.some((p) => !access.sites[p.tooth]?.enabled))
           throw Error(
             '이 케이스에서 계산할 수 없는 식립 위치가 계획에 포함되어 있습니다.',
@@ -1938,6 +1994,7 @@ export default function Studio() {
                   </div>
                   <div className="viewer-stage">
                     <Scene
+                      numbering={numbering}
                       perioChart={perioState.chart}
                       highlightedTeeth={highlightedTeeth}
                       selectedTooth={tooth}
@@ -2873,6 +2930,11 @@ export default function Studio() {
                 </>
               ) : step === 'simulation' ? (
                 <SimulationInspector
+                  fees={estimateFees}
+                  setFees={(next) => {
+                    setEstimateFees(next);
+                    setSequenceDecision(null);
+                  }}
                   numbering={numbering}
                   settings={sequenceSettings}
                   setSettings={setSequenceSettings}
@@ -2937,6 +2999,59 @@ export default function Studio() {
                 </>
               ) : (
                 <>
+                  {step === 'planning' && (
+                    <AutoImplantPanel
+                      input={
+                        buffer
+                          ? {
+                              parts,
+                              buffer,
+                              chart: perioState.chart,
+                              implants,
+                              needs: sequenceSettings.needs,
+                              anatomyId,
+                            }
+                          : null
+                      }
+                      signature={currentSignature}
+                      numbering={numbering}
+                      disabledReason={
+                        caseLoading
+                          ? '케이스를 불러오는 중입니다.'
+                          : autoDemo.run
+                            ? '자동 데모를 종료한 뒤 계획을 수립하세요.'
+                            : !capability.planning.enabled
+                              ? capability.planning.reason
+                              : ''
+                      }
+                      onApply={(next) => {
+                        setImplants(next);
+                        setSelected(next[0]?.id || '');
+                        if (next[0]) setTooth(next[0].tooth);
+                        setHighlightedTeeth(next.map((p) => p.tooth));
+                        serial.current =
+                          Math.max(
+                            0,
+                            ...next.map(
+                              (p) => Number(p.id.replace('IP-', '')) || 0,
+                            ),
+                          ) + 1;
+                        prepareDemo.current = false;
+                        setSequencePlans([]);
+                        setGeneratedSignature('');
+                        setSequenceDecision(null);
+                        setPlaying(false);
+                        setProgress(0);
+                        return sequenceSignature(
+                          next,
+                          sequenceSettings,
+                          perioState.chart,
+                          guide,
+                          anatomyId,
+                        );
+                      }}
+                    />
+                  )}
                   <div className="inspector-section">
                     <div className="section-title">
                       <span>식립 계획</span>
@@ -3307,6 +3422,24 @@ export default function Studio() {
                               <small>제조사 제품 규격과 무관</small>
                             </div>
                           </div>
+                          {currentSizing && (
+                            <div className="helper implant-sizing-hint">
+                              <strong>{currentSizing.category}</strong>
+                              {currentSizing.widthMm !== null && (
+                                <p>{`치경부 폭 ${currentSizing.widthMm.toFixed(1)} × 두께 ${currentSizing.thicknessMm!.toFixed(1)} mm`}</p>
+                              )}
+                              <p>{`보철 크기 기준 구경 초안 Ø ${currentSizing.targetDiameter.toFixed(1)} mm`}</p>
+                              <small>
+                                {currentSizing.estimated
+                                  ? '가상 치열의 추정 치수'
+                                  : '분할 치아의 형상 치수'}
+                              </small>
+                              <p>
+                                최종 구경은 골 폭·인접 구조·제조사 적용 범위
+                                검토 후 결정합니다.
+                              </p>
+                            </div>
+                          )}
                           <div className="two-inputs">
                             <label>
                               직경 (mm)
@@ -3316,7 +3449,7 @@ export default function Studio() {
                                   update('diameter', Number(v))
                                 }
                               >
-                                {[3, 3.5, 4, 4.2, 4.5, 5, 5.5, 6].map((n) => (
+                                {IMPLANT_DIAMETERS.map((n) => (
                                   <DropdownOption value={n} key={n}>
                                     {n.toFixed(1)}
                                   </DropdownOption>
@@ -3331,7 +3464,7 @@ export default function Studio() {
                                   update('length', Number(v))
                                 }
                               >
-                                {[6, 8, 10, 11.5, 13, 15, 18].map((n) => (
+                                {IMPLANT_LENGTHS.map((n) => (
                                   <DropdownOption value={n} key={n}>
                                     {n.toFixed(1)}
                                   </DropdownOption>
@@ -3696,6 +3829,7 @@ export default function Studio() {
             {anatomyName} · {new Date().toLocaleDateString(localeTags[locale])}
           </DialogDescription>
           <Report
+            estimateFees={estimateFees}
             anatomyName={anatomyName}
             numbering={numbering}
             implants={implants}
@@ -3784,6 +3918,7 @@ function Range({
   );
 }
 function Report({
+  estimateFees,
   anatomyName,
   numbering,
   sequenceDecision,
@@ -3796,6 +3931,7 @@ function Report({
   buffer,
   perioOrigin,
 }: {
+  estimateFees: EstimateFees;
   anatomyName: string;
   numbering: Numbering;
   sequencePlan: SequencePlan | null;
@@ -3809,6 +3945,9 @@ function Report({
   perioOrigin: string;
 }) {
   const { locale } = useI18n();
+  const estimate = sequencePlan
+    ? proposalEstimate(sequencePlan, estimateFees)
+    : null;
   const localize = useLocalize();
   const displayTooth = (fdi: number) => displayToothNumber(fdi, numbering);
   const displayText = (text: string) => displayToothText(text, numbering);
@@ -3907,12 +4046,46 @@ function Report({
             치유 기간 미정
           </p>
           <p>{sequencePlan.summary}</p>
+          {estimate && (
+            <table>
+              <tbody>
+                <tr>
+                  <th>예상 기본비용</th>
+                  <td>
+                    ₩{estimate.cost.toLocaleString('en-US')}
+                    {estimate.incomplete ? ' +' : ''}
+                  </td>
+                </tr>
+                <tr>
+                  <th>예상 기간</th>
+                  <td>{`${estimate.days[0]}–${estimate.days[1]}일`}</td>
+                </tr>
+                <tr>
+                  <th>전체 내원</th>
+                  <td>{`${estimate.visits.count}회 이상`}</td>
+                </tr>
+              </tbody>
+            </table>
+          )}
+          <p>
+            <small>
+              개별 크라운을 포함한 가정 견적입니다. 전체 내원에는 선행
+              치료·식립·재평가·보철이 포함되며 추가 방문이 필요할 수 있습니다.
+            </small>
+          </p>
           <p>장점: {sequencePlan.pros.join(' / ')}</p>
           <p>고려할 점: {sequencePlan.cons.join(' / ')}</p>
           <ol>
             {sequencePlan.phases.map((p) => (
               <li key={p.id}>
                 {p.visit} · {displayText(p.label)} — {displayText(p.tip)}
+                {p.timing && (
+                  <small>
+                    {durationText(p.timing).map((text) => (
+                      <span key={text}> · {text}</span>
+                    ))}
+                  </small>
+                )}
               </li>
             ))}
           </ol>

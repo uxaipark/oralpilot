@@ -1,3 +1,4 @@
+import { toothSizeClass } from './implant-sizing';
 import { initialImplant, type Implant } from './planning';
 
 export function implantSelection(plans: Implant[], teeth: number[]) {
@@ -17,6 +18,7 @@ export function toggleImplantSelection(
   plans: Implant[],
   teeth: number[],
   serial: number,
+  sizeFor?: (tooth: number) => number,
 ) {
   const selection = implantSelection(plans, teeth);
   if (selection.remove)
@@ -33,7 +35,12 @@ export function toggleImplantSelection(
       id = `IP-${String(serial++).padStart(2, '0')}`;
     } while (ids.has(id));
     ids.add(id);
-    return { ...initialImplant, tooth, id };
+    return {
+      ...initialImplant,
+      diameter: sizeFor?.(tooth) ?? toothSizeClass(tooth).preferred,
+      tooth,
+      id,
+    };
   });
   return {
     plans: [...plans, ...added],

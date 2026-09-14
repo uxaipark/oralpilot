@@ -1,4 +1,7 @@
 'use client';
+import { buildRestorationPreview } from '@/lib/prosthetic-display';
+import { displayToothNumber } from '@/lib/tooth-numbering';
+import type { Numbering } from '@/lib/voice-perio/domain/types';
 import {
   osteotomiesAt,
   updateOsteotomyMaterial,
@@ -49,6 +52,7 @@ import {
   type FaceResources,
 } from '@/lib/face-scan';
 export interface SceneProps {
+  numbering: Numbering;
   perioChart: Chart;
   highlightedTeeth: number[];
   selectedTooth: number;
@@ -127,7 +131,9 @@ export default function Scene(props: SceneProps) {
     [sequenceGuide],
   );
   const faceAvailable = [11, 21, 31, 41].every((n) =>
-    props.parts.some((p) => p.group === 'tooth' && p.fdi === n && p.axes),
+    props.parts.some(
+      (p) => p.group === 'tooth' && !p.inferred && p.fdi === n && p.axes,
+    ),
   );
   const needsFace =
     faceAvailable &&
@@ -395,7 +401,12 @@ export default function Scene(props: SceneProps) {
       mesh.userData = part;
       r.anatomy.add(mesh);
     }
-    r.anatomy.add(...buildReferenceSoftTissues(props.parts, props.buffer));
+    r.anatomy.add(
+      ...buildReferenceSoftTissues(
+        props.parts.filter((p) => !p.inferred),
+        props.buffer,
+      ),
+    );
     if (faceResources && faceAvailable)
       r.anatomy.add(
         ...buildScannedFace(faceResources, props.parts, r.environment),
@@ -502,6 +513,7 @@ export default function Scene(props: SceneProps) {
           : props.mode === 'guide' &&
             props.implants.some((i) => i.tooth === p.fdi);
       mesh.visible =
+        !p.inferred &&
         !(props.mode === 'guide' && props.guideOnly) &&
         Boolean(props.layers[p.group as keyof Layers]) &&
         jawVisible(p.jaw, props.layers, props.view) &&
@@ -636,12 +648,7 @@ export default function Scene(props: SceneProps) {
       group.add(implant);
       group.userData = { jaw: p.tooth < 30 ? 'maxilla' : 'mandible' };
       r.hardware.add(group);
-      if (
-        props.mode === 'guide' &&
-        props.crownPreview &&
-        props.layers.tooth &&
-        examTooth(props.perioChart, p.tooth)?.status === 'present'
-      ) {
+      if (props.mode === 'guide' && props.crownPreview && props.layers.tooth) {
         const original = r.anatomy.children.find(
           (o) => o.userData.group === 'tooth' && o.userData.fdi === p.tooth,
         ) as THREE.Mesh | undefined;
@@ -649,20 +656,12 @@ export default function Scene(props: SceneProps) {
           original &&
           jawVisible(original.userData.jaw, props.layers, props.view)
         ) {
-          const crown = new THREE.Mesh(
-            original.geometry.clone(),
-            new THREE.MeshStandardMaterial({
-              color: 0xc7e0ff,
-              transparent: true,
-              opacity: (0.25 * props.crownOpacity) / 100,
-              depthWrite: false,
-              side: THREE.DoubleSide,
-              clippingPlanes: [
-                new THREE.Plane(pose.up.clone(), -pose.anchor.dot(pose.up)),
-              ],
-            }),
+          const crown = buildRestorationPreview(
+            original.geometry,
+            original.userData as Part,
+            false,
+            props.crownOpacity / 100,
           );
-          crown.userData = { jaw: p.tooth < 30 ? 'maxilla' : 'mandible' };
           r.hardware.add(crown);
         }
       }
@@ -727,15 +726,74 @@ export default function Scene(props: SceneProps) {
       if (
         part.group !== 'tooth' ||
         !part.fdi ||
-        examTooth(props.perioChart, part.fdi)?.status !== 'missing'
+        (!part.inferred &&
+          examTooth(props.perioChart, part.fdi)?.status !== 'missing')
       )
         continue;
-      const ghost = buildExtractionSite(
+      const ghost =
+        !part.inferred &&
+        buildExtractionSite(
+          (tooth as THREE.Mesh).geometry,
+          part,
+          props.highlightedTeeth.includes(part.fdi),
+        );
+      if (ghost) objects.push(ghost);
+      const crown = buildRestorationPreview(
         (tooth as THREE.Mesh).geometry,
         part,
         props.highlightedTeeth.includes(part.fdi),
+        props.crownOpacity / 100,
       );
-      if (ghost) objects.push(ghost);
+      objects.push(crown);
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      if (ctx && part.axes) {
+        ctx.fillStyle = '#193642';
+        ctx.beginPath();
+        ctx.roundRect(4, 6, 120, 52, 12);
+        ctx.fill();
+        ctx.strokeStyle = '#8bceda';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.font = '500 28px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#def9ff';
+        ctx.fillText(
+          `${part.inferred && !part.inferred.planningEligible ? '≈' : '◇'} ${displayToothNumber(part.fdi, props.numbering)}`,
+          64,
+          32,
+        );
+        const label = new THREE.Sprite(
+          new THREE.SpriteMaterial({
+            map: new THREE.CanvasTexture(canvas),
+            transparent: true,
+            depthWrite: false,
+            depthTest: false,
+          }),
+        );
+        const pose = implantPose(
+          { ...initialImplant, tooth: part.fdi },
+          props.parts,
+        );
+        label.position
+          .copy(pose.anchor)
+          .addScaledVector(
+            pose.up,
+            (part.implantAnchor?.crownHeightMm || 8) + 3,
+          );
+        label.scale.set(7, 3.5, 1);
+        label.renderOrder = 25;
+        label.userData = {
+          group: 'extraction-site',
+          fdi: part.fdi,
+          jaw: part.jaw,
+          displayOnly: true,
+        };
+        objects.push(label);
+      }
     }
     if (
       props.mode === 'planning' &&
@@ -769,6 +827,8 @@ export default function Scene(props: SceneProps) {
     }
   }, [
     props.perioChart,
+    props.numbering,
+    props.crownOpacity,
     props.parts,
     props.buffer,
     props.external,
@@ -898,6 +958,21 @@ export default function Scene(props: SceneProps) {
           : '3D 턱뼈, 치아, 하치조관과 연구용 임플란트 배치. 드래그 회전, 스크롤 확대.'
       }
     >
+      {!props.external &&
+        props.layers.tooth &&
+        ['anatomy', 'planning'].includes(props.mode) &&
+        props.view !== 'face' &&
+        props.parts.some(
+          (p) =>
+            p.group === 'tooth' &&
+            (p.inferred ||
+              (p.fdi &&
+                examTooth(props.perioChart, p.fdi)?.status === 'missing')),
+        ) && (
+          <div className="virtual-dentition-legend">
+            ◇ 예상 보철 · ≈ 위치 추정
+          </div>
+        )}
       {error && <p className="scene-error">{error}</p>}
       {needsFace && faceLoading && (
         <p className="face-load-status">고해상도 안면 스캔 불러오는 중…</p>
@@ -916,6 +991,10 @@ export default function Scene(props: SceneProps) {
 function clear(group: THREE.Group) {
   for (const o of [...group.children]) {
     o.traverse((c) => {
+      if (c instanceof THREE.Sprite) {
+        c.material.map?.dispose();
+        c.material.dispose();
+      }
       if (c instanceof THREE.Mesh || c instanceof THREE.Line) {
         if (!c.userData.sharedGuideGeometry) c.geometry.dispose();
         (Array.isArray(c.material) ? c.material : [c.material]).forEach((m) =>

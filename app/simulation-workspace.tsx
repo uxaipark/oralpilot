@@ -1,4 +1,11 @@
 'use client';
+import { SequenceTimeDisplay, PhaseDuration } from './sequence-time-display';
+import {
+  ProposalEstimateMetrics,
+  ProposalEstimateBreakdown,
+  EstimateFeeSettings,
+} from './proposal-estimates';
+import type { EstimateFees } from '@/lib/proposal-estimates';
 import { useLocalize } from '@/lib/i18n/provider';
 
 import { Dropdown, DropdownOption } from '@/components/ui/dropdown';
@@ -75,6 +82,12 @@ export function SimulationTimeline({
             <strong>{displayText(frame!.phase.label)}</strong>
             <p>{displayText(frame!.phase.tip)}</p>
           </div>
+          <SequenceTimeDisplay
+            plan={plan}
+            progress={progress}
+            playing={playing}
+            speed={speed}
+          />
           <div className="timeline">
             <button
               disabled={controlled}
@@ -159,6 +172,7 @@ export function SimulationTimeline({
                   {i + 1} · {p.visit}
                 </small>
                 {displayText(p.label)}
+                <PhaseDuration phase={p} />
               </button>
             ))}
           </div>
@@ -190,6 +204,8 @@ export function SimulationTimeline({
   );
 }
 export function SimulationInspector({
+  fees,
+  setFees,
   numbering,
   settings,
   setSettings,
@@ -209,6 +225,8 @@ export function SimulationInspector({
   stale,
   error,
 }: {
+  fees: EstimateFees;
+  setFees: (fees: EstimateFees) => void;
   numbering: Numbering;
   settings: SequenceSettings;
   setSettings: (s: SequenceSettings) => void;
@@ -377,8 +395,8 @@ export function SimulationInspector({
         <div className="section-title">6가지 테마 · 공동 의사결정</div>
         <p className="helper">
           우선순위별 조건부 제안입니다. 먼저 장단점과 시뮬레이션을 비교한 뒤
-          환자·의사가 동의를 확인하고 하나의 계획을 선택합니다. 비용 견적·총
-          치료 일수는 미정입니다.
+          환자·의사가 동의를 확인하고 하나의 계획을 선택합니다. 비용·기간·전체
+          내원 횟수를 비교하세요.
         </p>
         {decision && (
           <div className="sequence-choice-status" role="status">
@@ -404,6 +422,9 @@ export function SimulationInspector({
             </button>
           </div>
         )}
+        {!!plans.length && (
+          <EstimateFeeSettings fees={fees} onChange={setFees} />
+        )}
         {plans.map((p, i) => {
           const reviewKey = sequenceDecisionKey(p, inputSignature);
           return (
@@ -427,6 +448,7 @@ export function SimulationInspector({
                 </span>
                 <strong>{p.name}</strong>
                 <small>{p.summary}</small>
+                <ProposalEstimateMetrics plan={p} fees={fees} />
                 <span className="sequence-metrics">
                   <span>식립 {p.metrics.placementVisits}회차</span>
                   <span>회차 최대 {p.metrics.maxImplantsPerVisit}개</span>
@@ -480,6 +502,7 @@ export function SimulationInspector({
                       </div>
                     </header>
                     <div className="proposal-scroll">
+                      <ProposalEstimateBreakdown plan={p} fees={fees} />
                       <SequencePlanReview
                         active={p}
                         numbering={numbering}
@@ -615,7 +638,9 @@ function SequencePlanReview({
                 ) : null;
               })}
               {index < active.groups.length - 1 && (
-                <small>회복·재평가 후 다음 회차 · 간격 미정</small>
+                <small>
+                  초기 회복 7–14일 후 재평가 · 다음 회차는 경과에 따라 결정
+                </small>
               )}
             </li>
           );

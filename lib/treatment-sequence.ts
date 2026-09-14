@@ -1,3 +1,8 @@
+import {
+  attachPhaseTimings,
+  TIMING_SOURCES,
+  type PhaseTiming,
+} from './sequence-timing';
 import type { GuideSettings } from './anatomical-guide';
 import {
   allTeeth,
@@ -15,6 +20,7 @@ export interface SequenceSettings {
   needs: Record<number, TreatmentNeed>;
 }
 export type PhaseKind =
+  | 'prosthetic-fabrication'
   | 'guide-fabrication'
   | 'guide-seating'
   | 'guide-check'
@@ -33,6 +39,7 @@ export type PhaseKind =
   | 'occlusion'
   | 'restoration';
 export interface TreatmentPhase {
+  timing?: PhaseTiming;
   id: string;
   kind: PhaseKind;
   label: string;
@@ -62,6 +69,7 @@ export interface SequencePlan {
   researchOnly: true;
 }
 export const SEQUENCE_SOURCES = [
+  ...TIMING_SOURCES,
   {
     title: 'ITI · 환자 선호·기능·재정적 관점을 고려한 계획',
     url: 'https://accounts.iti.org/academy/consensus-database/consensus-statement/-/consensus/loading-protocols-for-implant-supported-overdentures-in-edentulous-jaws/1314',
@@ -394,6 +402,13 @@ export function buildSequencePlans(
         '제공된 차트에 깊은 PD 또는 출혈 표식이 있습니다. 치주 처치 필요성과 반응을 평가합니다. 자동 진단은 아닙니다.',
       );
       add(
+        'healing',
+        '치주 처치 반응 관찰',
+        periodontalTeeth,
+        '치주 회복 · 재평가 대기',
+        '치주 처치 후 반응을 관찰한 뒤 재평가합니다.',
+      );
+      add(
         'review',
         '치주 상태 재평가',
         periodontalTeeth,
@@ -568,6 +583,21 @@ export function buildSequencePlans(
     });
     const prostheticTeeth = implants.map((p) => p.tooth);
     add(
+      'healing',
+      '골유착 경과 관찰',
+      prostheticTeeth,
+      '골유착 · 보철 전 대기',
+      '식립 후 뼈와 임플란트의 결합을 기다리는 단계입니다. 경과 일수만으로 보철 진행을 결정하지 않습니다.',
+    );
+    phases.at(-1)!.timing = {
+      activeMinutes: [0, 0],
+      waitDays: [60, 180],
+      basis: 'reference',
+      note: '식립일부터 2–6개월의 참고 범위입니다. 앞선 회복 기간을 중복 합산하지 않으며 골이식·전신 상태에 따라 더 길어질 수 있습니다.',
+      sources: ['healing'],
+      waitFrom: 'latest-placement',
+    };
+    add(
       'review',
       '골유착·보철 진행 조건 확인',
       prostheticTeeth,
@@ -599,6 +629,13 @@ export function buildSequencePlans(
         '보철 제작·시적 준비',
         '인상 또는 구강스캔과 교합 기록을 바탕으로 보철을 제작하고 적합을 검토하는 단계입니다. 표시할 치관은 원본 치아 형태를 활용한 참고 형상이며 제작용 보철이 아닙니다.',
       );
+      add(
+        'prosthetic-fabrication',
+        '인공 치아 기공·제작 대기',
+        teeth,
+        '기공 · 보철 장착 전',
+        '스캔·인상 자료로 보철을 제작하고 시적을 준비하는 기간입니다.',
+      );
       for (const p of group)
         add(
           'crown-placement',
@@ -623,6 +660,15 @@ export function buildSequencePlans(
       '보철·유지관리 회차',
       '모든 계획 위치에 임플란트·지대주·인공 치아가 연결된 참고 상태입니다. 위생관리와 정기 검진, 보철 및 주변 조직의 상태 관찰을 이어갑니다.',
     );
+    const ordered = phases.filter((p) => p.kind !== 'guide-fabrication');
+    for (const fabrication of phases.filter(
+      (p) => p.kind === 'guide-fabrication',
+    )) {
+      const at = ordered.findIndex(
+        (p) => p.visit === fabrication.visit && p.kind !== 'guide-fabrication',
+      );
+      ordered.splice(at < 0 ? ordered.length : at, 0, fabrication);
+    }
     return {
       id: c.id,
       name: c.name,
@@ -648,7 +694,7 @@ export function buildSequencePlans(
         '표시 회차는 식립 수술만 계산하며 발치·치주 처치·보철·재평가 내원은 별도',
       ],
       warnings,
-      phases,
+      phases: attachPhaseTimings(ordered),
       fullArch: settings.scope === 'full-arch',
       researchOnly: true,
     };

@@ -1,5 +1,11 @@
 import * as THREE from 'three';
 export interface Part {
+  inferred?: {
+    method: string;
+    supportTeeth: number[];
+    residualMm: number | null;
+    planningEligible: boolean;
+  };
   id: string;
   name: string;
   group: string;

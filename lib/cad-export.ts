@@ -7,7 +7,11 @@ import {
   guideDepth,
   type GuideSettings,
 } from './anatomical-guide';
-import { buildAbutment, buildReferenceCrown } from './prosthetic-display';
+import {
+  buildRestorationConnector,
+  restorationPose,
+  buildReferenceCrown,
+} from './prosthetic-display';
 import {
   buildImplant,
   implantPose,
@@ -135,9 +139,13 @@ export function buildCADItems(
             smoothDisplaySurface(source);
             refineDentalSurface(source);
           } else source.computeVertexNormals();
+          const targetPose = restorationPose(part);
           for (const [role, make] of [
             ['fixture-reference', () => buildImplant(p)],
-            ['abutment-reference', () => buildAbutment(p.diameter)],
+            [
+              'abutment-reference',
+              () => buildRestorationConnector(p.diameter, pose, targetPose),
+            ],
             [
               'crown-reference',
               () => buildReferenceCrown(source, part, 1, false, 1),
@@ -145,8 +153,13 @@ export function buildCADItems(
           ] as const) {
             const object = make();
             try {
-              object.position.copy(pose.point);
-              object.quaternion.copy(pose.quaternion);
+              if (role === 'crown-reference') {
+                object.position.copy(targetPose.anchor);
+                object.quaternion.copy(targetPose.quaternion);
+              } else if (role === 'fixture-reference') {
+                object.position.copy(pose.point);
+                object.quaternion.copy(pose.quaternion);
+              }
               items.push({
                 name: `FDI_${p.tooth}_${p.id}_${role}`,
                 role,

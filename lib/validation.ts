@@ -1,3 +1,5 @@
+import { validateEstimateFees, type EstimateFees } from './proposal-estimates';
+import { IMPLANT_DIAMETERS, IMPLANT_LENGTHS } from './implant-catalog';
 import {
   REFERENCE_ANATOMY,
   CASE_ADAPTER_VERSION,
@@ -21,6 +23,7 @@ function number(v: unknown, min: number, max: number) {
 }
 export function validatePlan(v: any): {
   anatomy: string;
+  estimateFees?: EstimateFees;
   caseSource?: CaseSource;
   implants: Implant[];
   guide: { bore: number; thickness: number; offset: number };
@@ -75,8 +78,8 @@ export function validatePlan(v: any): {
     ids.add(p.id);
     teeth.add(p.tooth);
     if (
-      ![3, 3.5, 4, 4.2, 4.5, 5, 5.5, 6].includes(p.diameter) ||
-      ![6, 8, 10, 11.5, 13, 15, 18].includes(p.length)
+      !IMPLANT_DIAMETERS.includes(p.diameter) ||
+      !IMPLANT_LENGTHS.includes(p.length)
     )
       throw Error('지원하는 직경 또는 길이가 아닙니다.');
     return {
@@ -144,6 +147,9 @@ export function validatePlan(v: any): {
   }
   return {
     anatomy: v.anatomy,
+    ...(v.estimateFees === undefined
+      ? {}
+      : { estimateFees: validateEstimateFees(v.estimateFees) }),
     ...(v.anatomy === REFERENCE_ANATOMY
       ? {}
       : {

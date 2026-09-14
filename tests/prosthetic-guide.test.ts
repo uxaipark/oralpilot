@@ -16,7 +16,10 @@ import {
 } from '../lib/treatment-sequence';
 import { renderTreatmentPhase } from '../lib/sequence-display';
 import { buildAnatomicalGuides, guideDepth } from '../lib/anatomical-guide';
-import { referenceCrownGeometry } from '../lib/prosthetic-display';
+import {
+  referenceCrownGeometry,
+  restorationPose,
+} from '../lib/prosthetic-display';
 async function fixture() {
   const parts: Part[] = JSON.parse(
     await readFile('public/anatomy/manifest.json', 'utf8'),
@@ -56,7 +59,7 @@ function dispose(g: THREE.Object3D) {
     }
   });
 }
-void test('prosthetic stages follow healing and assemble each implant once; crowns seat along tilted implant axes and persist when scrubbing', async () => {
+void test('prosthetic stages follow healing and assemble each implant once; crowns retain their independent arch targets while seating and persist when scrubbing', async () => {
   const { parts, buffer, anatomy, chart } = await fixture();
   const implants = [16, 46].map((tooth, i) => ({
     ...initialImplant,
@@ -120,12 +123,19 @@ void test('prosthetic stages follow healing and assemble each implant once; crow
         b = find(atEnd),
         pose = implantPose(implant, parts);
       assert.ok(a.position.distanceTo(b.position) > 11.99);
-      assert.ok(b.position.distanceTo(pose.point) < 1e-5);
+      const target = restorationPose(
+        parts.find((p) => p.group === 'tooth' && p.fdi === implant.tooth)!,
+      );
+      assert.ok(b.position.distanceTo(target.anchor) < 1e-5);
+      assert.ok(
+        b.position.distanceTo(pose.point) > 0.9,
+        'fixture offsets must not shift the planned crown',
+      );
       assert.ok(
         a.position.clone().sub(b.position).normalize().dot(pose.direction) <
           -0.999,
       );
-      assert.ok(b.quaternion.angleTo(pose.quaternion) < 1e-6);
+      assert.ok(b.quaternion.angleTo(target.quaternion) < 1e-6);
       const part = parts.find(
         (p) => p.group === 'tooth' && p.fdi === implant.tooth,
       )!;

@@ -3096,7 +3096,7 @@
   },
   "일시정지": {
     "ko": "일시정지",
-    "en": "Pause",
+    "en": "Paused",
     "ja": "一時停止"
   },
   "계속 재생": {
@@ -3178,5 +3178,685 @@
     "ko": "시뮬레이션 화면으로",
     "en": "Return to simulation",
     "ja": "シミュレーション画面へ"
+  },
+  "AI 기반 임플란트 계획 수립": {
+    "ko": "AI 기반 임플란트 계획 수립",
+    "en": "AI-assisted implant planning",
+    "ja": "AI支援インプラント計画"
+  },
+  "규칙·형상 분석 엔진 v1": {
+    "ko": "규칙·형상 분석 엔진 v1",
+    "en": "Rule and geometry engine v1",
+    "ja": "ルール・形状解析エンジン v1"
+  },
+  "결손·지정 발치·기존 식립 위치를 분석하고, 골 구조와 주변 치아·주요 구조의 이격을 비교해 위치·각도·규격 초안을 만듭니다.": {
+    "ko": "결손·지정 발치·기존 식립 위치를 분석하고, 골 구조와 주변 치아·주요 구조의 이격을 비교해 위치·각도·규격 초안을 만듭니다.",
+    "en": "Analyze missing teeth, designated extractions and existing planned sites, then compare bone geometry and surrounding structures to draft implant positions, angles and dimensions.",
+    "ja": "欠損・指定抜歯・既存の埋入予定位置を解析し、骨形状と周囲の歯・重要構造との距離から位置・角度・寸法の案を作成します。"
+  },
+  "현재 치아 상태 분석 중": {
+    "ko": "현재 치아 상태 분석 중",
+    "en": "Analyzing current dentition",
+    "ja": "現在の歯の状態を解析中"
+  },
+  "현재 치아 상태로 자동 계획": {
+    "ko": "현재 치아 상태로 자동 계획",
+    "en": "Plan from current dentition",
+    "ja": "現在の歯の状態から自動計画"
+  },
+  "자동 계획 분석 진행률": {
+    "ko": "자동 계획 분석 진행률",
+    "en": "Automatic planning progress",
+    "ja": "自動計画の進行状況"
+  },
+  "자동 계획 분석 취소": {
+    "ko": "자동 계획 분석 취소",
+    "en": "Cancel automatic planning",
+    "ja": "自動計画をキャンセル"
+  },
+  "식립 초안 {0}개 반영": {
+    "ko": "식립 초안 {0}개 반영",
+    "en": "Applied {0} draft implants",
+    "ja": "埋入案を{0}本反映"
+  },
+  "추가 가능한 초안이 없어 기존 계획을 유지했습니다.": {
+    "ko": "추가 가능한 초안이 없어 기존 계획을 유지했습니다.",
+    "en": "No eligible draft was found. The existing plan is unchanged.",
+    "ja": "追加可能な案がないため、既存の計画を維持しました。"
+  },
+  "치주 검사 입력 {0}개 치아 · 형상 비교 {1}건": {
+    "ko": "치주 검사 입력 {0}개 치아 · 형상 비교 {1}건",
+    "en": "{0} teeth with exam entries · {1} geometries evaluated",
+    "ja": "歯周検査入力 {0}歯・形状比較 {1}件"
+  },
+  "자동 계획 이전으로": {
+    "ko": "자동 계획 이전으로",
+    "en": "Undo automatic plan",
+    "ja": "自動計画の前に戻す"
+  },
+  "치아별 선정·보류 근거": {
+    "ko": "치아별 선정·보류 근거",
+    "en": "Reasons by tooth",
+    "ja": "歯ごとの選定・保留理由"
+  },
+  "결손·발치 지정·기존 식립 후보가 없습니다. 치주 소견만으로 발치를 결정하지 않습니다.": {
+    "ko": "결손·발치 지정·기존 식립 후보가 없습니다. 치주 소견만으로 발치를 결정하지 않습니다.",
+    "en": "No missing, extraction-designated or previously planned sites. Periodontal findings alone do not determine extraction.",
+    "ja": "欠損・抜歯指定・既存の埋入候補がありません。歯周所見だけでは抜歯を決定しません。"
+  },
+  "초안 반영": {
+    "ko": "초안 반영",
+    "en": "Draft applied",
+    "ja": "案を反映"
+  },
+  "보류": {
+    "ko": "보류",
+    "en": "Deferred",
+    "ja": "保留"
+  },
+  "제외": {
+    "ko": "제외",
+    "en": "Excluded",
+    "ja": "除外"
+  },
+  "주요 구조 이격 ≥ {0} mm": {
+    "ko": "주요 구조 이격 ≥ {0} mm",
+    "en": "Critical-structure clearance ≥ {0} mm",
+    "ja": "重要構造との距離 ≥ {0} mm"
+  },
+  "주변 치아 이격 ≥ {0} mm": {
+    "ko": "주변 치아 이격 ≥ {0} mm",
+    "en": "Neighboring-tooth clearance ≥ {0} mm",
+    "ja": "隣在歯との距離 ≥ {0} mm"
+  },
+  "분석 기준": {
+    "ko": "분석 기준",
+    "en": "Analysis criteria",
+    "ja": "解析基準"
+  },
+  "학습 모델이 아닌 규칙 기반 형상 탐색입니다. 치주 수치로 발치를 자동 결정하지 않으며, 치아 축·골·주요 구조가 없는 위치는 보류합니다.": {
+    "ko": "학습 모델이 아닌 규칙 기반 형상 탐색입니다. 치주 수치로 발치를 자동 결정하지 않으며, 치아 축·골·주요 구조가 없는 위치는 보류합니다.",
+    "en": "This is rule-based geometry search, not a trained model. Periodontal values do not automatically determine extraction; sites without tooth axes, bone or critical structures are deferred.",
+    "ja": "学習モデルではなく、ルールに基づく形状探索です。歯周数値から抜歯を自動決定せず、歯軸・骨・重要構造がない部位は保留します。"
+  },
+  "주요 구조 2 mm, 주변 치아 1.5 mm, 식립체 간 3 mm를 탐색 하한으로 사용합니다. 분할·정합 오차와 보철·교합 조건은 별도 검토합니다.": {
+    "ko": "주요 구조 2 mm, 주변 치아 1.5 mm, 식립체 간 3 mm를 탐색 하한으로 사용합니다. 분할·정합 오차와 보철·교합 조건은 별도 검토합니다.",
+    "en": "Search limits are 2 mm from critical structures, 1.5 mm from neighboring teeth and 3 mm between implants. Segmentation, registration, restoration and occlusion require separate review.",
+    "ja": "重要構造2 mm、隣在歯1.5 mm、インプラント間3 mmを探索下限とします。分割・位置合わせの誤差、補綴・咬合条件は別途確認します。"
+  },
+  "골질·삽입 토크·즉시 부하 여부는 추정하지 않습니다.": {
+    "ko": "골질·삽입 토크·즉시 부하 여부는 추정하지 않습니다.",
+    "en": "Bone quality, insertion torque and immediate loading are not inferred.",
+    "ja": "骨質・挿入トルク・即時荷重の可否は推定しません。"
+  },
+  "공개 케이스를 이용한 형상 검증이며, 임상의가 주석한 정답 계획으로 학습·검증된 모델은 아닙니다.": {
+    "ko": "공개 케이스를 이용한 형상 검증이며, 임상의가 주석한 정답 계획으로 학습·검증된 모델은 아닙니다.",
+    "en": "Geometry is checked on public cases; this is not a model trained or validated against clinician-annotated treatment plans.",
+    "ja": "公開症例による形状検証であり、臨床医の正解計画で学習・検証されたモデルではありません。"
+  },
+  "Straumann · 영상 기반 계획 기준 ↗": {
+    "ko": "Straumann · 영상 기반 계획 기준 ↗",
+    "en": "Straumann · Radiographic planning ↗",
+    "ja": "Straumann・画像に基づく計画基準 ↗"
+  },
+  "ITI · 국소 위험 요인 ↗": {
+    "ko": "ITI · 국소 위험 요인 ↗",
+    "en": "ITI · Local risk factors ↗",
+    "ja": "ITI・局所リスク因子 ↗"
+  },
+  "Straumann · 인접 치아·식립체 간 거리 ↗": {
+    "ko": "Straumann · 인접 치아·식립체 간 거리 ↗",
+    "en": "Straumann · Tooth and implant spacing ↗",
+    "ja": "Straumann・隣在歯とインプラント間の距離 ↗"
+  },
+  "보존·치주 치료 우선 검토": {
+    "ko": "보존·치주 치료 우선 검토",
+    "en": "Review tooth preservation and periodontal care first",
+    "ja": "保存・歯周治療を優先検討"
+  },
+  "기존 임플란트 기록 · 중복 식립 제외": {
+    "ko": "기존 임플란트 기록 · 중복 식립 제외",
+    "en": "Existing implant recorded · duplicate excluded",
+    "ja": "既存インプラント記録・重複埋入を除外"
+  },
+  "치주 소견만으로 발치를 결정하지 않습니다.": {
+    "ko": "치주 소견만으로 발치를 결정하지 않습니다.",
+    "en": "Periodontal findings alone do not determine extraction.",
+    "ja": "歯周所見だけでは抜歯を決定しません。"
+  },
+  "제3대구치 결손 · 자동 대체 제외": {
+    "ko": "제3대구치 결손 · 자동 대체 제외",
+    "en": "Missing third molar · automatic replacement excluded",
+    "ja": "第三大臼歯の欠損・自動置換を除外"
+  },
+  "식립 기준 데이터 부족": {
+    "ko": "식립 기준 데이터 부족",
+    "en": "Insufficient site-reference data",
+    "ja": "埋入基準データが不足"
+  },
+  "출혈·배농 또는 깊은 치주낭 · 선행 치료 후 재평가": {
+    "ko": "출혈·배농 또는 깊은 치주낭 · 선행 치료 후 재평가",
+    "en": "Bleeding, suppuration or deep pockets · reassess after initial treatment",
+    "ja": "出血・排膿または深い歯周ポケット・初期治療後に再評価"
+  },
+  "보존 근관치료가 지정된 치아": {
+    "ko": "보존 근관치료가 지정된 치아",
+    "en": "Tooth designated for root canal preservation",
+    "ja": "保存的根管治療が指定された歯"
+  },
+  "결손 기록과 잔존 식립 기준": {
+    "ko": "결손 기록과 잔존 식립 기준",
+    "en": "Missing-tooth record with retained site reference",
+    "ja": "欠損記録と残存する埋入基準"
+  },
+  "사용자가 지정한 발치 위치": {
+    "ko": "사용자가 지정한 발치 위치",
+    "en": "User-designated extraction site",
+    "ja": "ユーザー指定の抜歯部位"
+  },
+  "기존에 계획한 식립 위치 재검토": {
+    "ko": "기존에 계획한 식립 위치 재검토",
+    "en": "Review of a previously planned implant site",
+    "ja": "既存の埋入予定位置を再検討"
+  },
+  "치주 6점 검사 미완료": {
+    "ko": "치주 6점 검사 미완료",
+    "en": "Six-site periodontal charting incomplete",
+    "ja": "6点法歯周検査が未完了"
+  },
+  "치아 보존 가능성·발치 적응증 확인 필요": {
+    "ko": "치아 보존 가능성·발치 적응증 확인 필요",
+    "en": "Assess tooth preservation and extraction indication",
+    "ja": "歯の保存可能性・抜歯適応の確認が必要"
+  },
+  "보철·교합, 골질과 초기 고정은 별도 확인": {
+    "ko": "보철·교합, 골질과 초기 고정은 별도 확인",
+    "en": "Review restoration, occlusion, bone quality and primary stability separately",
+    "ja": "補綴・咬合、骨質と初期固定は別途確認"
+  },
+  "골 표면 샘플 지지는 골유착·골 증대 필요성을 확정하지 않습니다.": {
+    "ko": "골 표면 샘플 지지는 골유착·골 증대 필요성을 확정하지 않습니다.",
+    "en": "Sampled bone support does not establish osseointegration or augmentation needs.",
+    "ja": "骨表面サンプルの支持は、骨結合や骨増生の必要性を確定するものではありません。"
+  },
+  "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다.": {
+    "ko": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다.",
+    "en": "No draft met the sampled bone-support criterion.",
+    "ja": "骨支持表面の条件を満たす案が見つかりませんでした。"
+  },
+  "주요 구조·인접 치아·식립체 간 이격 조건을 충족하지 못했습니다.": {
+    "ko": "주요 구조·인접 치아·식립체 간 이격 조건을 충족하지 못했습니다.",
+    "en": "Clearance criteria for critical structures, neighboring teeth or implants were not met.",
+    "ja": "重要構造・隣在歯・インプラント間の距離条件を満たしませんでした。"
+  },
+  "자동 계획 분석을 완료하지 못했습니다. 다시 시도하세요.": {
+    "ko": "자동 계획 분석을 완료하지 못했습니다. 다시 시도하세요.",
+    "en": "Automatic planning could not finish. Please retry.",
+    "ja": "自動計画を完了できませんでした。再試行してください。"
+  },
+  "이 브라우저에서 분석 작업을 시작하지 못했습니다.": {
+    "ko": "이 브라우저에서 분석 작업을 시작하지 못했습니다.",
+    "en": "The analysis could not start in this browser.",
+    "ja": "このブラウザーでは解析を開始できませんでした。"
+  },
+  "자동 데모를 종료한 뒤 계획을 수립하세요.": {
+    "ko": "자동 데모를 종료한 뒤 계획을 수립하세요.",
+    "en": "Exit the automatic demo before generating a plan.",
+    "ja": "自動デモを終了してから計画を作成してください。"
+  },
+  "케이스를 불러오는 중입니다.": {
+    "ko": "케이스를 불러오는 중입니다.",
+    "en": "Loading the case.",
+    "ja": "症例を読み込み中です。"
+  },
+  "가상 치열 추정 근거 부족 · 위치 미리보기만 가능": {
+    "ko": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능",
+    "en": "Insufficient virtual arch support · position preview only",
+    "ja": "仮想歯列の推定根拠が不足・位置のプレビューのみ"
+  },
+  "잔존 치아에 정합한 가상 치열 · 원래 치아의 복원이 아닌 보철 목표 초안": {
+    "ko": "잔존 치아에 정합한 가상 치열 · 원래 치아의 복원이 아닌 보철 목표 초안",
+    "en": "Virtual arch fitted to retained teeth · a draft restorative target, not recovered original anatomy",
+    "ja": "残存歯に位置合わせした仮想歯列・元の歯の復元ではなく補綴目標の案"
+  },
+  "◇ 예상 보철 · ≈ 위치 추정": {
+    "ko": "◇ 예상 보철 · ≈ 위치 추정",
+    "en": "◇ Planned restoration · ≈ Approximate site",
+    "ja": "◇ 補綴予想 · ≈ 推定位置"
+  },
+  "하악 절치": {
+    "ko": "하악 절치",
+    "en": "Lower incisor",
+    "ja": "下顎切歯"
+  },
+  "상악 측절치": {
+    "ko": "상악 측절치",
+    "en": "Upper lateral incisor",
+    "ja": "上顎側切歯"
+  },
+  "상악 중절치": {
+    "ko": "상악 중절치",
+    "en": "Upper central incisor",
+    "ja": "上顎中切歯"
+  },
+  "소구치": {
+    "ko": "소구치",
+    "en": "Premolar",
+    "ja": "小臼歯"
+  },
+  "대구치": {
+    "ko": "대구치",
+    "en": "Molar",
+    "ja": "大臼歯"
+  },
+  "치경부 폭에 맞는 구경 후보가 없습니다.": {
+    "ko": "치경부 폭에 맞는 구경 후보가 없습니다.",
+    "en": "No diameter candidate fits the cervical width.",
+    "ja": "歯頸部幅に適合する直径候補がありません。"
+  },
+  "치경부 폭 {0} × 두께 {1} mm": {
+    "ko": "치경부 폭 {0} × 두께 {1} mm",
+    "en": "Cervical width {0} × thickness {1} mm",
+    "ja": "歯頸部の幅 {0} × 厚さ {1} mm"
+  },
+  "보철 크기 기준 구경 초안 Ø {0} mm": {
+    "ko": "보철 크기 기준 구경 초안 Ø {0} mm",
+    "en": "Restoration-based diameter draft Ø {0} mm",
+    "ja": "補綴サイズに基づく直径案 Ø {0} mm"
+  },
+  "가상 치열의 추정 치수": {
+    "ko": "가상 치열의 추정 치수",
+    "en": "Estimated virtual arch dimensions",
+    "ja": "仮想歯列の推定寸法"
+  },
+  "분할 치아의 형상 치수": {
+    "ko": "분할 치아의 형상 치수",
+    "en": "Segmented tooth dimensions",
+    "ja": "分割された歯の形状寸法"
+  },
+  "최종 구경은 골 폭·인접 구조·제조사 적용 범위 검토 후 결정합니다.": {
+    "ko": "최종 구경은 골 폭·인접 구조·제조사 적용 범위 검토 후 결정합니다.",
+    "en": "Finalize diameter after reviewing ridge width, adjacent structures and manufacturer indications.",
+    "ja": "最終直径は骨幅・隣接構造・メーカーの適応範囲を確認して決定します。"
+  },
+  "골·이격 조건에 따라 구경 조정": {
+    "ko": "골·이격 조건에 따라 구경 조정",
+    "en": "Diameter adjusted for bone and clearance constraints",
+    "ja": "骨・離隔条件に合わせて直径を調整"
+  },
+  "해부학 기준 불러오기 실패": {
+    "ko": "해부학 기준 불러오기 실패",
+    "en": "Failed to load the anatomy reference",
+    "ja": "解剖参照の読み込みに失敗"
+  },
+  "시술 {0}–{1}분": {
+    "ko": "시술 {0}–{1}분",
+    "en": "Procedure {0}–{1} min",
+    "ja": "処置 {0}–{1}分"
+  },
+  "골유착 2–6개월 · 식립일부터": {
+    "ko": "골유착 2–6개월 · 식립일부터",
+    "en": "Bone integration 2–6 months · from placement",
+    "ja": "骨結合 2〜6か月・埋入日から"
+  },
+  "대기·회복 {0}–{1}주": {
+    "ko": "대기·회복 {0}–{1}주",
+    "en": "Wait / healing {0}–{1} weeks",
+    "ja": "待機・回復 {0}〜{1}週"
+  },
+  "대기·회복 {0}–{1}일": {
+    "ko": "대기·회복 {0}–{1}일",
+    "en": "Wait / healing {0}–{1} days",
+    "ja": "待機・回復 {0}〜{1}日"
+  },
+  "참고 범위": {
+    "ko": "참고 범위",
+    "en": "Reference range",
+    "ja": "参考範囲"
+  },
+  "추정 범위": {
+    "ko": "추정 범위",
+    "en": "Estimated range",
+    "ja": "推定範囲"
+  },
+  "계획 종료": {
+    "ko": "계획 종료",
+    "en": "Plan complete",
+    "ja": "計画終了"
+  },
+  "회복·대기 중": {
+    "ko": "회복·대기 중",
+    "en": "Healing / waiting",
+    "ja": "回復・待機中"
+  },
+  "시술 진행 중": {
+    "ko": "시술 진행 중",
+    "en": "Procedure in progress",
+    "ja": "処置中"
+  },
+  "수술 시간과 경과 일수": {
+    "ko": "수술 시간과 경과 일수",
+    "en": "Procedure time and elapsed days",
+    "ja": "処置時間と経過日数"
+  },
+  "누적 작업 시간": {
+    "ko": "누적 작업 시간",
+    "en": "Cumulative active time",
+    "ja": "累積作業時間"
+  },
+  "경과 일수": {
+    "ko": "경과 일수",
+    "en": "Elapsed days",
+    "ja": "経過日数"
+  },
+  "예상 경과 {0}일": {
+    "ko": "예상 경과 {0}일",
+    "en": "Estimated day {0}",
+    "ja": "想定経過 {0}日"
+  },
+  "범위의 대표값으로 재생 · 실제 예약일과 다름": {
+    "ko": "범위의 대표값으로 재생 · 실제 예약일과 다름",
+    "en": "Playback uses representative values · not booked dates",
+    "ja": "範囲の代表値で再生・実際の予約日とは異なります"
+  },
+  "시간 산정 근거": {
+    "ko": "시간 산정 근거",
+    "en": "Timing basis",
+    "ja": "時間算定の根拠"
+  },
+  "골이식·합병증·추가 내원·예약 대기는 별도입니다.": {
+    "ko": "골이식·합병증·추가 내원·예약 대기는 별도입니다.",
+    "en": "Grafting, complications, extra visits and booking delays are additional.",
+    "ja": "骨移植・合併症・追加通院・予約待ちは別途です。"
+  },
+  "치주 처치 반응 관찰": {
+    "ko": "치주 처치 반응 관찰",
+    "en": "Observe periodontal response",
+    "ja": "歯周処置の反応観察"
+  },
+  "치주 회복 · 재평가 대기": {
+    "ko": "치주 회복 · 재평가 대기",
+    "en": "Periodontal healing · awaiting review",
+    "ja": "歯周組織の回復・再評価待ち"
+  },
+  "치주 처치 후 반응을 관찰한 뒤 재평가합니다.": {
+    "ko": "치주 처치 후 반응을 관찰한 뒤 재평가합니다.",
+    "en": "Observe the response to periodontal treatment before reassessment.",
+    "ja": "歯周処置後の反応を観察して再評価します。"
+  },
+  "골유착 경과 관찰": {
+    "ko": "골유착 경과 관찰",
+    "en": "Observe bone integration",
+    "ja": "骨結合の経過観察"
+  },
+  "골유착 · 보철 전 대기": {
+    "ko": "골유착 · 보철 전 대기",
+    "en": "Bone integration · before restoration",
+    "ja": "骨結合・補綴前の待機"
+  },
+  "식립 후 뼈와 임플란트의 결합을 기다리는 단계입니다. 경과 일수만으로 보철 진행을 결정하지 않습니다.": {
+    "ko": "식립 후 뼈와 임플란트의 결합을 기다리는 단계입니다. 경과 일수만으로 보철 진행을 결정하지 않습니다.",
+    "en": "Wait for bone integration after placement. Elapsed days alone do not determine readiness for restoration.",
+    "ja": "埋入後の骨結合を待つ段階です。経過日数だけで補綴への移行は決定しません。"
+  },
+  "인공 치아 기공·제작 대기": {
+    "ko": "인공 치아 기공·제작 대기",
+    "en": "Prosthesis fabrication lead time",
+    "ja": "人工歯の技工・製作待ち"
+  },
+  "기공 · 보철 장착 전": {
+    "ko": "기공 · 보철 장착 전",
+    "en": "Laboratory · before fitting",
+    "ja": "技工・補綴装着前"
+  },
+  "스캔·인상 자료로 보철을 제작하고 시적을 준비하는 기간입니다.": {
+    "ko": "스캔·인상 자료로 보철을 제작하고 시적을 준비하는 기간입니다.",
+    "en": "The laboratory fabricates the restoration from scans or impressions and prepares for fitting.",
+    "ja": "スキャン・印象資料から補綴物を製作し、試適を準備する期間です。"
+  },
+  "진료 준비·난이도에 따라 달라지는 운영 추정입니다.": {
+    "ko": "진료 준비·난이도에 따라 달라지는 운영 추정입니다.",
+    "en": "Operational estimate varies with preparation and complexity.",
+    "ja": "診療準備と難易度で変わる運用上の推定です。"
+  },
+  "발치 후 지연 식립을 검토하는 6–10주 범위입니다. 즉시 식립·골이식은 별도 계획입니다.": {
+    "ko": "발치 후 지연 식립을 검토하는 6–10주 범위입니다. 즉시 식립·골이식은 별도 계획입니다.",
+    "en": "A 6–10 week reference interval before deferred placement after extraction. Immediate placement and grafting need separate plans.",
+    "ja": "抜歯後の待時埋入を検討する6〜10週の範囲です。即時埋入・骨移植は別の計画です。"
+  },
+  "치주 처치 후 최소 3개월 재평가 기준에 3–4개월 범위를 적용한 일정 추정입니다.": {
+    "ko": "치주 처치 후 최소 3개월 재평가 기준에 3–4개월 범위를 적용한 일정 추정입니다.",
+    "en": "The 3–4 month estimate is based on reassessment no earlier than 3 months after periodontal treatment.",
+    "ja": "歯周処置後、最低3か月で再評価する基準に3〜4か月の範囲を適用した日程推定です。"
+  },
+  "증상 경과 관찰 기간이며 근단 병소의 완전한 골 회복 기간이 아닙니다.": {
+    "ko": "증상 경과 관찰 기간이며 근단 병소의 완전한 골 회복 기간이 아닙니다.",
+    "en": "This is a symptom observation interval, not complete bony healing of a periapical lesion.",
+    "ja": "症状の経過観察期間であり、根尖病変の骨治癒完了期間ではありません。"
+  },
+  "지대주 주변 연조직 회복의 참고 범위입니다. 노출 방식·연조직 상태에 따라 달라집니다.": {
+    "ko": "지대주 주변 연조직 회복의 참고 범위입니다. 노출 방식·연조직 상태에 따라 달라집니다.",
+    "en": "Reference interval for soft tissue around abutments; exposure technique and tissue condition can change it.",
+    "ja": "アバットメント周囲の軟組織回復の参考範囲です。露出方法・軟組織の状態で変わります。"
+  },
+  "초기 상처 관찰·재진 간격입니다. 골유착 완료나 다음 수술 허가를 뜻하지 않습니다.": {
+    "ko": "초기 상처 관찰·재진 간격입니다. 골유착 완료나 다음 수술 허가를 뜻하지 않습니다.",
+    "en": "Initial wound review interval; it does not establish bone integration or readiness for another operation.",
+    "ja": "初期創傷観察・再診の間隔です。骨結合完了や次の手術の許可を意味しません。"
+  },
+  "일반 치관의 약 2주 기공 안내에서 정한 1–3주 운영 추정입니다. 임플란트 보철 복잡도에 따라 늘어납니다.": {
+    "ko": "일반 치관의 약 2주 기공 안내에서 정한 1–3주 운영 추정입니다. 임플란트 보철 복잡도에 따라 늘어납니다.",
+    "en": "A 1–3 week operational estimate based on roughly 2 weeks for a conventional crown; complex implant restorations can take longer.",
+    "ja": "一般的なクラウンの技工約2週を基にした1〜3週の運用上の推定です。インプラント補綴の複雑さで延長します。"
+  },
+  "2회 기준 합계입니다. 회당 60–120분이며 2회 이상 또는 더 긴 진료가 필요할 수 있습니다.": {
+    "ko": "2회 기준 합계입니다. 회당 60–120분이며 2회 이상 또는 더 긴 진료가 필요할 수 있습니다.",
+    "en": "Total for two visits of 60–120 minutes each. More or longer appointments may be needed.",
+    "ja": "1回60〜120分を2回とした合計です。追加または長時間の診療が必要な場合があります。"
+  },
+  "치주 처치 1–2회 분량의 운영 추정이며 실제 치아 수와 처치 범위에 따라 추가 내원이 필요합니다.": {
+    "ko": "치주 처치 1–2회 분량의 운영 추정이며 실제 치아 수와 처치 범위에 따라 추가 내원이 필요합니다.",
+    "en": "Operational estimate for 1–2 periodontal sessions; tooth count and treatment extent may require further visits.",
+    "ja": "歯周処置1〜2回分の運用上の推定です。歯数と処置範囲により追加通院が必要です。"
+  },
+  "치아 1개 발치의 운영 추정입니다. 매복·치근 분리·골 삭제가 필요하면 늘어납니다.": {
+    "ko": "치아 1개 발치의 운영 추정입니다. 매복·치근 분리·골 삭제가 필요하면 늘어납니다.",
+    "en": "Operational estimate per extraction; impaction, root separation or bone removal can increase it.",
+    "ja": "1歯の抜歯の運用上の推定です。埋伏・歯根分割・骨削除が必要な場合は延長します。"
+  },
+  "모델링·검토 작업 30–90분, 제작·후처리·물류 1–7일의 운영 추정입니다. 재료·제조사 공정에 따라 달라집니다.": {
+    "ko": "모델링·검토 작업 30–90분, 제작·후처리·물류 1–7일의 운영 추정입니다. 재료·제조사 공정에 따라 달라집니다.",
+    "en": "Operational estimate: 30–90 minutes for design/review and 1–7 days for production, finishing and delivery. Materials and manufacturer workflows vary.",
+    "ja": "設計・確認30〜90分、製作・後処理・配送1〜7日の運用上の推定です。材料・メーカー工程で変わります。"
+  },
+  "지대주 연결 단계의 운영 추정입니다. 별도 노출 수술이 필요하면 추가 시간이 듭니다.": {
+    "ko": "지대주 연결 단계의 운영 추정입니다. 별도 노출 수술이 필요하면 추가 시간이 듭니다.",
+    "en": "Operational estimate for abutment connection; separate exposure surgery requires extra time.",
+    "ja": "アバットメント接続の運用上の推定です。別途露出手術が必要な場合は時間が加わります。"
+  },
+  "보철물 1개 시적·장착의 운영 추정입니다. 교합 조정은 별도 단계입니다.": {
+    "ko": "보철물 1개 시적·장착의 운영 추정입니다. 교합 조정은 별도 단계입니다.",
+    "en": "Operational estimate for fitting one restoration; occlusal adjustment is a separate stage.",
+    "ja": "補綴物1個の試適・装着の運用上の推定です。咬合調整は別の段階です。"
+  },
+  "단일 식립 약 30분의 안내를 기준으로 다중 식립 회차 시간을 확장하고 세부 동작에 배분한 추정입니다. 마취·접근 준비를 포함하며 골이식은 제외합니다.": {
+    "ko": "단일 식립 약 30분의 안내를 기준으로 다중 식립 회차 시간을 확장하고 세부 동작에 배분한 추정입니다. 마취·접근 준비를 포함하며 골이식은 제외합니다.",
+    "en": "Estimated action times allocated from a visit budget scaled from about 30 minutes per single implant. Includes anesthesia/access preparation; excludes grafting.",
+    "ja": "単独埋入約30分を基に複数埋入の診療時間を拡張し、各動作に配分した推定です。麻酔・アクセス準備を含み、骨移植は除きます。"
+  },
+  "식립일부터 2–6개월의 참고 범위입니다. 앞선 회복 기간을 중복 합산하지 않으며 골이식·전신 상태에 따라 더 길어질 수 있습니다.": {
+    "ko": "식립일부터 2–6개월의 참고 범위입니다. 앞선 회복 기간을 중복 합산하지 않으며 골이식·전신 상태에 따라 더 길어질 수 있습니다.",
+    "en": "Reference range of 2–6 months from placement, with earlier healing time counted once. Grafting or systemic conditions can prolong it.",
+    "ja": "埋入日から2〜6か月の参考範囲です。先行する回復期間は重複加算せず、骨移植・全身状態で延長する場合があります。"
+  },
+  "예상 기본비용": {
+    "ko": "예상 기본비용",
+    "en": "Estimated base cost",
+    "ja": "想定基本費用"
+  },
+  "예상 기간": {
+    "ko": "예상 기간",
+    "en": "Estimated duration",
+    "ja": "想定期間"
+  },
+  "전체 내원": {
+    "ko": "전체 내원",
+    "en": "Total visits",
+    "ja": "総通院回数"
+  },
+  "{0}–{1}일": {
+    "ko": "{0}–{1}일",
+    "en": "{0}–{1} days",
+    "ja": "{0}〜{1}日"
+  },
+  "{0}회 이상": {
+    "ko": "{0}회 이상",
+    "en": "{0}+ visits",
+    "ja": "{0}回以上"
+  },
+  "{0}회": {
+    "ko": "{0}회",
+    "en": "{0} visits",
+    "ja": "{0}回"
+  },
+  "임플란트·지대주·크라운 / 1개": {
+    "ko": "임플란트·지대주·크라운 / 1개",
+    "en": "Implant, abutment & crown / unit",
+    "ja": "インプラント・アバットメント・冠 / 1本"
+  },
+  "가이드 제작 / 1개": {
+    "ko": "가이드 제작 / 1개",
+    "en": "Guide fabrication / unit",
+    "ja": "ガイド製作 / 1個"
+  },
+  "추가 내원비 / 1회": {
+    "ko": "추가 내원비 / 1회",
+    "en": "Additional visit fee",
+    "ja": "追加通院費 / 1回"
+  },
+  "발치 / 1개": {
+    "ko": "발치 / 1개",
+    "en": "Extraction / tooth",
+    "ja": "抜歯 / 1歯"
+  },
+  "근관치료 / 1개": {
+    "ko": "근관치료 / 1개",
+    "en": "Root canal / tooth",
+    "ja": "根管治療 / 1歯"
+  },
+  "치주 선행 치료": {
+    "ko": "치주 선행 치료",
+    "en": "Initial periodontal treatment",
+    "ja": "先行歯周治療"
+  },
+  "비용 계산 단가 · KRW": {
+    "ko": "비용 계산 단가 · KRW",
+    "en": "Cost assumptions · KRW",
+    "ja": "費用計算の単価・KRW"
+  },
+  "비급여 예시 단가입니다. 추가 항목은 견적을 입력하고, 묶음 비용에 포함된 항목은 0으로 설정하세요.": {
+    "ko": "비급여 예시 단가입니다. 추가 항목은 견적을 입력하고, 묶음 비용에 포함된 항목은 0으로 설정하세요.",
+    "en": "Illustrative private-pay fees. Enter additional quotes; set items already included in a package to zero.",
+    "ja": "自由診療の単価例です。追加項目の見積もりを入力し、パッケージに含まれる項目は0に設定してください。"
+  },
+  "견적 필요": {
+    "ko": "견적 필요",
+    "en": "Quote needed",
+    "ja": "見積もりが必要"
+  },
+  "추가 견적 필요": {
+    "ko": "추가 견적 필요",
+    "en": "Additional quote needed",
+    "ja": "追加見積もりが必要"
+  },
+  "HIRA 2026 · 지르코니아 임플란트 110만원 비교 사례 ↗": {
+    "ko": "HIRA 2026 · 지르코니아 임플란트 110만원 비교 사례 ↗",
+    "en": "HIRA 2026 · KRW 1.1m zirconia implant example ↗",
+    "ja": "HIRA 2026・ジルコニアインプラント110万ウォンの比較例 ↗"
+  },
+  "110만원은 공개 비교 사례의 기준값이며 전국 최저·최고 범위가 아닙니다. 보험·골이식·진정·임시 보철은 별도 확인합니다.": {
+    "ko": "110만원은 공개 비교 사례의 기준값이며 전국 최저·최고 범위가 아닙니다. 보험·골이식·진정·임시 보철은 별도 확인합니다.",
+    "en": "KRW 1.1m is a published comparison example, not a national price range. Insurance, grafting, sedation and temporary restorations require separate review.",
+    "ja": "110万ウォンは公表比較例の基準値であり、全国の最低・最高価格ではありません。保険・骨移植・鎮静・仮補綴は別途確認します。"
+  },
+  "비용·일정 산정": {
+    "ko": "비용·일정 산정",
+    "en": "Cost and schedule assumptions",
+    "ja": "費用・日程の算定"
+  },
+  "개별 크라운을 포함한 가정 견적입니다. 전체 내원에는 선행 치료·식립·재평가·보철이 포함되며 추가 방문이 필요할 수 있습니다.": {
+    "ko": "개별 크라운을 포함한 가정 견적입니다. 전체 내원에는 선행 치료·식립·재평가·보철이 포함되며 추가 방문이 필요할 수 있습니다.",
+    "en": "Illustrative estimate assumes individual crowns. Visits include preliminary care, placement, reviews and restoration; additional visits may be needed.",
+    "ja": "各クラウンを含む仮定の見積もりです。通院には先行治療・埋入・再評価・補綴を含み、追加通院が必要な場合があります。"
+  },
+  "기간은 단계별 참고 범위와 운영 추정을 합산합니다. 골유착 대기는 이미 경과한 회복 기간을 차감하며 예약 대기·골이식·합병증은 포함하지 않습니다.": {
+    "ko": "기간은 단계별 참고 범위와 운영 추정을 합산합니다. 골유착 대기는 이미 경과한 회복 기간을 차감하며 예약 대기·골이식·합병증은 포함하지 않습니다.",
+    "en": "Duration combines reference intervals and operational estimates. Bone integration excludes already elapsed healing time. Booking delays, grafting and complications are excluded.",
+    "ja": "期間は段階ごとの参考範囲と運用上の推定を合算します。骨結合待ちは経過済みの回復期間を差し引き、予約待ち・骨移植・合併症は含みません。"
+  },
+  "내원 구성": {
+    "ko": "내원 구성",
+    "en": "Visit breakdown",
+    "ja": "通院の内訳"
+  },
+  "환자·의사가 동의를 확인하고 하나의 계획을 선택합니다. 비용·기간·전체 내원 횟수를 비교하세요.": {
+    "ko": "환자·의사가 동의를 확인하고 하나의 계획을 선택합니다. 비용·기간·전체 내원 횟수를 비교하세요.",
+    "en": "Compare cost, duration and all visits before recording the patient and clinician’s plan choice.",
+    "ja": "費用・期間・総通院回数を比較し、患者と医師の同意を確認して計画を選択します。"
+  },
+  "초기 회복 7–14일 후 재평가 · 다음 회차는 경과에 따라 결정": {
+    "ko": "초기 회복 7–14일 후 재평가 · 다음 회차는 경과에 따라 결정",
+    "en": "Review after 7–14 days of initial healing · next visit depends on findings",
+    "ja": "初期回復7〜14日後に再評価・次の処置は経過に応じて決定"
+  },
+  "CUH · 단일 식립 약 30분": {
+    "ko": "CUH · 단일 식립 약 30분",
+    "en": "CUH · around 30 min for one implant",
+    "ja": "CUH・単独埋入約30分"
+  },
+  "Leeds NHS · 발치 후 6–10주·골유착 2–6개월": {
+    "ko": "Leeds NHS · 발치 후 6–10주·골유착 2–6개월",
+    "en": "Leeds NHS · extraction 6–10 weeks; integration 2–6 months",
+    "ja": "Leeds NHS・抜歯後6〜10週・骨結合2〜6か月"
+  },
+  "Guy’s NHS · 수술 후 7–14일 재진": {
+    "ko": "Guy’s NHS · 수술 후 7–14일 재진",
+    "en": "Guy’s NHS · review after 7–14 days",
+    "ja": "Guy’s NHS・術後7〜14日の再診"
+  },
+  "NHS · 근관치료 회당 1–2시간·2회 이상": {
+    "ko": "NHS · 근관치료 회당 1–2시간·2회 이상",
+    "en": "NHS · root canal 1–2 h per visit, 2+ visits",
+    "ja": "NHS・根管治療1回1〜2時間・2回以上"
+  },
+  "UHL · 치주 처치 후 최소 3개월 재평가": {
+    "ko": "UHL · 치주 처치 후 최소 3개월 재평가",
+    "en": "UHL · periodontal review after at least 3 months",
+    "ja": "UHL・歯周処置後最低3か月で再評価"
+  },
+  "Johns Hopkins · 지대주 주위 잇몸 회복 4–6주": {
+    "ko": "Johns Hopkins · 지대주 주위 잇몸 회복 4–6주",
+    "en": "Johns Hopkins · abutment tissue healing 4–6 weeks",
+    "ja": "Johns Hopkins・アバットメント周囲歯肉の回復4〜6週"
+  },
+  "Leeds NHS · 치관 기공 약 2주": {
+    "ko": "Leeds NHS · 치관 기공 약 2주",
+    "en": "Leeds NHS · crown laboratory time around 2 weeks",
+    "ja": "Leeds NHS・クラウン技工約2週"
+  },
+  "우선순위별 조건부 제안입니다. 먼저 장단점과 시뮬레이션을 비교한 뒤 환자·의사가 동의를 확인하고 하나의 계획을 선택합니다. 비용·기간·전체 내원 횟수를 비교하세요.": {
+    "ko": "우선순위별 조건부 제안입니다. 먼저 장단점과 시뮬레이션을 비교한 뒤 환자·의사가 동의를 확인하고 하나의 계획을 선택합니다. 비용·기간·전체 내원 횟수를 비교하세요.",
+    "en": "Compare each proposal’s tradeoffs, simulation, cost, duration and total visits before the patient and clinician select a plan.",
+    "ja": "各提案の長所・短所、シミュレーション、費用・期間・総通院回数を比較し、患者と医師が同意を確認して計画を選択します。"
+  },
+  "비용 단가 형식을 확인하세요.": {
+    "ko": "비용 단가 형식을 확인하세요.",
+    "en": "Check the fee format.",
+    "ja": "費用単価の形式を確認してください。"
+  },
+  "비용 단가는 0 이상의 원 단위 정수여야 합니다.": {
+    "ko": "비용 단가는 0 이상의 원 단위 정수여야 합니다.",
+    "en": "Fees must be non-negative whole KRW amounts.",
+    "ja": "単価は0以上のウォン単位の整数で入力してください。"
   }
 }

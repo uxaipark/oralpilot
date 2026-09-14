@@ -1,0 +1,2750 @@
+{
+  "algorithm": "geometry-constraints-v1",
+  "date": "2026-09-14T12:33:31.820Z",
+  "type": "geometry-regression",
+  "trainedModel": false,
+  "clinicianGroundTruth": false,
+  "syntheticSiteRequests": true,
+  "limits": {
+    "critical": 2,
+    "tooth": 1.5,
+    "implant": 3,
+    "boneRing": 1,
+    "boneCoverage": 0.8
+  },
+  "caseCount": 16,
+  "cases": [
+    {
+      "id": "tf2-F_001",
+      "sourceSha256": "fce7085c9d67111d5af95ce87257eec9e00714a8b691302682c8bcecfec4acee",
+      "inferredSites": [
+        {
+          "tooth": 16,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.834915284680587,
+          "planningEligible": false
+        },
+        {
+          "tooth": 17,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.834915284680587,
+          "planningEligible": false
+        },
+        {
+          "tooth": 18,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.834915284680587,
+          "planningEligible": false
+        },
+        {
+          "tooth": 26,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.834915284680587,
+          "planningEligible": false
+        },
+        {
+          "tooth": 28,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.834915284680587,
+          "planningEligible": false
+        },
+        {
+          "tooth": 36,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47
+          ],
+          "residualMm": 2.7198963467880657,
+          "planningEligible": false
+        },
+        {
+          "tooth": 37,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47
+          ],
+          "residualMm": 2.7198963467880657,
+          "planningEligible": false
+        },
+        {
+          "tooth": 38,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47
+          ],
+          "residualMm": 2.7198963467880657,
+          "planningEligible": false
+        },
+        {
+          "tooth": 46,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47
+          ],
+          "residualMm": 2.7198963467880657,
+          "planningEligible": false
+        },
+        {
+          "tooth": 48,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47
+          ],
+          "residualMm": 2.7198963467880657,
+          "planningEligible": false
+        }
+      ],
+      "proposedSizes": [
+        {
+          "tooth": 11,
+          "diameter": 4.2,
+          "sizing": {
+            "category": "상악 중절치",
+            "estimated": false,
+            "widthMm": 7.57587261354187,
+            "thicknessMm": 6.917355887101213,
+            "targetDiameter": 4.2,
+            "candidates": [
+              3.5,
+              4,
+              4.2,
+              4.5
+            ]
+          }
+        }
+      ],
+      "requestedSites": [
+        11,
+        12
+      ],
+      "proposedSites": [
+        11
+      ],
+      "deferred": [
+        {
+          "tooth": 17,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 16,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 12,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 26,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 46,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 36,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 37,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        }
+      ],
+      "evaluated": 2800,
+      "durationMs": 302,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf2-F_002",
+      "sourceSha256": "4c4e430c0982b17d14822f4eee51cf2d3c98fe565d5183ce6abae8a27289da18",
+      "inferredSites": [
+        {
+          "tooth": 17,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            26,
+            27
+          ],
+          "residualMm": 4.411630481833536,
+          "planningEligible": false
+        },
+        {
+          "tooth": 18,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            26,
+            27
+          ],
+          "residualMm": 4.411630481833536,
+          "planningEligible": false
+        },
+        {
+          "tooth": 25,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            26,
+            27
+          ],
+          "residualMm": 4.411630481833536,
+          "planningEligible": false
+        },
+        {
+          "tooth": 28,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            26,
+            27
+          ],
+          "residualMm": 4.411630481833536,
+          "planningEligible": false
+        },
+        {
+          "tooth": 35,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 3.2777616430584424,
+          "planningEligible": false
+        },
+        {
+          "tooth": 36,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 3.2777616430584424,
+          "planningEligible": false
+        },
+        {
+          "tooth": 38,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 3.2777616430584424,
+          "planningEligible": false
+        },
+        {
+          "tooth": 46,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 3.2777616430584424,
+          "planningEligible": false
+        },
+        {
+          "tooth": 47,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 3.2777616430584424,
+          "planningEligible": false
+        },
+        {
+          "tooth": 48,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 3.2777616430584424,
+          "planningEligible": false
+        }
+      ],
+      "proposedSizes": [
+        {
+          "tooth": 16,
+          "diameter": 4.2,
+          "sizing": {
+            "category": "대구치",
+            "estimated": false,
+            "widthMm": 10.751112585147645,
+            "thicknessMm": 10.295568611626118,
+            "targetDiameter": 6,
+            "candidates": [
+              4,
+              4.2,
+              4.5,
+              5,
+              5.5,
+              6
+            ]
+          }
+        }
+      ],
+      "requestedSites": [
+        16,
+        26
+      ],
+      "proposedSites": [
+        16
+      ],
+      "deferred": [
+        {
+          "tooth": 17,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 25,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 26,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 47,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 46,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 35,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 36,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        }
+      ],
+      "evaluated": 4800,
+      "durationMs": 358,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf2-F_026",
+      "sourceSha256": "b02c99208e065998a43c2058df92083727c60a7631510886a0111f329f19fd0f",
+      "inferredSites": [],
+      "proposedSizes": [
+        {
+          "tooth": 46,
+          "diameter": 6,
+          "sizing": {
+            "category": "대구치",
+            "estimated": false,
+            "widthMm": 10.71141104073957,
+            "thicknessMm": 9.811960485172666,
+            "targetDiameter": 6,
+            "candidates": [
+              4,
+              4.2,
+              4.5,
+              5,
+              5.5,
+              6
+            ]
+          }
+        },
+        {
+          "tooth": 36,
+          "diameter": 5.5,
+          "sizing": {
+            "category": "대구치",
+            "estimated": false,
+            "widthMm": 10.396745070932273,
+            "thicknessMm": 9.801609832545905,
+            "targetDiameter": 6,
+            "candidates": [
+              4,
+              4.2,
+              4.5,
+              5,
+              5.5,
+              6
+            ]
+          }
+        }
+      ],
+      "requestedSites": [
+        16,
+        26,
+        36,
+        46
+      ],
+      "proposedSites": [
+        36,
+        46
+      ],
+      "deferred": [
+        {
+          "tooth": 16,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 26,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        }
+      ],
+      "evaluated": 9600,
+      "durationMs": 577,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-F_001",
+      "sourceSha256": "a3a392501cc19c2f5235a044442b1ff08474cb8a3b0ad61f91686d5b672ca23a",
+      "inferredSites": [
+        {
+          "tooth": 16,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.832048050412391,
+          "planningEligible": false
+        },
+        {
+          "tooth": 17,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.832048050412391,
+          "planningEligible": false
+        },
+        {
+          "tooth": 18,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.832048050412391,
+          "planningEligible": false
+        },
+        {
+          "tooth": 26,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.832048050412391,
+          "planningEligible": false
+        },
+        {
+          "tooth": 28,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.832048050412391,
+          "planningEligible": false
+        },
+        {
+          "tooth": 36,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47
+          ],
+          "residualMm": 2.6869678863902324,
+          "planningEligible": false
+        },
+        {
+          "tooth": 37,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47
+          ],
+          "residualMm": 2.6869678863902324,
+          "planningEligible": false
+        },
+        {
+          "tooth": 38,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47
+          ],
+          "residualMm": 2.6869678863902324,
+          "planningEligible": false
+        },
+        {
+          "tooth": 46,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47
+          ],
+          "residualMm": 2.6869678863902324,
+          "planningEligible": false
+        },
+        {
+          "tooth": 48,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47
+          ],
+          "residualMm": 2.6869678863902324,
+          "planningEligible": false
+        }
+      ],
+      "proposedSizes": [
+        {
+          "tooth": 11,
+          "diameter": 4.2,
+          "sizing": {
+            "category": "상악 중절치",
+            "estimated": false,
+            "widthMm": 7.581876481514028,
+            "thicknessMm": 6.927144254819458,
+            "targetDiameter": 4.2,
+            "candidates": [
+              3.5,
+              4,
+              4.2,
+              4.5
+            ]
+          }
+        }
+      ],
+      "requestedSites": [
+        11,
+        12
+      ],
+      "proposedSites": [
+        11
+      ],
+      "deferred": [
+        {
+          "tooth": 17,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 16,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 12,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 26,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 46,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 36,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 37,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        }
+      ],
+      "evaluated": 2800,
+      "durationMs": 298,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-F_002",
+      "sourceSha256": "4c7fd9d1104ed035451073fc8a8308e073370e92ae32f841a1b36dc0d3bc6e35",
+      "inferredSites": [
+        {
+          "tooth": 17,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            26,
+            27
+          ],
+          "residualMm": 4.323363885236217,
+          "planningEligible": false
+        },
+        {
+          "tooth": 18,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            26,
+            27
+          ],
+          "residualMm": 4.323363885236217,
+          "planningEligible": false
+        },
+        {
+          "tooth": 25,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            26,
+            27
+          ],
+          "residualMm": 4.323363885236217,
+          "planningEligible": false
+        },
+        {
+          "tooth": 28,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            21,
+            22,
+            23,
+            24,
+            26,
+            27
+          ],
+          "residualMm": 4.323363885236217,
+          "planningEligible": false
+        },
+        {
+          "tooth": 35,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 3.3539662612663075,
+          "planningEligible": false
+        },
+        {
+          "tooth": 36,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 3.3539662612663075,
+          "planningEligible": false
+        },
+        {
+          "tooth": 38,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 3.3539662612663075,
+          "planningEligible": false
+        },
+        {
+          "tooth": 46,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 3.3539662612663075,
+          "planningEligible": false
+        },
+        {
+          "tooth": 47,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 3.3539662612663075,
+          "planningEligible": false
+        },
+        {
+          "tooth": 48,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 3.3539662612663075,
+          "planningEligible": false
+        }
+      ],
+      "proposedSizes": [],
+      "requestedSites": [
+        16,
+        26
+      ],
+      "proposedSites": [],
+      "deferred": [
+        {
+          "tooth": 17,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 16,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 25,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 26,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 47,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 46,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 35,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 36,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        }
+      ],
+      "evaluated": 4800,
+      "durationMs": 331,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-F_003",
+      "sourceSha256": "d60b7106c8fcf87f8f026d03094176c694590bfc0be630f296ade43e83463666",
+      "inferredSites": [
+        {
+          "tooth": 14,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.8937673170688933,
+          "planningEligible": false
+        },
+        {
+          "tooth": 15,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.8937673170688933,
+          "planningEligible": false
+        },
+        {
+          "tooth": 16,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.8937673170688933,
+          "planningEligible": false
+        },
+        {
+          "tooth": 17,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.8937673170688933,
+          "planningEligible": false
+        },
+        {
+          "tooth": 18,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.8937673170688933,
+          "planningEligible": false
+        },
+        {
+          "tooth": 28,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "residualMm": 2.8937673170688933,
+          "planningEligible": false
+        },
+        {
+          "tooth": 34,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            38,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 5.729806129804852,
+          "planningEligible": false
+        },
+        {
+          "tooth": 35,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            38,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 5.729806129804852,
+          "planningEligible": false
+        },
+        {
+          "tooth": 36,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            38,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 5.729806129804852,
+          "planningEligible": false
+        },
+        {
+          "tooth": 37,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            38,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 5.729806129804852,
+          "planningEligible": false
+        },
+        {
+          "tooth": 46,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            38,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 5.729806129804852,
+          "planningEligible": false
+        },
+        {
+          "tooth": 47,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            38,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 5.729806129804852,
+          "planningEligible": false
+        },
+        {
+          "tooth": 48,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            38,
+            41,
+            42,
+            43,
+            44,
+            45
+          ],
+          "residualMm": 5.729806129804852,
+          "planningEligible": false
+        }
+      ],
+      "proposedSizes": [
+        {
+          "tooth": 12,
+          "diameter": 3.5,
+          "sizing": {
+            "category": "상악 측절치",
+            "estimated": false,
+            "widthMm": 5.344224263479579,
+            "thicknessMm": 5.824988727860388,
+            "targetDiameter": 3.5,
+            "candidates": [
+              3,
+              3.5,
+              4
+            ]
+          }
+        },
+        {
+          "tooth": 11,
+          "diameter": 4.2,
+          "sizing": {
+            "category": "상악 중절치",
+            "estimated": false,
+            "widthMm": 7.447947022552382,
+            "thicknessMm": 6.461507216809233,
+            "targetDiameter": 4.2,
+            "candidates": [
+              3.5,
+              4,
+              4.2,
+              4.5
+            ]
+          }
+        }
+      ],
+      "requestedSites": [
+        11,
+        12
+      ],
+      "proposedSites": [
+        11,
+        12
+      ],
+      "deferred": [
+        {
+          "tooth": 17,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 16,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 15,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 14,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 47,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 46,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 34,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 35,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 36,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 37,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        }
+      ],
+      "evaluated": 2800,
+      "durationMs": 259,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-F_004",
+      "sourceSha256": "1e93825004abe4ee3673e6475ab8d5ca24f6cb708b0afaec5e560a9eb96a1843",
+      "inferredSites": [
+        {
+          "tooth": 12,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            13,
+            14,
+            15,
+            18,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 2.2245056534125824,
+          "planningEligible": false
+        },
+        {
+          "tooth": 16,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            13,
+            14,
+            15,
+            18,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 2.2245056534125824,
+          "planningEligible": false
+        },
+        {
+          "tooth": 17,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            13,
+            14,
+            15,
+            18,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 2.2245056534125824,
+          "planningEligible": false
+        },
+        {
+          "tooth": 28,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            13,
+            14,
+            15,
+            18,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 2.2245056534125824,
+          "planningEligible": false
+        },
+        {
+          "tooth": 36,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            48
+          ],
+          "residualMm": 4.332977637945801,
+          "planningEligible": false
+        },
+        {
+          "tooth": 37,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            48
+          ],
+          "residualMm": 4.332977637945801,
+          "planningEligible": false
+        },
+        {
+          "tooth": 38,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            48
+          ],
+          "residualMm": 4.332977637945801,
+          "planningEligible": false
+        }
+      ],
+      "proposedSizes": [],
+      "requestedSites": [
+        26
+      ],
+      "proposedSites": [],
+      "deferred": [
+        {
+          "tooth": 17,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 16,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 12,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 26,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 36,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 37,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        }
+      ],
+      "evaluated": 2400,
+      "durationMs": 182,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-F_005",
+      "sourceSha256": "d67f6af77cd83ed6c4fdac5d29760d005723a6ecfe42f9c4d8fe36413cfb95da",
+      "inferredSites": [
+        {
+          "tooth": 16,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            18,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "residualMm": 3.983299763454861,
+          "planningEligible": false
+        },
+        {
+          "tooth": 17,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            18,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "residualMm": 3.983299763454861,
+          "planningEligible": false
+        },
+        {
+          "tooth": 27,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            18,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "residualMm": 3.983299763454861,
+          "planningEligible": false
+        },
+        {
+          "tooth": 28,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            18,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "residualMm": 3.983299763454861,
+          "planningEligible": false
+        },
+        {
+          "tooth": 36,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47,
+            48
+          ],
+          "residualMm": 2.9421785899061805,
+          "planningEligible": false
+        },
+        {
+          "tooth": 38,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            37,
+            41,
+            42,
+            43,
+            44,
+            45,
+            47,
+            48
+          ],
+          "residualMm": 2.9421785899061805,
+          "planningEligible": false
+        }
+      ],
+      "proposedSizes": [],
+      "requestedSites": [
+        26
+      ],
+      "proposedSites": [],
+      "deferred": [
+        {
+          "tooth": 17,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 16,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 26,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 27,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 36,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        }
+      ],
+      "evaluated": 2400,
+      "durationMs": 167,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-F_006",
+      "sourceSha256": "c5996699543d37c3dd1116ab5f917bb1d211c55eab4a981dd448e3bec06766e3",
+      "inferredSites": [
+        {
+          "tooth": 15,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            16,
+            17,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 2.4150262571441403,
+          "planningEligible": false
+        },
+        {
+          "tooth": 18,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            12,
+            13,
+            14,
+            16,
+            17,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 2.4150262571441403,
+          "planningEligible": false
+        },
+        {
+          "tooth": 36,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47
+          ],
+          "residualMm": 2.611154468134601,
+          "planningEligible": false
+        },
+        {
+          "tooth": 37,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47
+          ],
+          "residualMm": 2.611154468134601,
+          "planningEligible": false
+        },
+        {
+          "tooth": 38,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47
+          ],
+          "residualMm": 2.611154468134601,
+          "planningEligible": false
+        },
+        {
+          "tooth": 48,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47
+          ],
+          "residualMm": 2.611154468134601,
+          "planningEligible": false
+        }
+      ],
+      "proposedSizes": [],
+      "requestedSites": [
+        46
+      ],
+      "proposedSites": [],
+      "deferred": [
+        {
+          "tooth": 15,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 46,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 36,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 37,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        }
+      ],
+      "evaluated": 2400,
+      "durationMs": 196,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-F_007",
+      "sourceSha256": "dc8c5f6c4a7ae0d7ee8c8bffcba72892320e3f970f5d070f3770812c7ebc5de3",
+      "inferredSites": [
+        {
+          "tooth": 12,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            13,
+            14,
+            15,
+            16,
+            17,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 2.6170513414295096,
+          "planningEligible": false
+        },
+        {
+          "tooth": 18,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            13,
+            14,
+            15,
+            16,
+            17,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 2.6170513414295096,
+          "planningEligible": false
+        },
+        {
+          "tooth": 28,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            11,
+            13,
+            14,
+            15,
+            16,
+            17,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 2.6170513414295096,
+          "planningEligible": false
+        },
+        {
+          "tooth": 31,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46
+          ],
+          "residualMm": 1.2528310023919456,
+          "planningEligible": true
+        },
+        {
+          "tooth": 37,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46
+          ],
+          "residualMm": 1.2528310023919456,
+          "planningEligible": true
+        },
+        {
+          "tooth": 38,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46
+          ],
+          "residualMm": 1.2528310023919456,
+          "planningEligible": true
+        },
+        {
+          "tooth": 47,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46
+          ],
+          "residualMm": 1.2528310023919456,
+          "planningEligible": true
+        },
+        {
+          "tooth": 48,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46
+          ],
+          "residualMm": 1.2528310023919456,
+          "planningEligible": true
+        }
+      ],
+      "proposedSizes": [
+        {
+          "tooth": 36,
+          "diameter": 4,
+          "sizing": {
+            "category": "대구치",
+            "estimated": false,
+            "widthMm": 10.747384879499101,
+            "thicknessMm": 10.128067110075449,
+            "targetDiameter": 6,
+            "candidates": [
+              4,
+              4.2,
+              4.5,
+              5,
+              5.5,
+              6
+            ]
+          }
+        },
+        {
+          "tooth": 37,
+          "diameter": 4.2,
+          "sizing": {
+            "category": "대구치",
+            "estimated": true,
+            "widthMm": 9.414755612223637,
+            "thicknessMm": 8.853822539514168,
+            "targetDiameter": 6,
+            "candidates": [
+              4,
+              4.2,
+              4.5,
+              5,
+              5.5,
+              6
+            ]
+          }
+        }
+      ],
+      "requestedSites": [
+        16,
+        26,
+        36,
+        46
+      ],
+      "proposedSites": [
+        36,
+        37
+      ],
+      "deferred": [
+        {
+          "tooth": 16,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 12,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 26,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 47,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 46,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 31,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        }
+      ],
+      "evaluated": 15200,
+      "durationMs": 685,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-F_008",
+      "sourceSha256": "a8ee71b156769f83dc4b5d003899590f19bcf6e4628c186f7850d173eb2c8759",
+      "inferredSites": [],
+      "proposedSizes": [],
+      "requestedSites": [
+        16,
+        26,
+        36,
+        46
+      ],
+      "proposedSites": [],
+      "deferred": [
+        {
+          "tooth": 16,
+          "reason": "주요 구조·인접 치아·식립체 간 이격 조건을 충족하지 못했습니다."
+        },
+        {
+          "tooth": 26,
+          "reason": "주요 구조·인접 치아·식립체 간 이격 조건을 충족하지 못했습니다."
+        },
+        {
+          "tooth": 46,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 36,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        }
+      ],
+      "evaluated": 9600,
+      "durationMs": 584,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-F_009",
+      "sourceSha256": "68c1d09a3ff81458a34ab3a958cf08b258ce023d952512940571999f426585ad",
+      "inferredSites": [],
+      "proposedSizes": [],
+      "requestedSites": [
+        16,
+        26,
+        36,
+        46
+      ],
+      "proposedSites": [],
+      "deferred": [
+        {
+          "tooth": 16,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 26,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 46,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 36,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        }
+      ],
+      "evaluated": 9600,
+      "durationMs": 633,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-F_010",
+      "sourceSha256": "47a1669b96cb62ab835f8ff228c4d0b88281bb7af6e21878cdc7698db117de4f",
+      "inferredSites": [],
+      "proposedSizes": [
+        {
+          "tooth": 46,
+          "diameter": 5,
+          "sizing": {
+            "category": "대구치",
+            "estimated": false,
+            "widthMm": 9.84066334447911,
+            "thicknessMm": 10.104399095597746,
+            "targetDiameter": 6,
+            "candidates": [
+              4,
+              4.2,
+              4.5,
+              5,
+              5.5,
+              6
+            ]
+          }
+        },
+        {
+          "tooth": 36,
+          "diameter": 6,
+          "sizing": {
+            "category": "대구치",
+            "estimated": false,
+            "widthMm": 9.555441210953791,
+            "thicknessMm": 9.998113234588946,
+            "targetDiameter": 6,
+            "candidates": [
+              4,
+              4.2,
+              4.5,
+              5,
+              5.5,
+              6
+            ]
+          }
+        }
+      ],
+      "requestedSites": [
+        16,
+        26,
+        36,
+        46
+      ],
+      "proposedSites": [
+        36,
+        46
+      ],
+      "deferred": [
+        {
+          "tooth": 16,
+          "reason": "주요 구조·인접 치아·식립체 간 이격 조건을 충족하지 못했습니다."
+        },
+        {
+          "tooth": 26,
+          "reason": "주요 구조·인접 치아·식립체 간 이격 조건을 충족하지 못했습니다."
+        }
+      ],
+      "evaluated": 9600,
+      "durationMs": 648,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-F_026",
+      "sourceSha256": "10ef9567fef82ab4caf96748c5c7f824f9ecabb275831c16a568df5d090554b9",
+      "inferredSites": [],
+      "proposedSizes": [
+        {
+          "tooth": 46,
+          "diameter": 6,
+          "sizing": {
+            "category": "대구치",
+            "estimated": false,
+            "widthMm": 10.246241826190897,
+            "thicknessMm": 9.639804293832972,
+            "targetDiameter": 6,
+            "candidates": [
+              4,
+              4.2,
+              4.5,
+              5,
+              5.5,
+              6
+            ]
+          }
+        },
+        {
+          "tooth": 36,
+          "diameter": 6,
+          "sizing": {
+            "category": "대구치",
+            "estimated": false,
+            "widthMm": 10.173766157479736,
+            "thicknessMm": 9.466795372499213,
+            "targetDiameter": 6,
+            "candidates": [
+              4,
+              4.2,
+              4.5,
+              5,
+              5.5,
+              6
+            ]
+          }
+        }
+      ],
+      "requestedSites": [
+        16,
+        26,
+        36,
+        46
+      ],
+      "proposedSites": [
+        36,
+        46
+      ],
+      "deferred": [
+        {
+          "tooth": 16,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 26,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        }
+      ],
+      "evaluated": 9600,
+      "durationMs": 575,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-P_001",
+      "sourceSha256": "9312a1f87c56aefe4d3167a57e07a66974303b621069db73bfe3c67c68a5a4c4",
+      "inferredSites": [
+        {
+          "tooth": 11,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            16,
+            17,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 3.2846053434089875,
+          "planningEligible": false
+        },
+        {
+          "tooth": 12,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            16,
+            17,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 3.2846053434089875,
+          "planningEligible": false
+        },
+        {
+          "tooth": 13,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            16,
+            17,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 3.2846053434089875,
+          "planningEligible": false
+        },
+        {
+          "tooth": 18,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            16,
+            17,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 3.2846053434089875,
+          "planningEligible": false
+        },
+        {
+          "tooth": 21,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            16,
+            17,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 3.2846053434089875,
+          "planningEligible": false
+        },
+        {
+          "tooth": 22,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            16,
+            17,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 3.2846053434089875,
+          "planningEligible": false
+        },
+        {
+          "tooth": 28,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            16,
+            17,
+            25,
+            26,
+            27
+          ],
+          "residualMm": 3.2846053434089875,
+          "planningEligible": false
+        }
+      ],
+      "proposedSizes": [
+        {
+          "tooth": 46,
+          "diameter": 6,
+          "sizing": {
+            "category": "대구치",
+            "estimated": false,
+            "widthMm": 9.331720805790427,
+            "thicknessMm": 8.828852858911652,
+            "targetDiameter": 6,
+            "candidates": [
+              4,
+              4.2,
+              4.5,
+              5,
+              5.5,
+              6
+            ]
+          }
+        }
+      ],
+      "requestedSites": [
+        36,
+        46
+      ],
+      "proposedSites": [
+        46
+      ],
+      "deferred": [
+        {
+          "tooth": 13,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 12,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 11,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 21,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 22,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 36,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        }
+      ],
+      "evaluated": 4800,
+      "durationMs": 334,
+      "sourceUnchanged": true
+    },
+    {
+      "id": "tf3-S_0000",
+      "sourceSha256": "49b02973a1a78c4eab081840dc0125b538c9ece26a1e53ac91d98c2e77babb44",
+      "inferredSites": [
+        {
+          "tooth": 31,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 32,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 33,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 34,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 35,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 36,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 37,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 38,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 41,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 42,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 44,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 45,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 46,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        },
+        {
+          "tooth": 47,
+          "method": "retained-teeth-reference-fit",
+          "supportTeeth": [
+            43,
+            48
+          ],
+          "residualMm": 14.747297182857539,
+          "planningEligible": false
+        }
+      ],
+      "proposedSizes": [],
+      "requestedSites": [
+        43,
+        48
+      ],
+      "proposedSites": [],
+      "deferred": [
+        {
+          "tooth": 17,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 16,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 15,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 14,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 13,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 12,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 11,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 21,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 22,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 23,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 24,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 25,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 26,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 27,
+          "reason": "해당 치아의 분할 모델이 없습니다."
+        },
+        {
+          "tooth": 48,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 47,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 46,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 45,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 44,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 43,
+          "reason": "골 지지 표면 조건을 충족하는 초안을 찾지 못했습니다."
+        },
+        {
+          "tooth": 42,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 41,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 31,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 32,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 33,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 34,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 35,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 36,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        },
+        {
+          "tooth": 37,
+          "reason": "가상 치열 추정 근거 부족 · 위치 미리보기만 가능"
+        }
+      ],
+      "evaluated": 4000,
+      "durationMs": 247,
+      "sourceUnchanged": true
+    }
+  ]
+}

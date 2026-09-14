@@ -6,7 +6,11 @@ import {
 import { renderGuideStage } from './guide-sequence-display';
 import { GUIDE_SLEEVE_HEIGHT, type GuideSettings } from './anatomical-guide';
 import * as THREE from 'three';
-import { buildAbutment, buildReferenceCrown } from './prosthetic-display';
+import {
+  buildRestorationConnector,
+  restorationPose,
+  buildReferenceCrown,
+} from './prosthetic-display';
 import {
   implantPose,
   buildImplant,
@@ -70,12 +74,14 @@ export function renderTreatmentPhase(
     if (active && frame.phase.kind === 'placement')
       fixture.position.addScaledVector(pose.direction, -(1 - frame.local) * 15);
     group.add(tag(fixture, p.tooth));
+    const targetPart = parts.find(
+      (part) => part.group === 'tooth' && part.fdi === p.tooth,
+    );
+    const targetPose = targetPart?.axes ? restorationPose(targetPart) : pose;
     const ease = THREE.MathUtils.smoothstep(frame.local, 0, 1);
     const attaching = active && frame.phase.kind === 'abutment';
     if (state.abutment || attaching) {
-      const abutment = buildAbutment(p.diameter);
-      abutment.position.copy(pose.point);
-      abutment.quaternion.copy(pose.quaternion);
+      const abutment = buildRestorationConnector(p.diameter, pose, targetPose);
       if (attaching)
         abutment.position.addScaledVector(pose.direction, -(1 - ease) * 10);
       group.add(tag(abutment, p.tooth));
@@ -96,8 +102,8 @@ export function renderTreatmentPhase(
           frame.phase.kind === 'occlusion',
           frame.local,
         );
-        crown.position.copy(pose.point);
-        crown.quaternion.copy(pose.quaternion);
+        crown.position.copy(targetPose.anchor);
+        crown.quaternion.copy(targetPose.quaternion);
         if (seating)
           crown.position.addScaledVector(pose.direction, -(1 - ease) * 12);
         group.add(tag(crown, p.tooth));

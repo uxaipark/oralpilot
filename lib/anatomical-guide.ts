@@ -266,6 +266,7 @@ export function buildAnatomicalGuides(
           }
           group.add(mount);
         } else if (
+          !part.inferred &&
           examTooth(chart, fdi)?.status === 'present' &&
           !excludedSupports.includes(fdi)
         ) {

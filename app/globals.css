@@ -3666,3 +3666,80 @@ html:not([lang='ko']) .top-menu button {
   .topbar .language-selector .app-dropdown { min-width: 82px; }
   .topbar .top-menu-trigger { padding: 0 6px; gap: 4px; }
 }
+
+/* Compact desktop application menubar. */
+.topbar { height: 26px; min-height: 26px; padding: 0 12px; gap: 8px; }
+.topbar .top-menu { gap: 0; }
+.topbar .top-menu-trigger { min-height: 22px; height: 22px; padding: 0 9px; gap: 4px; font-size: 12px; border: 0; border-radius: 3px; background: transparent; color: #c8d3d9; }
+.topbar .top-menu-trigger > svg { display: none; }
+.topbar .top-menu-trigger:hover, .topbar .top-menu-trigger[data-popup-open] { background: #33414a; color: #f0f5f6; }
+.topbar .breadcrumb, .topbar .breadcrumb strong { font-size: 11px; }
+.topbar .language-selector { gap: 4px; }
+.topbar .language-selector > svg { width: 12px; height: 12px; }
+.topbar .language-selector .app-dropdown { height: 22px; min-height: 22px; min-width: 80px; padding: 0 6px; font-size: 11px; border-radius: 3px; background: transparent; }
+.studio-top-menu { padding: 3px; border-radius: 5px; min-width: 200px; }
+.studio-top-menu [data-slot='dropdown-menu-item'] { min-height: 26px; padding: 5px 9px; gap: 8px; font-size: 12px; border-radius: 3px; }
+.studio-top-menu [data-slot='dropdown-menu-item'] > svg { width: 14px; height: 14px; }
+.studio-top-menu [data-slot='dropdown-menu-separator'] { margin: 3px 5px; }
+.studio-demo-menu { min-width: 250px; }
+.studio-demo-menu small { margin-top: 2px; font-size: 11px; line-height: 1.35; }
+.perio-mode .topbar .top-menu-trigger { color: #36536f; background: transparent; }
+.perio-mode .topbar .top-menu-trigger:hover, .perio-mode .topbar .top-menu-trigger[data-popup-open] { background: #dce9f7; color: #175b99; }
+@media (max-width: 640px) { .topbar { height: 26px; padding: 0 8px; } .topbar .top-menu-trigger { padding: 0 8px; } }
+
+.auto-implant-panel { background: #1c302a; border-bottom-color: #3b5d50; }
+.auto-implant-panel .section-title { margin-top: 0; color: #b9ead7; }
+.auto-implant-panel .section-title > span { display: flex; align-items: center; gap: 7px; line-height: 1.5; }
+.auto-plan-method { font-size: 11px; color: #96b2a6; margin: -3px 0 10px; }
+.auto-plan-progress { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: #a5c6b7; font-size: 12px; }
+.auto-plan-progress progress { min-width: 0; flex: 1; height: 5px; accent-color: #9ce3c8; }
+.auto-plan-result { margin-top: 14px; font-size: 12px; line-height: 1.7; }
+.auto-plan-result output { display: block; color: #b9ead7; font-size: 14px; font-weight: 500; }
+.auto-plan-result > p { color: #9fb7ab; margin: 6px 0; }
+.auto-plan-result .text-button { display: inline-flex; align-items: center; gap: 5px; }
+.auto-implant-panel details { margin-top: 12px; font-size: 12px; line-height: 1.7; }
+.auto-implant-panel summary { cursor: pointer; color: #c4dacf; }
+.auto-plan-site { padding: 10px 0; border-top: 1px solid #365144; }
+.auto-plan-site:first-of-type { margin-top: 8px; }
+.auto-plan-site strong { color: #d9e7df; }
+.auto-plan-site p { margin: 3px 0; color: #baccc1; }
+.auto-plan-site small { display: block; color: #d1b28b; font-size: 11px; line-height: 1.6; }
+.auto-plan-method-details p { color: #afc2b7; margin: 8px 0; }
+.auto-plan-method-details a { display: block; margin-top: 7px; font-size: 12px; }
+.virtual-dentition-legend { position:absolute; left:12px; bottom:12px; z-index:2; border:1px solid #8bceda50; background:#193642df; color:#def9ff; padding:4px 8px; border-radius:5px; font-size:10px; pointer-events:none; }
+
+/* Procedure time and calendar time share the surgical playhead. */
+.sequence-time-visual { display:grid; grid-template-columns:110px 108px minmax(0,1fr); align-items:center; gap:22px; padding:20px 22px; margin:0 0 15px; border:1px solid #3c514f; border-radius:10px; background:radial-gradient(ellipse at 15% 0%,#243d3b 0%,#1b292f 65%); }
+.sequence-clock { text-align:center; }
+.sequence-clock svg { display:block; width:108px; filter:drop-shadow(0 6px 8px #0003); }
+.clock-rim { fill:#263c3e; stroke:#70998d; stroke-width:.8; }
+.clock-face { fill:#16272c; stroke:#324e50; stroke-width:1; }
+.clock-major { stroke:#91b8af; stroke-width:1.3; }
+.clock-minor { stroke:#4b6969; stroke-width:.65; }
+.sequence-clock text { fill:#9bbab2; font-size:9px; text-anchor:middle; font-family:inherit; }
+.clock-hand { transform-origin:60px 60px; }
+.clock-hour { stroke:#e2eee7; stroke-width:3.6; stroke-linecap:round; }
+.clock-minute { stroke:#87d8b9; stroke-width:2; stroke-linecap:round; }
+.clock-pin { fill:#d4f4e5; stroke:#336452; stroke-width:1; }
+.sequence-clock small { display:block; margin-top:6px; font-size:10px; color:#87a39b; }
+.sequence-clock strong { display:block; font-size:12px; font-weight:500; color:#c5ded3; font-variant-numeric:tabular-nums; }
+.sequence-calendar { position:relative; height:132px; perspective:500px; isolation:isolate; }
+.calendar-sheet { position:absolute; inset:8px 0 20px; border-radius:5px 5px 7px 7px; background:linear-gradient(135deg,#f4f3e9,#dedfd5); color:#253b35; text-align:center; box-shadow:0 3px 0 #b4bcb0,0 5px 0 #8a9b8c,0 10px 20px #0003; overflow:hidden; }
+.calendar-sheet > span { display:block; padding:8px 3px 4px; background:#668e7e; color:#f2faf4; font-size:9px; letter-spacing:.08em; }
+.calendar-sheet > strong { display:block; margin-top:5px; font-size:38px; line-height:1.2; letter-spacing:-.06em; font-weight:500; font-variant-numeric:tabular-nums; }
+.calendar-sheet > small { font-size:9px; letter-spacing:.17em; color:#658070; }
+.calendar-front { transform-origin:center 8px; transform:translateY(calc(var(--tear)*-16px)) rotateX(calc(var(--tear)*-115deg)) rotateZ(calc(var(--tear)*-7deg)); opacity:calc(1 - var(--tear)*.8); backface-visibility:hidden; z-index:2; }
+.calendar-front:after { content:''; position:absolute; inset:0; background:linear-gradient(0deg,#233d3a40,transparent); opacity:var(--tear); pointer-events:none; }
+.calendar-binding { position:absolute; top:2px; width:5px; height:16px; background:linear-gradient(90deg,#6d8b7f,#c4d5c9,#496155); border-radius:5px; z-index:3; box-shadow:0 1px 2px #0008; }
+.calendar-binding.left { left:22px; }.calendar-binding.right { right:22px; }
+.calendar-foot { position:absolute; bottom:0; width:100%; color:#b4c9bd; text-align:center; font-size:11px; font-variant-numeric:tabular-nums; }
+.sequence-time-caption { min-width:0; }.sequence-time-caption > strong { display:block; font-size:18px; color:#d6e8dd; font-weight:500; margin:6px 0; }
+.time-state { display:flex; align-items:center; gap:6px; font-size:11px; color:#a1c6b8; }.time-state > i { width:5px; height:5px; background:#739a8b; border-radius:50%; }.is-playing .time-state > i { background:#a7e6c8; box-shadow:0 0 8px #8fdfb866; }.time-state b { margin-left:auto; font-weight:400; color:#759187; }
+.sequence-time-caption > p { margin:5px 0 0; color:#819a91; font-size:10px; }.timing-sources { margin-top:7px; color:#a2b9ae; font-size:11px; }.timing-sources summary { cursor:pointer; }.timing-sources p { line-height:1.6; }.timing-sources a { display:block; margin:6px 0; color:#abd7c5; }
+.phase-duration { display:flex; flex-direction:column; gap:3px; font-size:11px; font-variant-numeric:tabular-nums; color:#afd7c5; margin-top:8px; }.phase-duration i { font-size:9px; color:#8da498; font-style:normal; }.phase-strip button { display:flex; flex-direction:column; }.phase-strip button .phase-duration { margin-top:auto; padding-top:10px; }
+.proposal-estimate-metrics { display:grid!important; grid-template-columns:1.25fr 1fr .8fr; gap:10px; padding:12px 0; border-block:1px solid #52645666; margin:10px 0; }.proposal-estimate-metrics > span { min-width:0; }.proposal-estimate-metrics small { display:block; color:#a1b6a9; font-size:10px; margin:0 0 5px; }.proposal-estimate-metrics b { display:block; font-size:13px; font-weight:500; color:#e0eee3; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.proposal-estimate-breakdown { margin-bottom:22px; }.proposal-estimate-breakdown .proposal-estimate-metrics b { font-size:17px; }.estimate-cost-rows > div { display:flex; justify-content:space-between; gap:15px; padding:8px 0; border-bottom:1px solid #40514966; font-size:12px; color:#b7cabc; }.estimate-cost-rows strong { font-weight:500; white-space:nowrap; }.proposal-estimate-breakdown details { font-size:12px; margin-top:12px; }.proposal-estimate-breakdown li { padding:4px 0; }.proposal-estimate-breakdown li b { font-weight:500; margin-left:8px; }
+.estimate-fee-settings { padding:10px 0; font-size:11px; color:#b3c3b7; }.estimate-fee-settings summary { cursor:pointer; }.estimate-fee-settings p { line-height:1.6; color:#94a99a; }.estimate-fee-settings label { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:8px 0; }.estimate-fee-settings input { width:105px; min-width:0; padding:6px; border:1px solid #4c6356; background:#1a2b23; color:#d5e8d9; border-radius:4px; font-size:12px; }.estimate-fee-settings a { display:block; margin-top:10px; color:#a7d5b9; }
+@media(max-width:700px){.sequence-time-visual { grid-template-columns:98px 96px minmax(0,1fr); gap:14px; padding:16px; }.sequence-clock svg { width:96px; }.sequence-time-caption > strong{font-size:15px;}}
+@media(max-width:470px){.sequence-time-visual{grid-template-columns:100px 100px;justify-content:center;}.sequence-time-caption{grid-column:1/-1;}.proposal-estimate-metrics{grid-template-columns:1fr 1fr;}.proposal-estimate-breakdown .proposal-estimate-metrics b{font-size:14px;}}
+@media(prefers-reduced-motion:reduce){.clock-hand{transition:none!important;}.calendar-front{transform:none;opacity:1;}.calendar-front:after{display:none;}}

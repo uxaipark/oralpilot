@@ -125,3 +125,79 @@ export function buildReferenceCrown(
   };
   return mesh;
 }
+
+/** The restoration target stays on the estimated arch, independent of the fixture's drilling pose. */
+export function restorationPose(part: Part) {
+  return implantPose(
+    {
+      ...initialImplant,
+      tooth: part.fdi!,
+      angle: 0,
+      tilt: 0,
+      x: 0,
+      z: 0,
+      depth: 0,
+    },
+    [part],
+  );
+}
+export function buildRestorationPreview(
+  source: THREE.BufferGeometry,
+  part: Part,
+  selected: boolean,
+  opacity: number,
+) {
+  const pose = restorationPose(part);
+  const crown = buildReferenceCrown(
+    source,
+    part,
+    opacity * (selected ? 0.42 : 0.22),
+    false,
+    0,
+  );
+  crown.position.copy(pose.anchor);
+  crown.quaternion.copy(pose.quaternion);
+  const material = crown.material as THREE.MeshPhysicalMaterial;
+  material.color.set(selected ? '#74c7ff' : '#a7dfe6');
+  material.emissive.set('#2d7484');
+  material.emissiveIntensity = 0.22;
+  crown.userData = {
+    ...crown.userData,
+    group: 'extraction-site',
+    fdi: part.fdi,
+    jaw: part.jaw,
+    virtualRestoration: true,
+  };
+  return crown;
+}
+/** Visual connection between fixture and the independently planned crown, not manufacturing geometry. */
+export function buildRestorationConnector(
+  diameter: number,
+  fixture: ReturnType<typeof implantPose>,
+  crown: ReturnType<typeof implantPose>,
+) {
+  const start = fixture.point,
+    end = crown.anchor.clone().addScaledVector(crown.up, 2.8);
+  const delta = end.clone().sub(start),
+    length = delta.length();
+  const mesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(
+      diameter * 0.26,
+      diameter * 0.43,
+      Math.max(0.1, length),
+      32,
+    ),
+    new THREE.MeshPhysicalMaterial({
+      color: '#c8d5dc',
+      metalness: 0.8,
+      roughness: 0.25,
+    }),
+  );
+  mesh.position.copy(start).add(end).multiplyScalar(0.5);
+  mesh.quaternion.setFromUnitVectors(
+    new THREE.Vector3(0, 1, 0),
+    length > 0.001 ? delta.normalize() : crown.up,
+  );
+  mesh.userData = { component: 'abutment', displayOnly: true };
+  return mesh;
+}

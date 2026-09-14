@@ -1,3 +1,6 @@
+import './sequence-timing.test';
+import './virtual-dentition.test';
+import './auto-implant-plan.test';
 import './osteotomy.test';
 import './demo-playback.test';
 import './default-demo.test';

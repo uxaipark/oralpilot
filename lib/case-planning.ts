@@ -248,23 +248,25 @@ export function caseCapabilities(parts: Part[], units = 'mm') {
       jaw = n < 30 ? 'maxilla' : 'mandible';
     sites[n] = !tooth
       ? unavailable('해당 치아의 분할 모델이 없습니다.')
-      : units !== 'mm'
-        ? unavailable('실제 길이 단위가 확인되지 않았습니다.')
-        : !tooth.axes || !tooth.implantAnchor
-          ? unavailable('치아 축을 안정적으로 계산할 수 없습니다.')
-          : !parts.some((p) => p.group === 'bone' && p.jaw === jaw)
-            ? unavailable('해당 악궁의 턱뼈 분할이 없습니다.')
-            : !parts.some(
-                  (p) =>
-                    p.group === (n < 30 ? 'sinus' : 'canal') &&
-                    p.jaw === jaw &&
-                    p.label === (n < 20 ? 6 : n < 30 ? 5 : n < 40 ? 3 : 4),
-                )
-              ? unavailable('해당 악궁의 이격 검토 구조가 없습니다.')
-              : available;
+      : tooth.inferred && !tooth.inferred.planningEligible
+        ? unavailable('가상 치열 추정 근거 부족 · 위치 미리보기만 가능')
+        : units !== 'mm'
+          ? unavailable('실제 길이 단위가 확인되지 않았습니다.')
+          : !tooth.axes || !tooth.implantAnchor
+            ? unavailable('치아 축을 안정적으로 계산할 수 없습니다.')
+            : !parts.some((p) => p.group === 'bone' && p.jaw === jaw)
+              ? unavailable('해당 악궁의 턱뼈 분할이 없습니다.')
+              : !parts.some(
+                    (p) =>
+                      p.group === (n < 30 ? 'sinus' : 'canal') &&
+                      p.jaw === jaw &&
+                      p.label === (n < 20 ? 6 : n < 30 ? 5 : n < 40 ? 3 : 4),
+                  )
+                ? unavailable('해당 악궁의 이격 검토 구조가 없습니다.')
+                : available;
   }
   return {
-    perio: teeth.length
+    perio: teeth.some((p) => !p.inferred)
       ? available
       : unavailable('치아 번호가 있는 분할 모델이 없습니다.'),
     planning: Object.values(sites).some((c) => c.enabled)
@@ -284,7 +286,7 @@ export function guideCapability(
   for (const implant of implants) {
     const jaw = implant.tooth < 30 ? 'maxilla' : 'mandible';
     const support = parts.filter(
-      (p) => p.group === 'tooth' && p.axes && p.jaw === jaw,
+      (p) => p.group === 'tooth' && !p.inferred && p.axes && p.jaw === jaw,
     );
     const remaining = support.filter(
       (p) =>
