@@ -3668,15 +3668,15 @@ html:not([lang='ko']) .top-menu button {
 }
 
 /* Compact desktop application menubar. */
-.topbar { height: 26px; min-height: 26px; padding: 0 12px; gap: 8px; }
+.topbar { height: 39px; min-height: 39px; padding: 0 12px; gap: 8px; }
 .topbar .top-menu { gap: 0; }
-.topbar .top-menu-trigger { min-height: 22px; height: 22px; padding: 0 9px; gap: 4px; font-size: 12px; border: 0; border-radius: 3px; background: transparent; color: #c8d3d9; }
+.topbar .top-menu-trigger { min-height: 33px; height: 33px; padding: 0 9px; gap: 4px; font-size: 12px; border: 0; border-radius: 3px; background: transparent; color: #c8d3d9; }
 .topbar .top-menu-trigger > svg { display: none; }
 .topbar .top-menu-trigger:hover, .topbar .top-menu-trigger[data-popup-open] { background: #33414a; color: #f0f5f6; }
 .topbar .breadcrumb, .topbar .breadcrumb strong { font-size: 11px; }
 .topbar .language-selector { gap: 4px; }
 .topbar .language-selector > svg { width: 12px; height: 12px; }
-.topbar .language-selector .app-dropdown { height: 22px; min-height: 22px; min-width: 80px; padding: 0 6px; font-size: 11px; border-radius: 3px; background: transparent; }
+.topbar .language-selector .app-dropdown { height: 33px; min-height: 33px; min-width: 80px; padding: 0 6px; font-size: 11px; border-radius: 3px; background: transparent; }
 .studio-top-menu { padding: 3px; border-radius: 5px; min-width: 200px; }
 .studio-top-menu [data-slot='dropdown-menu-item'] { min-height: 26px; padding: 5px 9px; gap: 8px; font-size: 12px; border-radius: 3px; }
 .studio-top-menu [data-slot='dropdown-menu-item'] > svg { width: 14px; height: 14px; }
@@ -3685,7 +3685,7 @@ html:not([lang='ko']) .top-menu button {
 .studio-demo-menu small { margin-top: 2px; font-size: 11px; line-height: 1.35; }
 .perio-mode .topbar .top-menu-trigger { color: #36536f; background: transparent; }
 .perio-mode .topbar .top-menu-trigger:hover, .perio-mode .topbar .top-menu-trigger[data-popup-open] { background: #dce9f7; color: #175b99; }
-@media (max-width: 640px) { .topbar { height: 26px; padding: 0 8px; } .topbar .top-menu-trigger { padding: 0 8px; } }
+@media (max-width: 640px) { .topbar { height: 39px; padding: 0 8px; } .topbar .top-menu-trigger { padding: 0 8px; } }
 
 .auto-implant-panel { background: #1c302a; border-bottom-color: #3b5d50; }
 .auto-implant-panel .section-title { margin-top: 0; color: #b9ead7; }
