@@ -1,3 +1,4 @@
+import './demo-playback.test';
 import './default-demo.test';
 import './case-planning.test';
 import './i18n.test';

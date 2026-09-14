@@ -71,6 +71,7 @@ export interface SceneProps {
   external?: THREE.BufferGeometry | null;
   caseVisibility?: CaseVisibility;
   guideOnly?: boolean;
+  autoCamera?: 'orbit' | 'front' | 'surgery';
 }
 export default function Scene(props: SceneProps) {
   const localize = useLocalize();
@@ -232,9 +233,50 @@ export default function Scene(props: SceneProps) {
     ro.observe(container);
     resize();
     let frame = 0;
+    let previousTime = performance.now();
     const animate = () => {
       frame = requestAnimationFrame(animate);
-      controls.update();
+      const now = performance.now(),
+        dt = Math.min(0.05, (now - previousTime) / 1000);
+      previousTime = now;
+      const p = latest.current;
+      controls.autoRotate = p.autoCamera === 'orbit';
+      controls.autoRotateSpeed = 0.75;
+      if (p.autoCamera === 'front' || p.autoCamera === 'surgery') {
+        let target = new THREE.Vector3(0, -5, 0),
+          position = new THREE.Vector3(-102.5, 20, 177.535207);
+        if (p.autoCamera === 'front') position.set(0, 10, 205);
+        const phase =
+          p.autoCamera === 'surgery'
+            ? phaseAt(p.sequencePlan, p.progress)?.phase
+            : null;
+        const tooth = phase?.teeth[0];
+        if (
+          tooth &&
+          p.parts.some(
+            (part) => part.group === 'tooth' && part.fdi === tooth && part.axes,
+          )
+        ) {
+          const implant = p.implants.find((i) => i.tooth === tooth) || {
+            ...initialImplant,
+            tooth,
+          };
+          const pose = implantPose(implant, p.parts);
+          target = pose.point
+            .clone()
+            .addScaledVector(pose.direction, implant.length / 3);
+          position = target
+            .clone()
+            .addScaledVector(pose.out, 75)
+            .addScaledVector(pose.up, 25)
+            .addScaledVector(pose.side, 18);
+        }
+        const blend = 1 - Math.exp(-dt * 2.4);
+        controls.target.lerp(target, blend);
+        camera.position.lerp(position, blend);
+        camera.up.set(0, 1, 0);
+      }
+      controls.update(dt);
       renderer.render(scene, camera);
     };
     animate();

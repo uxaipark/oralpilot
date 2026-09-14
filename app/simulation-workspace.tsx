@@ -22,6 +22,7 @@ import {
   type SequenceSettings,
 } from '@/lib/treatment-sequence';
 type Controls = {
+  controlled?: boolean;
   numbering: Numbering;
   plan: SequencePlan | null;
   confirmed: boolean;
@@ -33,6 +34,7 @@ type Controls = {
   setSpeed: (n: number) => void;
 };
 export function SimulationTimeline({
+  controlled = false,
   numbering,
   plan,
   confirmed,
@@ -74,6 +76,7 @@ export function SimulationTimeline({
           </div>
           <div className="timeline">
             <button
+              disabled={controlled}
               className="play-button"
               aria-label={playing ? '시뮬레이션 일시정지' : '시뮬레이션 재생'}
               onClick={() => {
@@ -84,6 +87,7 @@ export function SimulationTimeline({
               {playing ? <Pause size={20} /> : <Play size={20} />}
             </button>
             <input
+              disabled={controlled}
               aria-label="수술 단계 탐색"
               type="range"
               min="0"
@@ -95,6 +99,7 @@ export function SimulationTimeline({
               }}
             />
             <button
+              disabled={controlled}
               className="outline-button"
               aria-label={`재생 속도 ${speed}배 · 누르면 다음 속도`}
               title="0.5× → 1× → 2× → 4×"
@@ -108,6 +113,7 @@ export function SimulationTimeline({
             </button>
             <button
               className="icon-button"
+              disabled={controlled}
               aria-label="처음부터"
               onClick={() => {
                 setPlaying(false);
@@ -140,6 +146,7 @@ export function SimulationTimeline({
           <div className="phase-strip">
             {plan.phases.map((p, i) => (
               <button
+                disabled={controlled}
                 key={p.id}
                 className={i === frame!.index ? 'active' : ''}
                 onClick={() => {

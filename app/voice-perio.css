@@ -1056,7 +1056,6 @@
 }
 .perio-mode .app-body,
 .perio-mode .topbar,
-.perio-mode .nav-shell,
 .perio-mode .inspector {
   background: #f8fafc;
   color: #253449;
@@ -1315,4 +1314,152 @@
   letter-spacing: 0;
   overflow-wrap: anywhere;
   line-height: 1.35;
+}
+
+/* The examination palette includes navigation and portaled top-menu surfaces. */
+.perio-mode {
+  color-scheme: light;
+  --muted: #e9eef5;
+  --muted-foreground: #596c82;
+  --card: #fff;
+  --card-foreground: #253449;
+  --popover: #fff;
+  --popover-foreground: #253449;
+  --input: #c6d3e2;
+  --ring: #246ab1;
+}
+.perio-mode .nav-shell {
+  background: #f8fafc !important;
+  color: #253449;
+  border-color: #d4deea;
+}
+.perio-mode .brand,
+.perio-mode .profile,
+.perio-mode .app-footer {
+  border-color: #d4deea;
+}
+.perio-mode .brand > div > span,
+.perio-mode .nav-label,
+.perio-mode .workflow-item small,
+.perio-mode .profile small,
+.perio-mode .nav-footer > button,
+.perio-mode .app-footer {
+  color: #5a6d81;
+}
+.perio-mode .profile,
+.perio-mode .workflow-item strong,
+.perio-mode .breadcrumb strong {
+  color: #2d445d;
+}
+.perio-mode .workflow-item > svg {
+  color: #59738d !important;
+}
+.perio-mode .workflow-item:hover {
+  background: #edf3fa;
+}
+.perio-mode .workflow-item[data-active='true'] {
+  background: #e2eefb !important;
+  border-color: #b7d0eb;
+}
+.perio-mode .workflow-item[data-active='true'] strong,
+.perio-mode .workflow-item[data-active='true'] > svg {
+  color: #175b99 !important;
+}
+.perio-mode .workflow-item .step-number {
+  color: #647a90;
+  border-color: #c4d2e1;
+}
+.perio-mode .brand-mark {
+  background: #e2eefb;
+  color: #246ab1;
+  border-radius: 7px;
+}
+.perio-mode .profile > span:first-child {
+  background: #e3edf8;
+  color: #246ab1;
+  border-color: #c5d7e9;
+}
+.perio-mode .online-dot,
+.perio-mode .case-dot:before {
+  background: #43859e;
+}
+.perio-mode .panel-collapse-button,
+.perio-mode .panel-restore-button,
+.perio-mode .top-menu-trigger,
+.perio-mode .language-selector .app-dropdown {
+  color: #36536f;
+  border-color: #c8d5e4;
+  background: #fff;
+}
+.perio-mode .panel-collapse-button:hover,
+.perio-mode .panel-restore-button:hover,
+.perio-mode .top-menu-trigger:hover,
+.perio-mode .top-menu-trigger[data-popup-open] {
+  background: #e4effb;
+  color: #175b99;
+  border-color: #a9c7e5;
+}
+.perio-mode .demo-menu-trigger {
+  background: #e4effb;
+  border-color: #b7d0eb;
+  color: #175b99;
+}
+.perio-mode .top-menu-trigger:focus-visible,
+.perio-mode .panel-collapse-button:focus-visible,
+.perio-mode .panel-restore-button:focus-visible,
+.perio-mode .language-selector .app-dropdown:focus-visible {
+  outline-color: #246ab1;
+}
+.studio-top-menu.studio-perio-menu {
+  color-scheme: light;
+  background: #fff;
+  color: #253e58;
+  border-color: #c4d3e4;
+  box-shadow: 0 12px 32px #233e5f24;
+}
+.studio-top-menu.studio-perio-menu [data-slot='dropdown-menu-item'][data-highlighted],
+.studio-top-menu.studio-perio-menu [data-slot='dropdown-menu-item']:focus {
+  background: #e4effb;
+  color: #175b99;
+}
+.studio-top-menu.studio-perio-menu [data-slot='dropdown-menu-separator'] {
+  background: #d4deea;
+}
+.studio-top-menu.studio-perio-menu small {
+  color: #5a7188;
+}
+.perio-mode .auto-demo-bar {
+  background: #eaf2fc;
+  border-color: #bed3ea;
+  color: #2d445d;
+}
+.perio-mode .auto-demo-bar strong {
+  color: #175b99;
+}
+.perio-mode .auto-demo-count {
+  color: #536d87;
+}
+.perio-mode .auto-demo-bar button {
+  color: #245b8b;
+  border-color: #b7cce2;
+  background: #fff;
+}
+.perio-mode .auto-demo-bar button:hover {
+  background: #dceafb;
+}
+.perio-mode .auto-demo-bar button:focus-visible {
+  outline-color: #246ab1;
+}
+.perio-mode .auto-demo-bar progress {
+  background: #c6d8ec;
+  accent-color: #246ab1;
+}
+.perio-mode .auto-demo-bar progress::-webkit-progress-bar {
+  background: #c6d8ec;
+}
+.perio-mode .auto-demo-bar progress::-webkit-progress-value {
+  background: #246ab1;
+}
+.perio-mode .auto-demo-bar progress::-moz-progress-bar {
+  background: #246ab1;
 }

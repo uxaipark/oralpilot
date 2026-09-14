@@ -5248,5 +5248,150 @@
     "ko": "{0} 치아와 치근",
     "en": "{0} teeth and roots",
     "ja": "{0}の歯と歯根"
+  },
+  "치아와 턱뼈 둘러보기": {
+    "ko": "치아와 턱뼈 둘러보기",
+    "en": "Exploring teeth and jawbones",
+    "ja": "歯と顎骨を見渡す"
+  },
+  "치관과 치근 관찰": {
+    "ko": "치관과 치근 관찰",
+    "en": "Viewing crowns and roots",
+    "ja": "歯冠と歯根を観察"
+  },
+  "하치조관과 치아의 관계": {
+    "ko": "하치조관과 치아의 관계",
+    "en": "Teeth and mandibular canals",
+    "ja": "歯と下顎管の位置関係"
+  },
+  "잇몸 참고 모형 관찰": {
+    "ko": "잇몸 참고 모형 관찰",
+    "en": "Viewing the gingival reference model",
+    "ja": "歯肉の参考モデルを観察"
+  },
+  "상악과 하악 펼쳐보기": {
+    "ko": "상악과 하악 펼쳐보기",
+    "en": "Unfolding both arches",
+    "ja": "上下顎を展開して表示"
+  },
+  "3D 영상 탐색 완료": {
+    "ko": "3D 영상 탐색 완료",
+    "en": "3D exploration complete",
+    "ja": "3D画像探索が完了"
+  },
+  "예시 검사값으로 치주 차트 작성": {
+    "ko": "예시 검사값으로 치주 차트 작성",
+    "en": "Charting example examination values",
+    "ja": "検査値の例で歯周チャートを入力"
+  },
+  "치주낭 깊이 순차 입력": {
+    "ko": "치주낭 깊이 순차 입력",
+    "en": "Entering pocket depths in sequence",
+    "ja": "歯周ポケットの深さを順に入力"
+  },
+  "출혈 표식 입력": {
+    "ko": "출혈 표식 입력",
+    "en": "Recording bleeding markers",
+    "ja": "出血の所見を入力"
+  },
+  "검사값을 3D 모델에서 확인": {
+    "ko": "검사값을 3D 모델에서 확인",
+    "en": "Viewing chart findings in 3D",
+    "ja": "検査値を3Dモデルで確認"
+  },
+  "치주 검사·차트 작성 완료": {
+    "ko": "치주 검사·차트 작성 완료",
+    "en": "Periodontal charting complete",
+    "ja": "歯周検査・チャート入力が完了"
+  },
+  "8개 식립 위치 설계": {
+    "ko": "8개 식립 위치 설계",
+    "en": "Planning eight implant sites",
+    "ja": "8か所の埋入位置を計画"
+  },
+  "치아 축 기준으로 식립 위치 추가": {
+    "ko": "치아 축 기준으로 식립 위치 추가",
+    "en": "Adding sites along tooth axes",
+    "ja": "歯軸を基準に埋入位置を追加"
+  },
+  "상악·하악 식립 계획 확인": {
+    "ko": "상악·하악 식립 계획 확인",
+    "en": "Reviewing implants in both arches",
+    "ja": "上下顎の埋入計画を確認"
+  },
+  "가이드와 지지 구조 검토": {
+    "ko": "가이드와 지지 구조 검토",
+    "en": "Reviewing guide support",
+    "ja": "ガイドと支持構造を確認"
+  },
+  "드릴 구멍과 금속 슬리브 확인": {
+    "ko": "드릴 구멍과 금속 슬리브 확인",
+    "en": "Inspecting drill holes and metal sleeves",
+    "ja": "ドリル孔と金属スリーブを確認"
+  },
+  "수술 계획 비교안 준비": {
+    "ko": "수술 계획 비교안 준비",
+    "en": "Preparing surgical plan options",
+    "ja": "手術計画の比較案を作成"
+  },
+  "가이드·식립·크라운 · 4배속": {
+    "ko": "가이드·식립·크라운 · 4배속",
+    "en": "Guide, placement and crowns · 4×",
+    "ja": "ガイド・埋入・クラウン · 4倍速"
+  },
+  "8개 식립체와 인공 치아 연결 완료": {
+    "ko": "8개 식립체와 인공 치아 연결 완료",
+    "en": "Eight implants and crowns completed",
+    "ja": "8本のインプラントと人工歯の装着が完了"
+  },
+  "자동 데모 · 예시 검사값": {
+    "ko": "자동 데모 · 예시 검사값",
+    "en": "Automatic demo · Example findings",
+    "ja": "自動デモ・検査値の例"
+  },
+  "자동 데모 재생": {
+    "ko": "자동 데모 재생",
+    "en": "Automatic demo playback",
+    "ja": "自動デモの再生"
+  },
+  "자동 데모 완료": {
+    "ko": "자동 데모 완료",
+    "en": "Demo complete",
+    "ja": "自動デモ完了"
+  },
+  "자동 데모": {
+    "ko": "자동 데모",
+    "en": "Automatic demo",
+    "ja": "自動デモ"
+  },
+  "자동 데모 일시정지": {
+    "ko": "자동 데모 일시정지",
+    "en": "Demo paused",
+    "ja": "自動デモ一時停止中"
+  },
+  "데모 진행률": {
+    "ko": "데모 진행률",
+    "en": "Demo progress",
+    "ja": "デモの進行状況"
+  },
+  "다시 재생": {
+    "ko": "다시 재생",
+    "en": "Replay",
+    "ja": "もう一度再生"
+  },
+  "일시정지": {
+    "ko": "일시정지",
+    "en": "Pause",
+    "ja": "一時停止"
+  },
+  "계속 재생": {
+    "ko": "계속 재생",
+    "en": "Resume",
+    "ja": "再開"
+  },
+  "데모 종료": {
+    "ko": "데모 종료",
+    "en": "Exit demo",
+    "ja": "デモを終了"
   }
 }

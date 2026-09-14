@@ -106,13 +106,18 @@ export function useLocalize() {
     [t],
   );
 }
-export function LanguageSelector() {
+export function LanguageSelector({
+  tone = 'dark',
+}: {
+  tone?: 'dark' | 'perio';
+}) {
   const { locale, setLocale } = useI18n();
   const labels = { ko: '화면 언어', en: 'Interface language', ja: '表示言語' };
   return (
     <div className="language-selector" translate="no">
       <Globe2 size={15} aria-hidden="true" />
       <Dropdown
+        tone={tone}
         id="interface-language"
         value={locale}
         onValueChange={(v) => {

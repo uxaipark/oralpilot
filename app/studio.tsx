@@ -1,4 +1,7 @@
 'use client';
+import { useDemoPlayback } from '@/lib/use-demo-playback';
+import { demoStages, demoPerioActions } from '@/lib/demo-playback';
+
 import {
   REFERENCE_ANATOMY,
   planningAnatomyFromGeometry,
@@ -68,6 +71,7 @@ import {
   PanelRightClose,
   PanelRightOpen,
   Play,
+  Square,
   Plus,
   RotateCcw,
   ScanLine,
@@ -244,7 +248,36 @@ export default function Studio() {
   const [cadError, setCadError] = useState('');
   const [caseBrowserOpen, setCaseBrowserOpen] = useState(false);
   const [demoPreview, setDemoPreview] = useState(false);
+  const autoDemo = useDemoPlayback();
   const prepareDemo = useRef(true);
+  const autoSnapshot = useRef<{
+    model: PlanningAnatomy | null;
+    external: THREE.BufferGeometry | null;
+    externalName: string;
+    document: ReturnType<typeof validatePlan>;
+    perioState: ReturnType<typeof createPerioState>;
+    step: string;
+    layers: Layers;
+    view: string;
+    opacity: number;
+    crown: number;
+    root: number;
+    perioOrigin: string;
+    demoPreview: boolean;
+    sequencePlans: SequencePlan[];
+    sequenceId: string;
+    generatedSignature: string;
+    guideOnly: boolean;
+    selected: string;
+    tooth: number;
+    highlightedTeeth: number[];
+    leftOpen: boolean;
+    rightOpen: boolean;
+    smoothTeeth: boolean;
+    neuroXray: boolean;
+    softTissueOpacity: number;
+    faceViewSnapshot: typeof faceViewSnapshot.current;
+  } | null>(null);
   const [demoRevision, setDemoRevision] = useState(0);
   const [caseVisibility, setCaseVisibility] = useState(defaultCaseVisibility);
   const [sequenceDecision, setSequenceDecision] =
@@ -616,7 +649,8 @@ export default function Studio() {
     };
   }, []);
   useEffect(() => {
-    if (!playing || step !== 'simulation' || !activeSequence) return;
+    if (autoDemo.run || !playing || step !== 'simulation' || !activeSequence)
+      return;
     let last = performance.now();
     const t = setInterval(() => {
       const now = performance.now(),
@@ -631,7 +665,7 @@ export default function Studio() {
       });
     }, 80);
     return () => clearInterval(t);
-  }, [playing, speed, step, activeSequence]);
+  }, [playing, speed, step, activeSequence, autoDemo.run]);
   const update = (key: keyof Implant, value: number | null) => {
     setImplants((list) =>
       list.map((p) => (p.id === selected ? { ...p, [key]: value } : p)),
@@ -919,6 +953,7 @@ export default function Studio() {
       }
       if (revision !== caseRevision.current)
         throw Error('다른 케이스가 선택되어 계획 불러오기를 취소했습니다.');
+      if (autoDemo.run) stopAutoDemo(false);
       rememberPlan();
       setDemoPreview(false);
       installAnatomy(model);
@@ -1003,6 +1038,7 @@ export default function Studio() {
     localAutosave.current = exists && !external;
   }, [anatomyId, external, localReady, caseLoading, demoPreview]);
   const toggleBrowserSave = () => {
+    if (autoDemo.run) return;
     try {
       if (localSaved) {
         clearBrowserPlan(window.localStorage, anatomyId);
@@ -1083,6 +1119,7 @@ export default function Studio() {
     }
   }
   const restoreDemo = () => {
+    if (autoDemo.run) stopAutoDemo(false);
     const saved =
       (!external && !demoPreview && anatomyId === REFERENCE_ANATOMY
         ? validatePlan(planDocument)
@@ -1109,6 +1146,36 @@ export default function Studio() {
     notify('공개 해부학 모델과 데모 계획으로 돌아왔습니다.');
   };
   const openDefaultDemo = (start: 'anatomy' | 'perio' | 'planning') => {
+    if (!referenceData.current || !localReady) return;
+    if (!autoSnapshot.current)
+      autoSnapshot.current = {
+        model: clinicalCase,
+        external: external?.clone() || null,
+        externalName,
+        document: validatePlan(planDocument),
+        perioState,
+        step,
+        layers,
+        view,
+        opacity,
+        crown: crownOpacity,
+        root: rootOpacity,
+        perioOrigin,
+        demoPreview,
+        sequencePlans,
+        sequenceId,
+        generatedSignature,
+        guideOnly,
+        selected,
+        tooth,
+        highlightedTeeth,
+        leftOpen,
+        rightOpen,
+        smoothTeeth,
+        neuroXray,
+        softTissueOpacity,
+        faceViewSnapshot: faceViewSnapshot.current,
+      };
     rememberPlan();
     installAnatomy(null);
     setLayers({
@@ -1147,6 +1214,14 @@ export default function Studio() {
       }),
       '모델 기반 치아 상태 · 검사값 직접 입력',
     );
+    perioDispatch({
+      type: 'hydrate',
+      payload: {
+        ...createPerioState({}),
+        chart: chartFromAnatomy(anatomyManifest.parts),
+        meta: { ...createPerioState({}).meta, numbering },
+      },
+    });
     setDemoPreview(true);
     localAutosave.current = false;
     setLocalSaved(false);
@@ -1154,6 +1229,15 @@ export default function Studio() {
     prepareDemo.current = true;
     setDemoRevision((n) => n + 1);
     setStep(start);
+    const data = referenceData.current;
+    const proposals = buildSequencePlans(
+      createDefaultDemoImplants(),
+      defaultSequenceSettings,
+      chartFromAnatomy(data.parts),
+      data.parts,
+      data.buffer,
+    );
+    autoDemo.start(start, demoStages(start, proposals[0].phases.length));
   };
   useEffect(() => {
     if (
@@ -1192,7 +1276,192 @@ export default function Studio() {
     demoPreview,
     demoRevision,
   ]);
+  const stopAutoDemo = (restore = true) => {
+    autoDemo.stop();
+    setPlaying(false);
+    const previous = autoSnapshot.current;
+    autoSnapshot.current = null;
+    if (restore && previous) {
+      installAnatomy(previous.model);
+      applyPlan(previous.document, previous.perioOrigin);
+      perioDispatch({ type: 'hydrate', payload: previous.perioState });
+      setExternal(previous.external);
+      setExternalName(previous.externalName);
+      setLayers(previous.layers);
+      setOpacity(previous.opacity);
+      setCrownOpacity(previous.crown);
+      setRootOpacity(previous.root);
+      setViewState(previous.view);
+      faceViewSnapshot.current = previous.faceViewSnapshot;
+      setSoftTissueOpacity(previous.softTissueOpacity);
+      setStep(previous.step);
+      setDemoPreview(previous.demoPreview);
+      setSequencePlans(previous.sequencePlans);
+      setSequenceId(previous.sequenceId);
+      setGeneratedSignature(previous.generatedSignature);
+      setGuideOnly(previous.guideOnly);
+      setSelected(previous.selected);
+      setTooth(previous.tooth);
+      setHighlightedTeeth(previous.highlightedTeeth);
+      setLeftOpen(previous.leftOpen);
+      setRightOpen(previous.rightOpen);
+      setSmoothTeeth(previous.smoothTeeth);
+      setNeuroXray(previous.neuroXray);
+      perioDispatch({
+        type: 'setCursor',
+        at: previous.perioState.cursor,
+        row: previous.perioState.cursor.row,
+      });
+    } else previous?.external?.dispose();
+  };
+  const appliedAutoStage = useRef('');
+  useEffect(() => {
+    const frame = autoDemo.frame,
+      run = autoDemo.run;
+    if (!frame || !run) return;
+    const key = `${run.id}:${frame.index}`;
+    if (appliedAutoStage.current === key) return;
+    appliedAutoStage.current = key;
+    const { stage } = frame;
+    const target = stage.tooth;
+    if (stage.id === 'anatomy-orbit') setStep('anatomy');
+    if (stage.id === 'anatomy-roots') {
+      setCrownOpacity(30);
+      setRootOpacity(80);
+      setOpacity(15);
+    }
+    if (stage.id === 'anatomy-canals') {
+      setLayers((l) => ({ ...l, bone: false, canal: true, corridor: true }));
+      setCrownOpacity(65);
+    }
+    if (stage.id === 'anatomy-gingiva') {
+      setLayers((l) => ({
+        ...l,
+        gingiva: true,
+        bone: false,
+        canal: false,
+        corridor: false,
+      }));
+      setCrownOpacity(100);
+      setRootOpacity(100);
+    }
+    if (stage.id === 'anatomy-unfold') setView('unfolded');
+    if (stage.id === 'anatomy-finish') {
+      setView('perspective');
+      setLayers((l) => ({
+        ...l,
+        gingiva: false,
+        bone: true,
+        canal: true,
+        corridor: true,
+      }));
+      setOpacity(32);
+    }
+    if (stage.id === 'perio-intro') {
+      setStep('perio');
+      setPerioOrigin('자동 데모 · 예시 검사값');
+    }
+    for (const action of demoPerioActions(stage)) perioDispatch(action);
+    if (stage.id === 'perio-model') {
+      setStep('anatomy');
+      setHighlightedTeeth([16, 26, 36, 46]);
+      setLayers((l) => ({
+        ...l,
+        bone: false,
+        gingiva: true,
+        canal: false,
+        corridor: false,
+      }));
+    }
+    if (stage.id === 'planning-intro') {
+      setImplants([]);
+      setSelected('');
+      setHighlightedTeeth([]);
+      setStep('planning');
+      prepareDemo.current = false;
+    }
+    if (stage.id.startsWith('planning-') && target) {
+      const p = createDefaultDemoImplants().find((p) => p.tooth === target)!;
+      setTooth(target);
+      setSelected(p.id);
+      setHighlightedTeeth([target]);
+      setImplants((list) =>
+        list.some((i) => i.tooth === target) ? list : [...list, p],
+      );
+      setView('focus');
+      setReset((n) => n + 1);
+    }
+    if (stage.id === 'planning-overview') {
+      setView('perspective');
+      setHighlightedTeeth([]);
+    }
+    if (stage.id === 'guide-anatomy') {
+      setStep('guide');
+      setGuideOnly(false);
+      setView('perspective');
+    }
+    if (stage.id === 'guide-only') {
+      setGuideOnly(true);
+      setReset((n) => n + 1);
+    }
+    if (stage.id === 'surgery-plans') {
+      const plans = buildSequencePlans(
+        implants,
+        sequenceSettings,
+        perioState.chart,
+        parts,
+        buffer!,
+      );
+      setSequencePlans(plans);
+      setSequenceId(plans[0].id);
+      setGeneratedSignature(currentSignature);
+      setGuideOnly(false);
+      setStep('simulation');
+      setView('perspective');
+      setProgress(0);
+      setSpeed(4);
+    }
+    if (stage.id === 'surgery-play') {
+      setStep('simulation');
+      setProgress(0);
+      setSpeed(4);
+    }
+    if (stage.id === 'planning-finish') {
+      setProgress(1);
+      setView('perspective');
+      setHighlightedTeeth([]);
+    }
+  }, [
+    autoDemo.run,
+    autoDemo.frame,
+    sequenceSettings,
+    perioState.chart,
+    buffer,
+    currentSignature,
+    parts,
+    setView,
+    implants,
+  ]);
+  useEffect(() => {
+    if (autoDemo.frame?.stage.id !== 'surgery-play' || !activeSequence) return;
+    const next = autoDemo.frame.local;
+    setProgress(next);
+    const frame = phaseAt(activeSequence, next),
+      n = frame?.phase.teeth[0];
+    if (n && hasToothAxis(n)) {
+      setTooth(n);
+      setSelected(implants.find((p) => p.tooth === n)?.id || '');
+    }
+  }, [
+    autoDemo.frame?.stage.id,
+    autoDemo.frame?.local,
+    activeSequence,
+    hasToothAxis,
+    implants,
+  ]);
+  useEffect(() => () => autoSnapshot.current?.external?.dispose(), []);
   const acceptGeometry = (g: THREE.BufferGeometry, name: string) => {
+    if (autoDemo.run) stopAutoDemo(false);
     const model = planningAnatomyFromGeometry(g);
     const nextPlan = model ? casePlanFor(model) : null;
     rememberPlan();
@@ -1222,6 +1491,20 @@ export default function Studio() {
   }, [locale]);
   return localize(
     <SidebarProvider
+      onPointerDownCapture={(e) => {
+        if (
+          autoDemo.running &&
+          !(e.target as HTMLElement).closest('[data-demo-controls]')
+        )
+          autoDemo.pause();
+      }}
+      onKeyDownCapture={(e) => {
+        if (
+          autoDemo.running &&
+          !(e.target as HTMLElement).closest('[data-demo-controls]')
+        )
+          autoDemo.pause();
+      }}
       className={`oral-app ${step === 'perio' ? 'perio-mode' : ''} ${leftOpen ? '' : 'left-panel-collapsed'}`}
       open={leftOpen}
       onOpenChange={setLeftOpen}
@@ -1318,12 +1601,14 @@ export default function Studio() {
               <DropdownMenu>
                 <DropdownMenuTrigger
                   className="top-menu-trigger demo-menu-trigger"
-                  disabled={caseLoading || !referenceData.current}
+                  disabled={
+                    caseLoading || !localReady || !referenceData.current
+                  }
                 >
                   <Play size={15} /> 데모 <ChevronDown size={13} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="studio-top-menu studio-demo-menu"
+                  className={`studio-top-menu studio-demo-menu ${step === 'perio' ? 'studio-perio-menu' : ''}`}
                   align="start"
                   sideOffset={8}
                 >
@@ -1350,7 +1635,7 @@ export default function Studio() {
                   <FolderInput size={16} /> 케이스 <ChevronDown size={13} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="studio-top-menu"
+                  className={`studio-top-menu ${step === 'perio' ? 'studio-perio-menu' : ''}`}
                   align="start"
                   sideOffset={8}
                 >
@@ -1370,7 +1655,7 @@ export default function Studio() {
                   <FileText size={16} /> 계획서 <ChevronDown size={13} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="studio-top-menu"
+                  className={`studio-top-menu ${step === 'perio' ? 'studio-perio-menu' : ''}`}
                   align="start"
                   sideOffset={8}
                 >
@@ -1380,7 +1665,9 @@ export default function Studio() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={toggleBrowserSave}
-                    disabled={!localReady || !!external || caseLoading}
+                    disabled={
+                      !localReady || !!external || caseLoading || !!autoDemo.run
+                    }
                     title={localError || undefined}
                   >
                     {localSaved ? <Trash2 size={16} /> : <Save size={16} />}
@@ -1404,9 +1691,52 @@ export default function Studio() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </nav>
-            <LanguageSelector />
+            <LanguageSelector tone={step === 'perio' ? 'perio' : 'dark'} />
           </div>
         </header>
+        {autoDemo.run && (
+          <section
+            className="auto-demo-bar"
+            data-demo-controls
+            aria-label="자동 데모 재생"
+          >
+            <div>
+              <strong>
+                {autoDemo.frame?.complete
+                  ? '자동 데모 완료'
+                  : autoDemo.running
+                    ? '자동 데모'
+                    : '자동 데모 일시정지'}
+              </strong>
+              <span>{autoDemo.frame?.stage.title}</span>
+            </div>
+            <progress
+              aria-label="데모 진행률"
+              value={autoDemo.elapsed}
+              max={autoDemo.total}
+            />
+            <span className="auto-demo-count">
+              {(autoDemo.frame?.index || 0) + 1} / {autoDemo.run.stages.length}
+            </span>
+            {autoDemo.frame?.complete ? (
+              <button onClick={() => openDefaultDemo(autoDemo.run!.kind)}>
+                <RotateCcw size={15} />
+                다시 재생
+              </button>
+            ) : (
+              <button
+                onClick={autoDemo.running ? autoDemo.pause : autoDemo.resume}
+              >
+                {autoDemo.running ? <Pause size={15} /> : <Play size={15} />}{' '}
+                {autoDemo.running ? '일시정지' : '계속 재생'}
+              </button>
+            )}
+            <button onClick={() => stopAutoDemo()}>
+              <Square size={14} />
+              데모 종료
+            </button>
+          </section>
+        )}
         <div className="page-heading compact-heading" aria-busy={caseLoading}>
           <h1>{steps.find((s) => s.id === step)?.name || titles[step]}</h1>
           <p title={external && step !== 'perio' ? externalName : anatomyName}>
@@ -1618,6 +1948,11 @@ export default function Studio() {
                       onSelect={chooseTooth}
                       external={external}
                       caseVisibility={caseVisibility}
+                      autoCamera={
+                        autoDemo.running
+                          ? autoDemo.frame?.stage.camera
+                          : undefined
+                      }
                     />
                     {!buffer && !loadError && (
                       <div className="model-loading">
@@ -1963,9 +2298,14 @@ export default function Studio() {
                         chosenSequence.id === activeSequence?.id
                       }
                       progress={progress}
+                      controlled={!!autoDemo.run}
                       setProgress={setProgress}
-                      playing={playing}
-                      setPlaying={setPlaying}
+                      playing={autoDemo.run ? autoDemo.running : playing}
+                      setPlaying={
+                        autoDemo.run
+                          ? (v) => (v ? autoDemo.resume() : autoDemo.pause())
+                          : setPlaying
+                      }
                       speed={speed}
                       setSpeed={setSpeed}
                     />
