@@ -9,6 +9,7 @@ import {
 } from '../lib/i18n/translate';
 import { localizeNode } from '../lib/i18n/provider';
 import messages from '../lib/i18n/messages.json';
+import reviewed from '../lib/i18n/reviewed.json';
 import { normalise, segments } from '../lib/voice-perio/domain/voice';
 import { runDictation } from '../lib/voice-perio/lib/dictation';
 import { createPerioState } from '../lib/voice-perio/bridge';
@@ -195,4 +196,41 @@ void test('anatomical direction letters, clinical notation and case IDs are inva
     localizeNode(tree, (s) => translate(s, 'ko')),
     tree,
   );
+});
+
+void test('reviewed translations are included in the runtime catalog', () => {
+  for (const key of Object.keys(reviewed))
+    assert.ok(
+      Object.hasOwn(messages, key),
+      `Missing runtime translation: ${key}`,
+    );
+});
+void test('top menu labels and submenu actions translate in all supported languages', () => {
+  const labels = [
+    '데모',
+    '케이스',
+    '계획서',
+    '주 메뉴',
+    '3D 영상 탐색',
+    '치주 검사·차트 작성',
+    '임플란트 수술 설계',
+    '계획 → 가이드 형상 검토 → 수술 시뮬레이션',
+    '케이스 불러오기',
+    '데이터 가져오기',
+    '계획 열기',
+    '계획서 임시공간 삭제',
+    '계획서 임시공간 저장',
+    '계획서 파일저장',
+    '계획서 보기',
+  ];
+  for (const label of labels) {
+    assert.equal(translate(label, 'ko'), label);
+    for (const locale of ['en', 'ja'] as const)
+      assert.ok(
+        !/[가-힣]/.test(translate(label, locale)),
+        `${locale}: ${label}`,
+      );
+  }
+  assert.equal(translate(' 데모 ', 'en'), ' Demo ');
+  assert.equal(translate(' 계획서 ', 'ja'), ' 計画書 ');
 });

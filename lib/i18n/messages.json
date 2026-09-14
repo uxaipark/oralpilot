@@ -6148,5 +6148,145 @@
     "ko": "분석 파일을 실행하지 못했습니다. 페이지를 새로고침한 뒤 다시 시도하세요.",
     "en": "The analysis file could not run. Refresh the page and retry.",
     "ja": "解析ファイルを実行できませんでした。ページを再読み込みしてから再試行してください。"
+  },
+  "해당 치아의 분할 모델이 없습니다.": {
+    "ko": "해당 치아의 분할 모델이 없습니다.",
+    "en": "No segmented model is available for this tooth.",
+    "ja": "この歯の分割モデルがありません。"
+  },
+  "실제 길이 단위가 확인되지 않았습니다.": {
+    "ko": "실제 길이 단위가 확인되지 않았습니다.",
+    "en": "Physical length units have not been verified.",
+    "ja": "実寸の単位を確認できません。"
+  },
+  "치아 축을 안정적으로 계산할 수 없습니다.": {
+    "ko": "치아 축을 안정적으로 계산할 수 없습니다.",
+    "en": "A stable tooth axis could not be calculated.",
+    "ja": "歯軸を安定して算出できません。"
+  },
+  "해당 악궁의 턱뼈 분할이 없습니다.": {
+    "ko": "해당 악궁의 턱뼈 분할이 없습니다.",
+    "en": "Jawbone segmentation is missing for this arch.",
+    "ja": "この歯列弓の顎骨分割がありません。"
+  },
+  "해당 악궁의 이격 검토 구조가 없습니다.": {
+    "ko": "해당 악궁의 이격 검토 구조가 없습니다.",
+    "en": "Clearance reference structures are missing for this arch.",
+    "ja": "この歯列弓の離隔確認に必要な構造がありません。"
+  },
+  "치아 번호가 있는 분할 모델이 없습니다.": {
+    "ko": "치아 번호가 있는 분할 모델이 없습니다.",
+    "en": "No segmentation with tooth identifiers is available.",
+    "ja": "歯番号付きの分割モデルがありません。"
+  },
+  "식립 기준을 계산할 수 있는 치아·턱뼈·이격 검토 구조가 없습니다.": {
+    "ko": "식립 기준을 계산할 수 있는 치아·턱뼈·이격 검토 구조가 없습니다.",
+    "en": "Tooth, jawbone or clearance data needed to calculate placement are missing.",
+    "ja": "埋入基準の算出に必要な歯・顎骨・離隔確認のデータが不足しています。"
+  },
+  "가이드 지지 형상을 계산할 악궁 데이터가 부족합니다.": {
+    "ko": "가이드 지지 형상을 계산할 악궁 데이터가 부족합니다.",
+    "en": "Insufficient arch data to calculate guide support geometry.",
+    "ja": "ガイドの支持形状を算出するための歯列弓データが不足しています。"
+  },
+  "케이스 식별자·원본 검증값·계획 좌표 버전을 확인하세요.": {
+    "ko": "케이스 식별자·원본 검증값·계획 좌표 버전을 확인하세요.",
+    "en": "Check the case identifier, source checksum and planning coordinate version.",
+    "ja": "ケースID、原本のチェックサム、計画座標のバージョンを確認してください。"
+  },
+  "케이스 불러오는 중…": {
+    "ko": "케이스 불러오는 중…",
+    "en": "Loading case…",
+    "ja": "ケースを読み込み中…"
+  },
+  "케이스에 저장된 검사값": {
+    "ko": "케이스에 저장된 검사값",
+    "en": "Examination values saved for this case",
+    "ja": "このケースに保存された検査値"
+  },
+  "계획에 연결된 케이스가 없습니다.": {
+    "ko": "계획에 연결된 케이스가 없습니다.",
+    "en": "The case linked to this plan is unavailable.",
+    "ja": "この計画に紐づくケースがありません。"
+  },
+  "계획 파일과 케이스 원본이 일치하지 않습니다.": {
+    "ko": "계획 파일과 케이스 원본이 일치하지 않습니다.",
+    "en": "The plan does not match the case source.",
+    "ja": "計画ファイルとケースの原本が一致しません。"
+  },
+  "이 케이스에서 계산할 수 없는 식립 위치가 계획에 포함되어 있습니다.": {
+    "ko": "이 케이스에서 계산할 수 없는 식립 위치가 계획에 포함되어 있습니다.",
+    "en": "The plan contains placement sites that cannot be calculated for this case.",
+    "ja": "このケースでは算出できない埋入位置が計画に含まれています。"
+  },
+  "계획서 임시공간을 복원하지 못했습니다. 원본 케이스를 확인하세요.": {
+    "ko": "계획서 임시공간을 복원하지 못했습니다. 원본 케이스를 확인하세요.",
+    "en": "Could not restore the saved plan. Check the source case.",
+    "ja": "一時保存した計画を復元できません。元のケースを確認してください。"
+  },
+  "레퍼런스에 저장된 검사값": {
+    "ko": "레퍼런스에 저장된 검사값",
+    "en": "Examination values saved for the reference",
+    "ja": "レファレンスに保存された検査値"
+  },
+  "공개 환자 케이스 · 계획 작업 공간": {
+    "ko": "공개 환자 케이스 · 계획 작업 공간",
+    "en": "Public patient case · planning workspace",
+    "ja": "公開患者ケース · 計画ワークスペース"
+  },
+  "관 표면 분할": {
+    "ko": "관 표면 분할",
+    "en": "Segmented canal surface",
+    "ja": "管表面の分割"
+  },
+  "분할된 수복물 표면": {
+    "ko": "분할된 수복물 표면",
+    "en": "Segmented restoration surface",
+    "ja": "分割された修復物表面"
+  },
+  "분할된 치주인대 표면": {
+    "ko": "분할된 치주인대 표면",
+    "en": "Segmented periodontal ligament surface",
+    "ja": "分割された歯根膜表面"
+  },
+  "치관과 치근 · {0}개": {
+    "ko": "치관과 치근 · {0}개",
+    "en": "Crowns and roots · {0} teeth",
+    "ja": "歯冠と歯根 · {0}本"
+  },
+  "다른 케이스가 선택되어 계획 불러오기를 취소했습니다.": {
+    "ko": "다른 케이스가 선택되어 계획 불러오기를 취소했습니다.",
+    "en": "Plan loading was cancelled because another case was selected.",
+    "ja": "別のケースが選択されたため、計画の読み込みを中止しました。"
+  },
+  "데모": {
+    "ko": "데모",
+    "en": "Demo",
+    "ja": "デモ"
+  },
+  "계획서": {
+    "ko": "계획서",
+    "en": "Plan",
+    "ja": "計画書"
+  },
+  "주 메뉴": {
+    "ko": "주 메뉴",
+    "en": "Main menu",
+    "ja": "メインメニュー"
+  },
+  "치주 검사·차트 작성": {
+    "ko": "치주 검사·차트 작성",
+    "en": "Periodontal exam & charting",
+    "ja": "歯周検査・チャート入力"
+  },
+  "임플란트 수술 설계": {
+    "ko": "임플란트 수술 설계",
+    "en": "Implant surgery planning",
+    "ja": "インプラント手術設計"
+  },
+  "계획 → 가이드 형상 검토 → 수술 시뮬레이션": {
+    "ko": "계획 → 가이드 형상 검토 → 수술 시뮬레이션",
+    "en": "Plan → Guide review → Surgical simulation",
+    "ja": "計画 → ガイド形状の確認 → 手術シミュレーション"
   }
 }

@@ -3709,8 +3709,8 @@ html:not([lang='ko']) .top-menu button {
 .virtual-dentition-legend { position:absolute; left:12px; bottom:12px; z-index:2; border:1px solid #8bceda50; background:#193642df; color:#def9ff; padding:4px 8px; border-radius:5px; font-size:10px; pointer-events:none; }
 
 /* Procedure time and calendar time share the surgical playhead. */
-.sequence-time-visual { position:absolute; right:75px; bottom:52px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:12px; width:108px; padding:10px; border:1px solid #3c514f80; border-radius:10px; background:#1b292fd9; backdrop-filter:blur(8px); pointer-events:none; }
-.viewer-stage:has(.sequence-time-visual) .view-direction { right:199px; }
+.sequence-time-visual { position:absolute; left:14px; bottom:52px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:12px; width:108px; padding:10px; border:1px solid #3c514f80; border-radius:10px; background:#1b292fd9; backdrop-filter:blur(8px); pointer-events:none; }
+.viewer-stage:has(.sequence-time-visual) .simulation-overlay { left:138px; max-width:min(260px,calc(100% - 208px)); }
 .sequence-clock { text-align:center; }
 .sequence-clock svg { display:block; width:86px; filter:drop-shadow(0 6px 8px #0003); }
 .clock-rim { fill:#263c3e; stroke:#70998d; stroke-width:.8; }
