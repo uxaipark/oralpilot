@@ -1523,7 +1523,21 @@ export default function Studio() {
           </span>
           <div>
             oralpilot<span>PLANNING STUDIO</span>
+            <button
+              className="creator-trigger"
+              onClick={() => setCreatorOpen(true)}
+            >
+              About the Creator
+            </button>
           </div>
+          <button
+            className="creator-compact-trigger"
+            aria-label="About the Creator"
+            title="About the Creator"
+            onClick={() => setCreatorOpen(true)}
+          >
+            <CircleHelp size={16} />
+          </button>
         </SidebarHeader>
         <SidebarContent>
           <div className="workspace-card-shell">
@@ -3525,12 +3539,6 @@ export default function Studio() {
           </span>
 
           <div className="footer-links">
-            <button
-              className="creator-trigger"
-              onClick={() => setCreatorOpen(true)}
-            >
-              About the creator
-            </button>
             <button onClick={() => setSources(true)}>
               데이터 및 라이선스 ↗
             </button>

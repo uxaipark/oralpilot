@@ -3163,5 +3163,20 @@
     "ko": "슬리브를 따라 가는 드릴로 골의 초기 천공을 형성합니다. 드릴이 지나간 입구와 깊이는 후퇴 후에도 남습니다. 이후 확장 드릴의 순서·규격·관주·깊이 스톱은 선택한 시스템의 지침에 따릅니다.",
     "en": "A narrow drill follows the sleeve to form the pilot osteotomy in bone. The opening and reached depth remain visible after withdrawal. Subsequent enlargement, drill sizes, irrigation and depth stops follow the selected system’s instructions.",
     "ja": "細いドリルをスリーブに沿わせ、骨に初期の孔を形成します。ドリルを抜いた後も入口と到達した深さが表示されます。その後の拡大、ドリル径、注水、深度ストップは選択したシステムの手順に従います。"
+  },
+  "제안 상세 닫기": {
+    "ko": "제안 상세 닫기",
+    "en": "Close proposal details",
+    "ja": "提案の詳細を閉じる"
+  },
+  "회차 구성": {
+    "ko": "회차 구성",
+    "en": "Visit structure",
+    "ja": "治療回の構成"
+  },
+  "시뮬레이션 화면으로": {
+    "ko": "시뮬레이션 화면으로",
+    "en": "Return to simulation",
+    "ja": "シミュレーション画面へ"
   }
 }

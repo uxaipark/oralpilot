@@ -8,12 +8,13 @@ import {
   numberingName,
 } from '@/lib/tooth-numbering';
 import type { Numbering } from '@/lib/voice-perio/domain/types';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { Popover } from '@base-ui/react/popover';
 import {
   sequenceDecisionKey,
   type SequenceDecision,
 } from '@/lib/sequence-decision';
-import { Play, Pause, RotateCcw, Loader2, Download } from 'lucide-react';
+import { Play, Pause, RotateCcw, Loader2, Download, X } from 'lucide-react';
 import { allTeeth, download, type Implant } from '@/lib/planning';
 import {
   phaseAt,
@@ -231,11 +232,7 @@ export function SimulationInspector({
   const displayTooth = (fdi: number) => displayToothNumber(fdi, numbering);
   const displayText = (text: string) => displayToothText(text, numbering);
   const [tooth, setTooth] = useState(46);
-  const active = plans.find((p) => p.id === selectedPlan);
-  const activeKey = useMemo(
-    () => (active ? sequenceDecisionKey(active, inputSignature) : ''),
-    [active, inputSignature],
-  );
+  const [detailsKey, setDetailsKey] = useState<string | null>(null);
   return localize(
     <>
       <div className="inspector-section">
@@ -407,110 +404,106 @@ export function SimulationInspector({
             </button>
           </div>
         )}
-        {plans.map((p, i) => (
-          <button
-            className={`sequence-plan-card ${p.id === selectedPlan && !stale ? 'selected' : ''}`}
-            key={p.id}
-            aria-pressed={p.id === selectedPlan && !stale}
-            disabled={stale}
-            onClick={() => onSelect(p.id)}
-          >
-            <span>
-              제안 {i + 1} ·{' '}
-              {chosenPlan?.id === p.id ? '공동 선택됨' : '미리보기'}
-            </span>
-            <strong>{p.name}</strong>
-            <small>{p.summary}</small>
-            <span className="sequence-metrics">
-              <span>식립 {p.metrics.placementVisits}회차</span>
-              <span>회차 최대 {p.metrics.maxImplantsPerVisit}개</span>
-              <span>가이드 장착 {p.metrics.guideSetups}회</span>
-            </span>
-            <em>장단점 보기 · 재생 준비 →</em>
-          </button>
-        ))}
+        {plans.map((p, i) => {
+          const reviewKey = sequenceDecisionKey(p, inputSignature);
+          return (
+            <Popover.Root
+              key={reviewKey}
+              modal
+              open={detailsKey === reviewKey && !stale && !analyzing}
+              onOpenChange={(open) => {
+                setDetailsKey(open ? reviewKey : null);
+                if (open) onSelect(p.id);
+              }}
+            >
+              <Popover.Trigger
+                className={`sequence-plan-card ${p.id === selectedPlan && !stale ? 'selected' : ''}`}
+                aria-pressed={p.id === selectedPlan && !stale}
+                disabled={stale}
+              >
+                <span>
+                  제안 {i + 1} ·{' '}
+                  {chosenPlan?.id === p.id ? '공동 선택됨' : '미리보기'}
+                </span>
+                <strong>{p.name}</strong>
+                <small>{p.summary}</small>
+                <span className="sequence-metrics">
+                  <span>식립 {p.metrics.placementVisits}회차</span>
+                  <span>회차 최대 {p.metrics.maxImplantsPerVisit}개</span>
+                  <span>가이드 장착 {p.metrics.guideSetups}회</span>
+                </span>
+                <em>장단점 보기 · 재생 준비 →</em>
+              </Popover.Trigger>
+
+              <Popover.Portal>
+                <Popover.Backdrop className="proposal-backdrop" />
+                <Popover.Positioner
+                  className="proposal-positioner"
+                  side="left"
+                  align="start"
+                  sideOffset={16}
+                  collisionPadding={16}
+                  collisionAvoidance={{ side: 'shift', align: 'shift' }}
+                >
+                  <Popover.Popup className="proposal-bubble">
+                    <Popover.Arrow className="proposal-arrow">
+                      <svg
+                        width="20"
+                        height="10"
+                        viewBox="0 0 20 10"
+                        aria-hidden="true"
+                      >
+                        <path d="M0 0 L10 9 L20 0" />
+                      </svg>
+                    </Popover.Arrow>
+                    <header className="proposal-header">
+                      <span>제안 {i + 1}</span>
+                      <Popover.Title>{p.name}</Popover.Title>
+                      <Popover.Description>{p.summary}</Popover.Description>
+                      <Popover.Close
+                        className="proposal-close"
+                        aria-label="제안 상세 닫기"
+                      >
+                        <X size={19} />
+                      </Popover.Close>
+                      <div className="proposal-metrics">
+                        <span>
+                          식립 <strong>{p.metrics.placementVisits}회차</strong>
+                        </span>
+                        <span>
+                          회차 최대{' '}
+                          <strong>{p.metrics.maxImplantsPerVisit}개</strong>
+                        </span>
+                        <span>
+                          가이드 장착 <strong>{p.metrics.guideSetups}회</strong>
+                        </span>
+                      </div>
+                    </header>
+                    <div className="proposal-scroll">
+                      <SequencePlanReview
+                        active={p}
+                        numbering={numbering}
+                        implants={implants}
+                        activeKey={reviewKey}
+                        chosenPlan={chosenPlan}
+                        decision={decision}
+                        onConfirm={onConfirm}
+                      />
+                    </div>
+                    <footer className="proposal-footer">
+                      <Popover.Close className="primary-button">
+                        <Play size={15} />
+                        시뮬레이션 화면으로
+                      </Popover.Close>
+                    </footer>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          );
+        })}
         {!plans.length && (
           <p className="helper">생성한 계획안이 여기에 표시됩니다.</p>
-        )}
-        {active && !stale && (
-          <div className="sequence-review">
-            <strong>{active.name} · 회차 구성</strong>
-            <ol className="sequence-visit-list">
-              {active.groups.map((group, index) => {
-                const targets = group
-                  .map((id) => implants.find((p) => p.id === id)!)
-                  .filter(Boolean);
-                return (
-                  <li key={index}>
-                    <strong>식립 {index + 1}회차</strong>
-                    {[true, false].map((upper) => {
-                      const jawTargets = targets.filter(
-                        (p) => p.tooth < 30 === upper,
-                      );
-                      return jawTargets.length ? (
-                        <p key={String(upper)}>
-                          {upper ? '상악' : '하악'} 가이드 ·{' '}
-                          {jawTargets
-                            .map((p) => `#${displayTooth(p.tooth)}`)
-                            .join(', ')}
-                        </p>
-                      ) : null;
-                    })}
-                    {index < active.groups.length - 1 && (
-                      <small>회복·재평가 후 다음 회차 · 간격 미정</small>
-                    )}
-                  </li>
-                );
-              })}
-            </ol>
-            <p className="helper">
-              계획된 부위의 식립 회차입니다. 선행 처치·보철 내원은 별도이며,
-              가이드 장착 횟수는 제작물 수나 비용이 아닙니다.
-            </p>
-            {active.equivalentThemes.length > 0 && (
-              <p className="helper">
-                현재 대상에서는 {active.equivalentThemes.join(', ')}과 실행
-                순서가 같습니다. 검토 우선순위가 다릅니다.
-              </p>
-            )}
-            <div className="sequence-tradeoffs">
-              <strong>장점</strong>
-              <ul>
-                {active.pros.map((p) => (
-                  <li key={p}>{p}</li>
-                ))}
-              </ul>
-              <strong>단점·부담</strong>
-              <ul>
-                {active.cons.map((p) => (
-                  <li key={p}>{p}</li>
-                ))}
-              </ul>
-            </div>
-            <strong>실행 전 확인 조건</strong>
-            <ul>
-              {active.conditions.map((c) => (
-                <li key={c}>{c}</li>
-              ))}
-            </ul>
-            {active.warnings.length > 0 && (
-              <details open>
-                <summary>미확정·검토 항목 {active.warnings.length}개</summary>
-                <ul>
-                  {active.warnings.map((w) => (
-                    <li key={w}>{displayText(w)}</li>
-                  ))}
-                </ul>
-              </details>
-            )}
-            <SequenceDecisionPanel
-              key={`${activeKey}:${chosenPlan?.id === active.id ? decision?.confirmedAt : 'draft'}`}
-              plan={active}
-              confirmed={chosenPlan?.id === active.id}
-              replacing={!!chosenPlan && chosenPlan.id !== active.id}
-              onConfirm={onConfirm}
-            />
-          </div>
         )}
         {plans.length > 0 && !stale && (
           <button
@@ -556,6 +549,112 @@ export function SimulationInspector({
         ))}
       </div>
     </>,
+  );
+}
+
+function SequencePlanReview({
+  active,
+  numbering,
+  implants,
+  activeKey,
+  chosenPlan,
+  decision,
+  onConfirm,
+}: {
+  active: SequencePlan;
+  numbering: Numbering;
+  implants: Implant[];
+  activeKey: string;
+  chosenPlan: SequencePlan | null;
+  decision: SequenceDecision | null;
+  onConfirm: (patientAgreed: boolean, clinicianAgreed: boolean) => void;
+}) {
+  const localize = useLocalize();
+  const displayTooth = (fdi: number) => displayToothNumber(fdi, numbering);
+  const displayText = (text: string) => displayToothText(text, numbering);
+  return localize(
+    <div className="sequence-review">
+      <div className="proposal-tradeoffs">
+        <section>
+          <h3>장점</h3>
+          <ul>
+            {active.pros.map((p) => (
+              <li key={p}>{p}</li>
+            ))}
+          </ul>
+        </section>
+        <section>
+          <h3>단점·부담</h3>
+          <ul>
+            {active.cons.map((p) => (
+              <li key={p}>{p}</li>
+            ))}
+          </ul>
+        </section>
+      </div>
+      <h3>회차 구성</h3>
+      <ol className="sequence-visit-list">
+        {active.groups.map((group, index) => {
+          const targets = group
+            .map((id) => implants.find((p) => p.id === id)!)
+            .filter(Boolean);
+          return (
+            <li key={index}>
+              <strong>식립 {index + 1}회차</strong>
+              {[true, false].map((upper) => {
+                const jawTargets = targets.filter(
+                  (p) => p.tooth < 30 === upper,
+                );
+                return jawTargets.length ? (
+                  <p key={String(upper)}>
+                    {upper ? '상악' : '하악'} 가이드 ·{' '}
+                    {jawTargets
+                      .map((p) => `#${displayTooth(p.tooth)}`)
+                      .join(', ')}
+                  </p>
+                ) : null;
+              })}
+              {index < active.groups.length - 1 && (
+                <small>회복·재평가 후 다음 회차 · 간격 미정</small>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+      <p className="helper">
+        계획된 부위의 식립 회차입니다. 선행 처치·보철 내원은 별도이며, 가이드
+        장착 횟수는 제작물 수나 비용이 아닙니다.
+      </p>
+      {active.equivalentThemes.length > 0 && (
+        <p className="helper">
+          현재 대상에서는 {active.equivalentThemes.join(', ')}과 실행 순서가
+          같습니다. 검토 우선순위가 다릅니다.
+        </p>
+      )}
+      <strong>실행 전 확인 조건</strong>
+      <ul>
+        {active.conditions.map((c) => (
+          <li key={c}>{c}</li>
+        ))}
+      </ul>
+      {active.warnings.length > 0 && (
+        <details open>
+          <summary>미확정·검토 항목 {active.warnings.length}개</summary>
+          <ul>
+            {active.warnings.map((w) => (
+              <li key={w}>{displayText(w)}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+      <SequenceDecisionPanel
+        key={`${activeKey}:${chosenPlan?.id === active.id ? decision?.confirmedAt : 'draft'}`}
+        plan={active}
+        confirmed={chosenPlan?.id === active.id}
+        replacing={!!chosenPlan && chosenPlan.id !== active.id}
+        onConfirm={onConfirm}
+      />
+    </div>,
   );
 }
 
