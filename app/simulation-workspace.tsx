@@ -21,7 +21,16 @@ import {
   sequenceDecisionKey,
   type SequenceDecision,
 } from '@/lib/sequence-decision';
-import { Play, Pause, RotateCcw, Loader2, Download, X } from 'lucide-react';
+import {
+  Play,
+  Pause,
+  RotateCcw,
+  Loader2,
+  Download,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import { allTeeth, download, type Implant } from '@/lib/planning';
 import {
   phaseAt,
@@ -460,6 +469,13 @@ export function SimulationInspector({
         )}
         {plans.map((p, i) => {
           const reviewKey = sequenceDecisionKey(p, inputSignature);
+          // Keep the original card as the anchor while browsing within one open popup.
+          const detail =
+            detailsKey === reviewKey
+              ? plans.find((plan) => plan.id === selectedPlan) || p
+              : p;
+          const detailIndex = plans.indexOf(detail);
+          const detailKey = sequenceDecisionKey(detail, inputSignature);
           return (
             <Popover.Root
               key={reviewKey}
@@ -494,6 +510,8 @@ export function SimulationInspector({
                 <Popover.Backdrop className="proposal-backdrop" />
                 <Popover.Positioner
                   className="proposal-positioner"
+                  positionMethod="fixed"
+                  sticky
                   side="left"
                   align="start"
                   sideOffset={16}
@@ -512,9 +530,11 @@ export function SimulationInspector({
                       </svg>
                     </Popover.Arrow>
                     <header className="proposal-header">
-                      <span>제안 {i + 1}</span>
-                      <Popover.Title>{p.name}</Popover.Title>
-                      <Popover.Description>{p.summary}</Popover.Description>
+                      <span aria-live="polite">{`제안 ${detailIndex + 1}`}</span>
+                      <Popover.Title>{detail.name}</Popover.Title>
+                      <Popover.Description>
+                        {detail.summary}
+                      </Popover.Description>
                       <Popover.Close
                         className="proposal-close"
                         aria-label="제안 상세 닫기"
@@ -523,30 +543,69 @@ export function SimulationInspector({
                       </Popover.Close>
                       <div className="proposal-metrics">
                         <span>
-                          식립 <strong>{p.metrics.placementVisits}회차</strong>
+                          식립{' '}
+                          <strong>{detail.metrics.placementVisits}회차</strong>
                         </span>
                         <span>
                           회차 최대{' '}
-                          <strong>{p.metrics.maxImplantsPerVisit}개</strong>
+                          <strong>
+                            {detail.metrics.maxImplantsPerVisit}개
+                          </strong>
                         </span>
                         <span>
-                          가이드 장착 <strong>{p.metrics.guideSetups}회</strong>
+                          가이드 장착{' '}
+                          <strong>{detail.metrics.guideSetups}회</strong>
                         </span>
                       </div>
                     </header>
-                    <div className="proposal-scroll">
-                      <ProposalEstimateBreakdown plan={p} fees={fees} />
+                    <div className="proposal-scroll" key={detailKey}>
+                      <ProposalEstimateBreakdown plan={detail} fees={fees} />
                       <SequencePlanReview
-                        active={p}
+                        active={detail}
                         numbering={numbering}
                         implants={implants}
-                        activeKey={reviewKey}
+                        activeKey={detailKey}
                         chosenPlan={chosenPlan}
                         decision={decision}
                         onConfirm={onConfirm}
                       />
                     </div>
                     <footer className="proposal-footer">
+                      <nav
+                        className="proposal-navigation"
+                        aria-label="제안 탐색"
+                      >
+                        <button
+                          type="button"
+                          aria-label="이전 제안"
+                          title="이전 제안"
+                          disabled={detailIndex === 0}
+                          onClick={() => onSelect(plans[detailIndex - 1].id)}
+                        >
+                          <ChevronLeft size={17} />
+                        </button>
+                        {plans.map((plan, index) => (
+                          <button
+                            type="button"
+                            key={plan.id}
+                            aria-label={`제안 ${index + 1} · ${plan.name}`}
+                            title={plan.name}
+                            aria-pressed={plan.id === detail.id}
+                            onClick={() => onSelect(plan.id)}
+                          >
+                            {index + 1}
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          aria-label="다음 제안"
+                          title="다음 제안"
+                          disabled={detailIndex === plans.length - 1}
+                          onClick={() => onSelect(plans[detailIndex + 1].id)}
+                        >
+                          <ChevronRight size={17} />
+                        </button>
+                      </nav>
                       <Popover.Close className="primary-button">
                         <Play size={15} />
                         시뮬레이션 화면으로

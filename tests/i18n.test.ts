@@ -234,3 +234,16 @@ void test('top menu labels and submenu actions translate in all supported langua
   assert.equal(translate(' 데모 ', 'en'), ' Demo ');
   assert.equal(translate(' 계획서 ', 'ja'), ' 計画書 ');
 });
+
+void test('proposal navigation labels translate without losing proposal numbers', () => {
+  for (const locale of ['en', 'ja'] as const)
+    for (const text of [
+      '이전 제안',
+      '다음 제안',
+      '제안 탐색',
+      '제안 6 · 저작·회복 배려형',
+    ])
+      assert.ok(!/[가-힣]/.test(translate(text, locale)), `${locale}: ${text}`);
+  assert.equal(translate('제안 6', 'en'), 'Proposal 6');
+  assert.equal(translate('제안 6', 'ja'), '提案 6');
+});

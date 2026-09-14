@@ -3640,7 +3640,15 @@ html:not([lang='ko']) .top-menu button {
 .proposal-bubble .sequence-visit-list li { margin: 0; padding: 12px 15px; background: #23332c; border: 1px solid #3e5147; border-radius: 7px; }
 .proposal-bubble .sequence-visit-list small { color: #a9bcb1; font-size: 12px; }
 .proposal-bubble .sequence-consent { margin-bottom: 0; font-size: 13px; }
-.proposal-footer { display: flex; justify-content: flex-end; padding: 14px 28px; border-top: 1px solid #3a5047; flex-shrink: 0; }
+.proposal-footer { display: flex; align-items:center; flex-wrap:wrap; gap:12px; justify-content: space-between; padding: 14px 28px; border-top: 1px solid #3a5047; flex-shrink: 0; }
+.proposal-navigation { display:flex; align-items:center; gap:4px; }
+.proposal-navigation button { display:grid; place-items:center; width:32px; height:32px; border:1px solid #40594d; border-radius:5px; background:#23352c; color:#b7ccbf; font-size:12px; font-variant-numeric:tabular-nums; transition:background-color 120ms,color 120ms; }
+.proposal-navigation button:hover:not(:disabled) { background:#3b5948; color:#eff8f1; }
+.proposal-navigation button[aria-pressed='true'] { background:#9bd8b8; color:#153125; border-color:#b4e6cc; font-weight:650; }
+.proposal-navigation button:focus-visible { outline:2px solid #b4e6cc; outline-offset:2px; }
+.proposal-navigation button:disabled { opacity:.3; cursor:default; }
+.proposal-footer > .primary-button { margin-left:auto; }
+@media (max-width: 390px) { .proposal-navigation { gap:3px; }.proposal-navigation button { width:28px; } }
 @media (max-width: 650px) {
   .proposal-header { padding: 20px 20px 16px; }
   .proposal-header h2 { font-size: 21px; }
