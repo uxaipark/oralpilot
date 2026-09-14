@@ -1111,6 +1111,28 @@ export default function Studio() {
   const openDefaultDemo = (start: 'anatomy' | 'perio' | 'planning') => {
     rememberPlan();
     installAnatomy(null);
+    setLayers({
+      bone: true,
+      tooth: true,
+      canal: true,
+      corridor: true,
+      upper: true,
+      lower: true,
+      pulp: false,
+      sinus: false,
+      gingiva: false,
+      lips: false,
+      face: false,
+      restoration: true,
+      pdl: false,
+    });
+    setOpacity(32);
+    setCrownOpacity(100);
+    setRootOpacity(100);
+    setSmoothTeeth(true);
+    setNeuroXray(true);
+    setLeftOpen(true);
+    setRightOpen(true);
     applyPlan(
       validatePlan({
         ...planDocument,
