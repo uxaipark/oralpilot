@@ -1,4 +1,5 @@
 'use client';
+import { INTERVIEW_BRANDING } from '@/lib/interview-branding';
 import {
   DEFAULT_ESTIMATE_FEES,
   proposalEstimate,
@@ -1574,12 +1575,33 @@ export default function Studio() {
         id="planning-navigation"
         aria-label="왼쪽 계획 메뉴"
       >
-        <SidebarHeader className="brand">
-          <span className="brand-mark">
-            <ScanLine size={25} />
-          </span>
+        <SidebarHeader className={`brand ${INTERVIEW_BRANDING ? 'brand-interview' : ''}`}>
+          {INTERVIEW_BRANDING ? (
+            <img
+              className="interview-compact-logo"
+              src="/brand/osstem-implant.png"
+              alt="OSSTEM IMPLANT"
+              width={321}
+              height={120}
+              translate="no"
+            />
+          ) : (
+            <span className="brand-mark">
+              <ScanLine size={25} />
+            </span>
+          )}
           <div>
-            oralpilot<span>PLANNING STUDIO</span>
+            {INTERVIEW_BRANDING ? (
+              <img
+                className="interview-logo"
+                src="/brand/osstem-implant.png"
+                alt="OSSTEM IMPLANT"
+                width={321}
+                height={120}
+                translate="no"
+              />
+            ) : 'oralpilot'}
+            <span>PLANNING STUDIO</span>
             <button
               className="creator-trigger"
               onClick={() => setCreatorOpen(true)}
