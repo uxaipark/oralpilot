@@ -3600,14 +3600,17 @@ html:not([lang='ko']) .top-menu button {
 .creator-compact-trigger { display: none; color: #a8cabc; }
 .nav-shell .brand.brand-interview { padding-top: 6px !important; padding-bottom: 6px !important; }
 .brand-interview .interview-logo { display: block; width: 128px; height: auto; object-fit: contain; }
+.brand-interview .interview-product-name { display: block; font-size: 25px; font-weight: 650; line-height: 28px; letter-spacing: -1.4px; }
 .brand-interview > div > span { line-height: 11px; margin-top: 1px; }
 .brand-interview .creator-trigger { margin-top: 2px; }
-.interview-compact-logo { display: none; }
+.interview-compact-logo, .interview-compact-product { display: none; }
 @media (min-width: 1001px) { .nav-shell .brand { height: 94px; } }
+@media (min-width: 1001px) { .nav-shell .brand.brand-interview { height: 124px; } }
 @media (max-width: 1000px) {
   .nav-shell .brand { flex-direction: column; justify-content: center; gap: 2px; padding-top: 4px !important; padding-bottom: 4px !important; }
   .creator-compact-trigger { display: grid; place-items: center; width: 22px; height: 22px; }
   .interview-compact-logo { display: block; width: 48px; height: auto; flex-shrink: 0; object-fit: contain; }
+  .interview-compact-product { display: block; font-size: 10px; font-weight: 650; line-height: 11px; letter-spacing: -.4px; }
 }
 
 .proposal-backdrop { position: fixed; inset: 0; z-index: 49; background: #07101955; }

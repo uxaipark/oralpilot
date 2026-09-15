@@ -1577,14 +1577,17 @@ export default function Studio() {
       >
         <SidebarHeader className={`brand ${INTERVIEW_BRANDING ? 'brand-interview' : ''}`}>
           {INTERVIEW_BRANDING ? (
-            <img
-              className="interview-compact-logo"
-              src="/brand/osstem-implant.png"
-              alt="OSSTEM IMPLANT"
-              width={321}
-              height={120}
-              translate="no"
-            />
+            <>
+              <img
+                className="interview-compact-logo"
+                src="/brand/osstem-implant.png"
+                alt="OSSTEM IMPLANT"
+                width={321}
+                height={120}
+                translate="no"
+              />
+              <strong className="interview-compact-product" translate="no">oralpilot</strong>
+            </>
           ) : (
             <span className="brand-mark">
               <ScanLine size={25} />
@@ -1601,6 +1604,9 @@ export default function Studio() {
                 translate="no"
               />
             ) : 'oralpilot'}
+            {INTERVIEW_BRANDING && (
+              <strong className="interview-product-name" translate="no">oralpilot</strong>
+            )}
             <span>PLANNING STUDIO</span>
             <button
               className="creator-trigger"

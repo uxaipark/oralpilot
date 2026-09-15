@@ -1,6 +1,6 @@
 # Temporary interview logo
 
-The navigation header temporarily uses the OSSTEM IMPLANT logo for the owner's interview presentation. The remaining OralPilot product and creator information is unchanged.
+The navigation header temporarily shows the OSSTEM IMPLANT logo above the original OralPilot name for the owner's interview presentation. The product name, studio subtitle and creator menu remain visible. Compact navigation also retains the OralPilot name below the logo.
 
 To restore the previous header, set `INTERVIEW_BRANDING` to `false` in `lib/interview-branding.ts` and rebuild/deploy. No interview date or automatic expiry has been assumed.
 
