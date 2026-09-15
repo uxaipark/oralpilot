@@ -3598,19 +3598,21 @@ html:not([lang='ko']) .top-menu button {
 .brand .creator-trigger:hover { text-decoration: underline; text-underline-offset: 3px; }
 .brand .creator-trigger:focus-visible, .creator-compact-trigger:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; border-radius: 2px; }
 .creator-compact-trigger { display: none; color: #a8cabc; }
-.nav-shell .brand.brand-interview { padding-top: 6px !important; padding-bottom: 6px !important; }
-.brand-interview .interview-logo { display: block; width: 128px; height: auto; object-fit: contain; }
+.nav-shell .brand.brand-interview { justify-content:center; padding-top:12px !important; padding-bottom:12px !important; }
+.brand-interview > div { display:flex; flex-direction:column; align-items:center; width:100%; min-width:0; text-align:center; }
+.brand-interview .interview-logo { display: block; width: 128px; height: auto; margin-bottom:8px; object-fit: contain; }
 .brand-interview .interview-product-name { display: block; font-size: 25px; font-weight: 650; line-height: 28px; letter-spacing: -1.4px; }
-.brand-interview > div > span { line-height: 11px; margin-top: 1px; }
-.brand-interview .creator-trigger { margin-top: 2px; }
+.brand-interview > div > span { line-height:11px; margin-top:4px; }
+.brand-interview .creator-trigger { margin-top:8px; text-align:center; }
 .interview-compact-logo, .interview-compact-product { display: none; }
 @media (min-width: 1001px) { .nav-shell .brand { height: 94px; } }
-@media (min-width: 1001px) { .nav-shell .brand.brand-interview { height: 124px; } }
+@media (min-width: 1001px) { .nav-shell .brand.brand-interview { height:152px; } }
 @media (max-width: 1000px) {
   .nav-shell .brand { flex-direction: column; justify-content: center; gap: 2px; padding-top: 4px !important; padding-bottom: 4px !important; }
   .creator-compact-trigger { display: grid; place-items: center; width: 22px; height: 22px; }
   .interview-compact-logo { display: block; width: 48px; height: auto; flex-shrink: 0; object-fit: contain; }
   .interview-compact-product { display: block; font-size: 10px; font-weight: 650; line-height: 11px; letter-spacing: -.4px; }
+  .nav-shell .brand.brand-interview { height:76px; gap:4px; padding-top:6px !important; padding-bottom:6px !important; }
 }
 
 .proposal-backdrop { position: fixed; inset: 0; z-index: 49; background: #07101955; }

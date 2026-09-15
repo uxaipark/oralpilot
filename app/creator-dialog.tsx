@@ -26,10 +26,10 @@ export function CreatorDialog({
         <DialogTitle className="creator-eyebrow">About the creator</DialogTitle>
         <div className="creator-identity">
           <span className="creator-monogram" aria-hidden="true">
-            BP
+            EP
           </span>
           <div>
-            <h2 translate="no">Brian Park</h2>
+            <h2 translate="no">Elliot Park</h2>
             <p>
               <span translate="no">Sung Jin Park</span> · OralPilot 제작자
             </p>
