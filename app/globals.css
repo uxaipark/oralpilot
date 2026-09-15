@@ -3729,7 +3729,13 @@ html:not([lang='ko']) .top-menu button {
 
 /* Procedure time and calendar time share the surgical playhead. */
 .sequence-time-visual { position:absolute; left:14px; top:50%; transform:translateY(-50%); z-index:2; display:flex; flex-direction:column; align-items:center; gap:12px; width:108px; padding:10px; border:1px solid #3c514f80; border-radius:10px; background:#1b292fd9; backdrop-filter:blur(8px); pointer-events:none; }
-.viewer-stage:has(.sequence-time-visual) .simulation-overlay { left:138px; max-width:min(260px,calc(100% - 208px)); }
+.simulation-hud { position:absolute; left:14px; top:50px; bottom:12px; width:min(240px,calc(100% - 84px)); z-index:2; display:flex; flex-direction:column; align-items:flex-start; gap:10px; pointer-events:none; container-type:size; container-name:simulation-hud; }
+.simulation-hud .simulation-overlay { position:static; max-width:100%; flex-shrink:0; }
+.simulation-hud .sequence-time-visual { position:static; transform:none; margin-block:auto; flex-shrink:0; }
+@container simulation-hud (max-height:400px) { .sequence-time-visual { zoom:.85; } }
+@container simulation-hud (max-height:340px) { .sequence-time-visual { zoom:.7; } }
+@container simulation-hud (max-height:300px) { .sequence-time-visual { zoom:.6; } }
+@container simulation-hud (max-height:260px) { .sequence-time-visual { zoom:.5; } }
 .sequence-clock { text-align:center; }
 .sequence-clock svg { display:block; width:86px; filter:drop-shadow(0 6px 8px #0003); }
 .clock-rim { fill:#263c3e; stroke:#70998d; stroke-width:.8; }

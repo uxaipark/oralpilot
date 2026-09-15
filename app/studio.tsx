@@ -2256,20 +2256,24 @@ export default function Studio() {
                           </span>
                         </div>
                       )}
-                    {step === 'simulation' && sequenceFrame && (
-                      <div className="simulation-overlay">
-                        <span>{sequenceFrame.phase.visit}</span>
-                        <strong>
-                          {displayText(sequenceFrame.phase.label)}
-                        </strong>
+                    {step === 'simulation' && (sequenceFrame || activeSequence) && (
+                      <div className="simulation-hud">
+                        {sequenceFrame && (
+                          <div className="simulation-overlay">
+                            <span>{sequenceFrame.phase.visit}</span>
+                            <strong>
+                              {displayText(sequenceFrame.phase.label)}
+                            </strong>
+                          </div>
+                        )}
+                        {activeSequence && !external && (
+                          <SequenceTimeDisplay
+                            plan={activeSequence}
+                            progress={progress}
+                            playing={autoDemo.run ? autoDemo.running : playing}
+                          />
+                        )}
                       </div>
-                    )}
-                    {step === 'simulation' && activeSequence && !external && (
-                      <SequenceTimeDisplay
-                        plan={activeSequence}
-                        progress={progress}
-                        playing={autoDemo.run ? autoDemo.running : playing}
-                      />
                     )}
                     <div
                       className="view-direction"
